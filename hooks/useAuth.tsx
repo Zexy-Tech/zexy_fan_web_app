@@ -150,6 +150,19 @@ export function useVerifyOTP() {
   });
 }
 
+/** Verify OTP only — does not replace session or call login (e.g. sensitive actions). */
+export function useVerifyOTPOnly() {
+  return useMutation({
+    mutationFn: (data: VerifyOTPRequest) => authService.verifyOTP(data),
+  });
+}
+
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: (payload?: { otp?: string }) => authService.deleteAccount(payload),
+  });
+}
+
 export function useLogout() {
   const { logout } = useAuthContext();
 

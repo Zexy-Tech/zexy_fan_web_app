@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, MessageCircle, CreditCard, User } from 'lucide-react';
+import { Users, MessageCircle, CreditCard, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/feed', label: 'Feed', icon: Home },
-  { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { href: '/creators', label: 'Creators', icon: Users },
+  { href: '/subscriptions', label: 'My Creators', icon: CreditCard },
   { href: '/chats', label: 'Chats', icon: MessageCircle },
   { href: '/profile', label: 'Profile', icon: User },
 ];
@@ -20,7 +20,14 @@ export function BottomNav() {
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive =
+            item.href === '/creators'
+              ? pathname === '/creators' || pathname.startsWith('/creators/')
+              : item.href === '/subscriptions'
+                ? pathname === '/subscriptions'
+                : item.href === '/profile'
+                  ? pathname === '/profile' || pathname.startsWith('/profile/') || pathname === '/settings'
+                  : pathname === item.href;
 
           return (
             <Link

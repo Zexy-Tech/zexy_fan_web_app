@@ -6,6 +6,7 @@
 
 'use client';
 
+import { useMemo } from 'react';
 import { useCreatorByUsername, useCreatorContentByUsername } from '@/hooks/useFeed';
 import { useCreatorProfileConfig } from '@/hooks/useCreatorProfile';
 import { useCreatorPlans } from '@/hooks/useSubscriptions';
@@ -20,6 +21,8 @@ import { BottomNavigation } from '@/components/bottom-navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { getDefaultTheme } from '@/lib/validation/profile-config';
+import { getDemoCreatorMembershipPlans } from '@/services/subscriptions';
+import { getMediaUrl } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
 interface MobileCreatorProfileProps {
@@ -38,6 +41,12 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
   const { data: content, isLoading: contentLoading } = useCreatorContentByUsername(username);
   const { data: plans } = useCreatorPlans(creator?.id || 0);
   const { data: qaItems } = useQAItems(creator?.id || 0);
+
+  const membershipPlans = useMemo(() => {
+    if (!creator) return [];
+    if (plans?.length) return plans;
+    return getDemoCreatorMembershipPlans(creator.id);
+  }, [creator, plans]);
   
   // Loading state
   if (creatorLoading || configLoading) {
@@ -142,15 +151,17 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                 ) : null;
               
               case 'membership':
-                return plans ? (
+                return (
                   <div key={section.id} id="membership-section">
                     <MembershipCardSection
-                      plans={plans}
+                      plans={membershipPlans}
                       isSubscribed={creator.is_subscribed}
                       creatorName={creator.name || creator.username}
+                      creatorUsername={creator.username}
+                      creatorAvatarUrl={getMediaUrl(creator.avatar)}
                     />
                   </div>
-                ) : null;
+                );
               
               default:
                 return null;

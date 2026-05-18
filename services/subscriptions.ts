@@ -22,11 +22,22 @@ export interface ActiveSubscription {
   creator_uid: number;
   creator_username: string;
   creator_name: string;
+  /** Creator profile image path or URL when provided by API */
+  creator_avatar?: string | null;
+  /** Monthly price in INR for display when API does not send plan price */
+  monthly_amount?: number | null;
   subscription_id: number;
   plan_name: string;
   status: 'active' | 'expired' | 'cancelled';
   started_at: string;
   expires_at: string;
+  /** Payment / ledger reference when provided by API */
+  transaction_code?: string | null;
+  /** Posted content counts for list UI (optional from API). */
+  image_count?: number;
+  video_count?: number;
+  audio_count?: number;
+  product_count?: number;
 }
 
 // ============================================================================
@@ -54,20 +65,136 @@ const MOCK_PLANS: SubscriptionPlan[] = [
   },
 ];
 
+/** Sample membership plans when the API returns none (creator profile upsell / preview). */
+export function getDemoCreatorMembershipPlans(creatorUid: number): SubscriptionPlan[] {
+  return MOCK_PLANS.map((p, i) => ({
+    ...p,
+    id: creatorUid * 100 + i + 1,
+    creator_uid: creatorUid,
+  }));
+}
+
 const MOCK_ACTIVE_SUBSCRIPTIONS: ActiveSubscription[] = [
   {
     id: 1,
     fan_uid: 1,
     creator_uid: 2,
-    creator_username: 'creator_two',
-    creator_name: 'Mike Chen',
+    creator_username: 'vikasfitzone',
+    creator_name: 'Vikas Mehra',
+    creator_avatar: '/sample-media/tom.png',
+    monthly_amount: 299,
     subscription_id: 3,
     plan_name: 'Monthly Access',
     status: 'active',
     started_at: new Date(Date.now() - 86400000 * 10).toISOString(),
     expires_at: new Date(Date.now() + 86400000 * 20).toISOString(),
+    transaction_code: 'TXN-ZEXY-2026-10001',
+    image_count: 24,
+    video_count: 8,
+    audio_count: 5,
+    product_count: 3,
+  },
+  {
+    id: 2,
+    fan_uid: 1,
+    creator_uid: 3,
+    creator_username: 'amar',
+    creator_name: 'Amar',
+    creator_avatar: '/sample-media/id-card-1.png',
+    monthly_amount: 499,
+    subscription_id: 4,
+    plan_name: 'Pro Monthly',
+    status: 'active',
+    started_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    expires_at: new Date(Date.now() + 86400000 * 25).toISOString(),
+    transaction_code: 'TXN-ZEXY-2026-10002',
+    image_count: 42,
+    video_count: 12,
+    audio_count: 9,
+    product_count: 6,
+  },
+  {
+    id: 3,
+    fan_uid: 1,
+    creator_uid: 4,
+    creator_username: 'priyasharma',
+    creator_name: 'Priya Sharma',
+    creator_avatar: '/sample-media/id-card-2.png',
+    monthly_amount: 399,
+    subscription_id: 5,
+    plan_name: 'Standard',
+    status: 'active',
+    started_at: new Date(Date.now() - 86400000 * 22).toISOString(),
+    expires_at: new Date(Date.now() + 86400000 * 8).toISOString(),
+    transaction_code: 'TXN-ZEXY-2026-10003',
+    image_count: 18,
+    video_count: 6,
+    audio_count: 4,
+    product_count: 2,
+  },
+  {
+    id: 4,
+    fan_uid: 1,
+    creator_uid: 5,
+    creator_username: 'arjunkumar',
+    creator_name: 'Arjun Kumar',
+    creator_avatar: '/sample-media/id-card-3.png',
+    monthly_amount: 199,
+    subscription_id: 6,
+    plan_name: 'Basic',
+    status: 'active',
+    started_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    expires_at: new Date(Date.now() + 86400000 * 28).toISOString(),
+    transaction_code: 'TXN-ZEXY-2026-10004',
+    image_count: 31,
+    video_count: 15,
+    audio_count: 7,
+    product_count: 4,
+  },
+  {
+    id: 5,
+    fan_uid: 1,
+    creator_uid: 6,
+    creator_username: 'nehapatel',
+    creator_name: 'Neha Patel',
+    creator_avatar: '/sample-products/navy-zip-shirt.png',
+    monthly_amount: 599,
+    subscription_id: 7,
+    plan_name: 'VIP Monthly',
+    status: 'active',
+    started_at: new Date(Date.now() - 86400000 * 15).toISOString(),
+    expires_at: new Date(Date.now() + 86400000 * 15).toISOString(),
+    transaction_code: 'TXN-ZEXY-2026-10005',
+    image_count: 56,
+    video_count: 20,
+    audio_count: 11,
+    product_count: 8,
+  },
+  {
+    id: 6,
+    fan_uid: 1,
+    creator_uid: 7,
+    creator_username: 'stylestudio',
+    creator_name: 'Style Studio',
+    creator_avatar: '/sample-products/check-grey-shirt.png',
+    monthly_amount: 349,
+    subscription_id: 8,
+    plan_name: 'Fan Club',
+    status: 'active',
+    started_at: new Date(Date.now() - 86400000 * 27).toISOString(),
+    expires_at: new Date(Date.now() + 86400000 * 3).toISOString(),
+    transaction_code: 'TXN-ZEXY-2026-10006',
+    image_count: 12,
+    video_count: 4,
+    audio_count: 2,
+    product_count: 6,
   },
 ];
+
+/** Shown on the membership page when the API returns an empty list (UI preview). */
+export const DEMO_MEMBERSHIP_SUBSCRIPTIONS: ActiveSubscription[] = MOCK_ACTIVE_SUBSCRIPTIONS.map(
+  (s, i) => ({ ...s, id: 100 + i })
+);
 
 // ============================================================================
 // API FUNCTIONS
@@ -84,7 +211,11 @@ export const subscriptionService = {
     }
 
     const response = await apiClient.get(`/api/v1/fan/creators/${creatorId}/subscriptions`);
-    return response.data.data;
+    const data = response.data.data as SubscriptionPlan[];
+    if (Array.isArray(data) && data.length > 0) {
+      return data;
+    }
+    return getDemoCreatorMembershipPlans(creatorId);
   },
 
   /**
