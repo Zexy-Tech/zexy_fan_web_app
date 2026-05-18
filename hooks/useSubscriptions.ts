@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { subscriptionService } from '@/services/subscriptions';
 import { queryClient } from '@/lib/queryClient';
+import { useAuthContext } from '@/hooks/useAuth';
 
 export function useCreatorPlans(creatorId: number) {
   return useQuery({
@@ -11,9 +12,12 @@ export function useCreatorPlans(creatorId: number) {
 }
 
 export function useMySubscriptions() {
+  const { isAuthenticated } = useAuthContext();
+
   return useQuery({
     queryKey: ['subscriptions', 'my'],
     queryFn: () => subscriptionService.getMySubscriptions(),
+    enabled: isAuthenticated,
   });
 }
 

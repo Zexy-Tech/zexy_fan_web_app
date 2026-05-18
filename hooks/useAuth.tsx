@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { authService, type User, type SendOTPRequest, type VerifyOTPRequest, SetupPINRequest, LoginPINRequest } from '@/services/auth';
+import { authService, type User, type SendOTPRequest, type VerifyOTPRequest, SetupPINRequest, LoginPINRequest, PINResetInitiateRequest, PINResetConfirmRequest } from '@/services/auth';
 import { queryClient } from '@/lib/queryClient';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setAuth, clearAuth, setLoading } from '@/store/slices/authSlice';
@@ -122,9 +122,11 @@ export function useVerifyOTP() {
   const { login } = useAuthContext();
 
   return useMutation({
-    mutationFn: (data: VerifyOTPRequest) => authService.verifyOTP(data),
-    onSuccess: async (response) => {
+    mutationFn: async (data: VerifyOTPRequest) => {
+      const response = await authService.verifyOTP(data);
+      // We must set the token in localStorage immediately so getMe() can use it via interceptor
       localStorage.setItem('auth_token', response.access_token);
+      
       try {
         const user = await authService.getMe();
         login({
@@ -132,6 +134,7 @@ export function useVerifyOTP() {
           refresh_token: response.refresh_token,
           session_token: response.session_token
         }, user);
+        return { ...response, user };
       } catch (error) {
         localStorage.removeItem('auth_token');
         throw error;
@@ -144,9 +147,10 @@ export function useLoginWithPIN() {
   const { login } = useAuthContext();
 
   return useMutation({
-    mutationFn: (data: LoginPINRequest) => authService.loginWithPIN(data),
-    onSuccess: async (response) => {
+    mutationFn: async (data: LoginPINRequest) => {
+      const response = await authService.loginWithPIN(data);
       localStorage.setItem('auth_token', response.access_token);
+      
       try {
         const user = await authService.getMe();
         login({
@@ -154,6 +158,7 @@ export function useLoginWithPIN() {
           refresh_token: response.refresh_token,
           session_token: response.session_token
         }, user);
+        return { ...response, user };
       } catch (error) {
         localStorage.removeItem('auth_token');
         throw error;
@@ -165,6 +170,31 @@ export function useLoginWithPIN() {
 export function useSetupPIN() {
   return useMutation({
     mutationFn: (data: SetupPINRequest) => authService.setupPIN(data),
+  });
+}
+
+export function useInitiatePINReset() {
+  return useMutation({
+    mutationFn: (data: PINResetInitiateRequest) => authService.initiatePINReset(data),
+  });
+}
+
+export function useConfirmPINReset() {
+  return useMutation({
+    mutationFn: (data: PINResetConfirmRequest) => authService.confirmPINReset(data),
+  });
+}
+
+/** Verify OTP only — does not replace session or call login (e.g. sensitive actions). */
+export function useVerifyOTPOnly() {
+  return useMutation({
+    mutationFn: (data: VerifyOTPRequest) => authService.verifyOTP(data),
+  });
+}
+
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: (payload?: { otp?: string }) => authService.deleteAccount(payload),
   });
 }
 

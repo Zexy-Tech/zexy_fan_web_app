@@ -32,6 +32,16 @@ export interface LoginPINRequest {
   role: 'fan';
 }
 
+export interface PINResetInitiateRequest {
+  mobile: string;
+}
+
+export interface PINResetConfirmRequest {
+  mobile: string;
+  otp: string;
+  new_pin: string;
+}
+
 /** Same contract as zexy_api TokenResponse — do not use onboarding_step || n (0 is valid). Prefer ??. */
 export interface VerifyOTPResponse {
   access_token: string;
@@ -142,6 +152,30 @@ export const authService = {
   },
 
   /**
+   * Initiate PIN reset by sending OTP
+   */
+  initiatePINReset: async (data: PINResetInitiateRequest): Promise<{ status: string; message: string }> => {
+    if (ENV.IS_MOCK) {
+      await sleep(800);
+      return { status: 'success', message: 'OTP sent successfully' };
+    }
+    const response = await apiClient.post('/api/v1/auth/pin/reset/initiate', data);
+    return response.data.data;
+  },
+
+  /**
+   * Confirm PIN reset with OTP and new PIN
+   */
+  confirmPINReset: async (data: PINResetConfirmRequest): Promise<{ status: string; message: string }> => {
+    if (ENV.IS_MOCK) {
+      await sleep(1000);
+      return { status: 'success', message: 'PIN reset successfully' };
+    }
+    const response = await apiClient.post('/api/v1/auth/pin/reset/confirm', data);
+    return response.data.data;
+  },
+
+  /**
    * Get current user profile
    */
   getMe: async (): Promise<User> => {
@@ -164,5 +198,18 @@ export const authService = {
     }
 
     await apiClient.post('/api/v1/sessions/logout');
+  },
+
+  /**
+   * Permanently delete the authenticated account (call after OTP re-verification).
+   * Backend may require `otp` in the body when wired.
+   */
+  deleteAccount: async (payload?: { otp?: string }): Promise<void> => {
+    if (ENV.IS_MOCK) {
+      await sleep(500);
+      return;
+    }
+
+    await apiClient.delete('/api/v1/auth/account', { data: payload ?? {} });
   },
 };

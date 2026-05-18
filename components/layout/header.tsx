@@ -2,17 +2,17 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { CreditCard, Home, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt } from 'lucide-react';
+import { ArrowLeft, CreditCard, Home, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt } from 'lucide-react';
 
 const navItems = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/creators', label: 'Creators', icon: Users },
-  { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { href: '/subscriptions', label: 'My Creators', icon: CreditCard },
   { href: '/chats', label: 'Chats', icon: MessageCircle },
   { href: '/activity', label: 'Activity History', icon: History },
   { href: '/billing', label: 'Billing & Invoices', icon: Receipt },
@@ -23,35 +23,99 @@ export function Header() {
   const { user } = useAuthContext();
   const logout = useLogout();
   const pathname = usePathname();
+  const router = useRouter();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const isMyCreatorsHeader = pathname === '/subscriptions';
+  const isMembershipHeader =
+    pathname === '/membership' || /^\/subscriptions\/[^/]+$/.test(pathname);
+  const isSettingsHeader = pathname === '/settings';
+  const isEditProfileHeader = pathname === '/profile/edit';
+  const isDeleteAccountHeader = pathname === '/profile/delete-account';
+  const isSwitchToCreatorHeader = pathname === '/profile/switch-to-creator';
+  const isSavedHeader = pathname === '/profile/saved';
+  const isSubscriptionsStyleHeader =
+    isMyCreatorsHeader ||
+    isMembershipHeader ||
+    isSettingsHeader ||
+    isEditProfileHeader ||
+    isDeleteAccountHeader ||
+    isSwitchToCreatorHeader ||
+    isSavedHeader;
+  const subscriptionsStyleTitle = isMyCreatorsHeader
+    ? 'My Creators'
+    : isMembershipHeader
+      ? 'My subscription'
+      : isSettingsHeader
+      ? 'Settings'
+      : isEditProfileHeader
+        ? 'Edit profile'
+        : isDeleteAccountHeader
+          ? 'Delete account'
+          : isSwitchToCreatorHeader
+            ? 'Switch to Creator'
+            : isSavedHeader
+              ? 'Saved'
+              : null;
 
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto relative flex h-14 items-center justify-between px-4">
-          <Link href="/feed" className="flex items-center gap-2">
-            <Image
-              src="/zexy_z_letter_logo_nobg.png"
-              alt="Zexy logo"
-              width={28}
-              height={28}
-              priority
-              className="h-7 w-7 object-contain"
-            />
-          </Link>
+          {isSubscriptionsStyleHeader && subscriptionsStyleTitle ? (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Back"
+                onClick={() => router.back()}
+                className="shrink-0"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
 
-          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2">
-            <h1 className="text-lg font-semibold tracking-[0.2em]">ZEXY</h1>
-          </div>
+              <div className="pointer-events-none absolute left-1/2 -translate-x-1/2">
+                <h1 className="text-base font-semibold tracking-tight">{subscriptionsStyleTitle}</h1>
+              </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Open menu"
-            onClick={() => setIsDrawerOpen(true)}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Open menu"
+                onClick={() => setIsDrawerOpen(true)}
+                className="shrink-0"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/feed" className="flex items-center gap-2">
+                <Image
+                  src="/zexy_z_letter_logo_nobg.png"
+                  alt="Zexy logo"
+                  width={28}
+                  height={28}
+                  priority
+                  className="h-7 w-7 object-contain"
+                />
+              </Link>
+
+              <div className="pointer-events-none absolute left-1/2 -translate-x-1/2">
+                <h1 className="text-lg font-semibold tracking-[0.2em]">ZEXY</h1>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Open menu"
+                onClick={() => setIsDrawerOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </>
+          )}
         </div>
       </header>
 
@@ -94,7 +158,12 @@ export function Header() {
         <nav className="px-2 py-3">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive =
+              item.href === '/subscriptions'
+                ? pathname === '/subscriptions'
+                : item.href === '/profile'
+                  ? pathname === '/profile' || pathname.startsWith('/profile/') || pathname === '/settings'
+                  : pathname === item.href;
 
             return (
               <Link

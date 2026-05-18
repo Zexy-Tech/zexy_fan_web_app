@@ -262,9 +262,14 @@ function LoginPageContent() {
                     )}
                   </Button>
                   
-                  <p className="text-center text-sm text-zinc-500">
-                    Forgot PIN? <button type="button" className="text-purple-400 font-medium hover:underline" onClick={handleSendOTP}>Use OTP instead</button>
-                  </p>
+                  <div className="flex flex-col gap-2 pt-2">
+                    <p className="text-center text-sm text-zinc-500">
+                      Forgot PIN? <button type="button" className="text-purple-400 font-medium hover:underline" onClick={handleSendOTP}>Use OTP instead</button>
+                    </p>
+                    <p className="text-center text-xs text-zinc-600">
+                      or <button type="button" className="text-purple-400 font-medium hover:underline" onClick={() => router.push('/pin-reset')}>Reset your PIN</button>
+                    </p>
+                  </div>
                 </div>
               </form>
             ) : (

@@ -19,7 +19,7 @@ apiClient.interceptors.request.use(
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('auth_token');
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.set('Authorization', `Bearer ${token}`);
       }
     }
     return config;
@@ -43,7 +43,17 @@ const processQueue = (error: any, token: string | null = null) => {
 };
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Handle standard Zexy API wrapper { success: true, data: {}, error: null }
+    if (response.data && response.data.success === false) {
+        const errorMsg = response.data.error?.message || 'API Error';
+        const error = new Error(errorMsg) as any;
+        error.response = response;
+        error.data = response.data;
+        return Promise.reject(error);
+    }
+    return response;
+  },
   async (error) => {
     if (typeof window === 'undefined') {
       return Promise.reject(error);

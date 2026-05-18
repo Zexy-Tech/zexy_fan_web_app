@@ -15,16 +15,19 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useCreatorByUsername } from '@/hooks/useFeed';
 import { useCreatorProfileConfig } from '@/hooks/useCreatorProfile';
-import { useCreatorPlans } from '@/hooks/useSubscriptions';
+import { useCreatorPlans, useMySubscriptions } from '@/hooks/useSubscriptions';
 import { useAuthContext } from '@/hooks/useAuth';
 import { cn, formatCurrency, getMediaUrl } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { isCreatorMemberForFan } from '@/lib/creatorMembership';
+import { queryClient } from '@/lib/queryClient';
+import { getDemoCreatorMembershipPlans } from '@/services/subscriptions';
 import { Card, CardContent } from '@/components/ui/card';
 import { useActionButton } from '@/hooks/useActionButton';
 import { SignupModal } from '@/components/auth/signup-modal';
-import { SubscriptionModal } from '@/components/subscription-modal';
+import { MembershipPopup } from '@/components/membership-popup';
 import { ContentPopup } from '@/components/content-popup';
 import type { ActionButton } from '@/types/creator-profile';
+import type { LucideIcon } from 'lucide-react';
 import {
   Instagram,
   Facebook,
@@ -158,11 +161,11 @@ function clamp01(v: number) {
 
 type ContentTabId = 'images' | 'videos' | 'audios' | 'products';
 
-const CONTENT_TABS: { id: ContentTabId; label: string }[] = [
-  { id: 'images', label: 'Images' },
-  { id: 'videos', label: 'Videos' },
-  { id: 'audios', label: 'Audios' },
-  { id: 'products', label: 'Products' },
+const CONTENT_TABS: { id: ContentTabId; label: string; icon: LucideIcon }[] = [
+  { id: 'images', label: 'Images', icon: LucideImage },
+  { id: 'videos', label: 'Videos', icon: Video },
+  { id: 'audios', label: 'Audios', icon: Music },
+  { id: 'products', label: 'Products', icon: Package },
 ];
 
 /** Local demo assets only (Images tab). Not used for hero / cover — those stay on creator API. */
@@ -310,7 +313,7 @@ const DEMO_PRODUCTS: readonly {
 const drawerNavItems = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/creators', label: 'Creators', icon: Users },
-  { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { href: '/subscriptions', label: 'My Creators', icon: CreditCard },
   { href: '/chats', label: 'Chats', icon: MessageCircle },
   { href: '/profile', label: 'Profile', icon: User },
 ];
@@ -322,25 +325,45 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuthContext();
   const { data: plans } = useCreatorPlans(creator?.id || 0);
+  const { data: mySubscriptions } = useMySubscriptions();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [isMembershipOpen, setIsMembershipOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [scrollY, setScrollY] = useState(0);
 
-  const handleContentClick = () => {
+  const isMember = useMemo(
+    () =>
+      creator
+        ? isCreatorMemberForFan({
+            isAuthenticated,
+            creator,
+            mySubscriptions,
+          })
+        : false,
+    [isAuthenticated, creator, mySubscriptions]
+  );
+
+  const plansForMembership = useMemo(() => {
+    if (!creator) return [];
+    if (plans?.length) return plans;
+    return getDemoCreatorMembershipPlans(creator.id);
+  }, [creator, plans]);
+
+  const openMembership = () => {
+    setIsMembershipOpen(true);
+  };
+
+  const handleCoverClick = () => {
     if (!isAuthenticated) {
       setIsLoginOpen(true);
       return;
     }
-
-    if (!plans || plans.length === 0) {
-      toast.message('No subscription plans available yet.');
+    if (!isMember) {
+      openMembership();
       return;
     }
-
-    setIsSubscriptionOpen(true);
   };
 
   useEffect(() => {
@@ -494,7 +517,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
         style={{
           height: 'min(64vh, 520px)',
         }}
-        onClick={handleContentClick}
+        onClick={handleCoverClick}
       >
         {/* Only the IMAGE layer fades/collapses on scroll */}
         <div
@@ -572,24 +595,154 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
         <div className={showStickyProfileBar ? 'pt-14' : 'pt-0'} />
         {/* Exclusive (big) + Public grid */}
         <div className="pt-6 space-y-4">
-          <CreatorMediaBlocks creatorAvatarSrc={coverUrl || '/sample-media/tom.png'} />
+          <CreatorMediaBlocks
+            creatorAvatarSrc={coverUrl || '/sample-media/tom.png'}
+            isAuthenticated={isAuthenticated}
+            isMember={isMember}
+            onRequireLogin={() => setIsLoginOpen(true)}
+            onRequireMembership={openMembership}
+          />
         </div>
       </div>
 
       <SignupModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
 
-      {isSubscriptionOpen && plans && plans.length > 0 && (
-        <SubscriptionModal
+      {isMembershipOpen && (
+        <MembershipPopup
+          open={isMembershipOpen}
           creatorName={displayName}
-          plans={plans}
-          onClose={() => setIsSubscriptionOpen(false)}
+          creatorUsername={handle}
+          creatorAvatarUrl={coverUrl}
+          plans={plansForMembership}
+          onClose={() => setIsMembershipOpen(false)}
+          onSuccess={() => {
+            void queryClient.invalidateQueries({ queryKey: ['creator', 'username', username] });
+            void queryClient.invalidateQueries({ queryKey: ['subscriptions', 'my'] });
+          }}
         />
       )}
     </div>
   );
 }
 
-function CreatorMediaBlocks({ creatorAvatarSrc }: { creatorAvatarSrc: string }) {
+type MediaGridKind = 'image' | 'video' | 'audio';
+
+type MediaGridItem = {
+  id: string;
+  thumbSrc: string;
+  title: string;
+  duration?: string;
+  videoSrc?: string;
+  audioSrc?: string;
+};
+
+function ExclusiveMediaGrid({
+  kind,
+  items,
+  onTileClick,
+}: {
+  kind?: MediaGridKind;
+  items: MediaGridItem[];
+  onTileClick: (item: MediaGridItem) => void;
+}) {
+  if (items.length === 0) return null;
+
+  const [exclusive, ...rest] = items;
+
+  const renderTile = (item: MediaGridItem, isExclusive: boolean) => {
+    const tileClass = cn(
+      'relative w-full overflow-hidden bg-zinc-900',
+      isExclusive ? 'col-span-2 row-span-2 aspect-square' : 'aspect-square'
+    );
+
+    const overlays = (
+      <>
+      {isExclusive ? (
+        <span className="pointer-events-none absolute left-2 top-2 z-10 rounded-full bg-pink-500/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+          Exclusive
+        </span>
+      ) : null}
+      {!isExclusive && item.duration ? (
+        <div className="pointer-events-none absolute right-1 top-1 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-white">
+          {item.duration}
+        </div>
+      ) : isExclusive && item.duration ? (
+        <div className="pointer-events-none absolute right-2 top-2 z-10 rounded-full bg-black/50 px-2.5 py-1 text-xs font-semibold text-white">
+          {item.duration}
+        </div>
+      ) : null}
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6',
+            isExclusive && 'px-2 pb-2 pt-10'
+          )}
+        >
+          <p
+            className={cn(
+              'line-clamp-2 text-center font-medium text-white',
+              isExclusive ? 'text-xs sm:text-sm' : 'text-[9px] sm:text-[10px]'
+            )}
+          >
+            {item.title}
+          </p>
+        </div>
+      </>
+    );
+
+    if (kind === 'video' && isExclusive && item.videoSrc) {
+      return (
+        <div key={item.id} className={tileClass}>
+          {overlays}
+          <video
+            src={item.videoSrc}
+            poster={item.thumbSrc}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="h-full w-full object-cover"
+            aria-label={item.title}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <button
+        key={item.id}
+        type="button"
+        onClick={() => onTileClick(item)}
+        className={cn(tileClass, 'p-0')}
+      >
+        {overlays}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={item.thumbSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
+      </button>
+    );
+  };
+
+  return (
+    <div className="grid w-full grid-cols-3 gap-0">
+      {renderTile(exclusive, true)}
+      {rest.map((item) => renderTile(item, false))}
+    </div>
+  );
+}
+
+function CreatorMediaBlocks({
+  creatorAvatarSrc,
+  isAuthenticated,
+  isMember,
+  onRequireLogin,
+  onRequireMembership,
+}: {
+  creatorAvatarSrc: string;
+  isAuthenticated: boolean;
+  isMember: boolean;
+  onRequireLogin: () => void;
+  onRequireMembership: () => void;
+}) {
   const [activeTab, setActiveTab] = useState<ContentTabId>('images');
   const [popup, setPopup] = useState<{
     src: string;
@@ -599,19 +752,68 @@ function CreatorMediaBlocks({ creatorAvatarSrc }: { creatorAvatarSrc: string }) 
     audioSrc?: string;
   } | null>(null);
 
-  const demoImageSlots = useMemo(
+  const demoImageItems = useMemo<MediaGridItem[]>(
     () =>
       Array.from({ length: DEMO_IMAGES_GRID_COUNT }, (_, i) => ({
-        src: DEMO_PROFILE_IMAGE_SRCS[i % DEMO_PROFILE_IMAGE_SRCS.length],
-        label: `Demo ${i + 1}`,
+        id: `demo-img-${i}`,
+        thumbSrc: DEMO_PROFILE_IMAGE_SRCS[i % DEMO_PROFILE_IMAGE_SRCS.length],
+        title: i === 0 ? 'Exclusive highlight' : `Demo ${i + 1}`,
       })),
     []
   );
 
+  const demoVideoItems = useMemo<MediaGridItem[]>(
+    () =>
+      DEMO_VIDEOS.map((v, i) => ({
+        id: v.id,
+        thumbSrc: v.thumbSrc,
+        title: i === 0 ? 'Exclusive highlight' : v.title,
+        duration: v.duration,
+        videoSrc: v.videoSrc,
+      })),
+    []
+  );
+
+  const demoAudioItems = useMemo<MediaGridItem[]>(
+    () =>
+      DEMO_AUDIOS.map((a, i) => ({
+        id: a.id,
+        thumbSrc: a.thumbSrc,
+        title: i === 0 ? 'Exclusive highlight' : a.title,
+        duration: a.duration,
+        audioSrc: a.audioSrc,
+      })),
+    []
+  );
+
+  const requestAccessThen = (openContent: () => void) => {
+    if (!isAuthenticated) {
+      onRequireLogin();
+      return;
+    }
+    if (!isMember) {
+      onRequireMembership();
+      return;
+    }
+    openContent();
+  };
+
+  const openGridItem = (item: MediaGridItem, kind: MediaGridKind) => {
+    requestAccessThen(() => {
+      if (kind === 'audio') {
+        setPopup({ src: creatorAvatarSrc, title: item.title, audioSrc: item.audioSrc });
+      } else if (kind === 'video') {
+        setPopup({ src: item.thumbSrc, title: item.title, videoSrc: item.videoSrc });
+      } else {
+        setPopup({ src: item.thumbSrc, title: item.title });
+      }
+    });
+  };
+
   return (
-    <div className="space-y-3">
-      <div className="flex gap-0 overflow-x-auto border-b border-white/15 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {CONTENT_TABS.map(({ id, label }) => {
+    <Card className="-mx-4 w-[calc(100%+2rem)] overflow-hidden rounded-2xl border-white/10 bg-white/[0.03] p-0 shadow-none sm:mx-0 sm:w-full">
+      <div className="grid w-full grid-cols-4 border-b border-white/15">
+        {CONTENT_TABS.map(({ id, label, icon: TabIcon }) => {
           const active = activeTab === id;
           return (
             <button
@@ -619,100 +821,48 @@ function CreatorMediaBlocks({ creatorAvatarSrc }: { creatorAvatarSrc: string }) 
               type="button"
               onClick={() => setActiveTab(id)}
               className={cn(
-                'min-w-[4.5rem] flex-1 whitespace-nowrap px-2 py-2.5 text-center text-xs font-medium transition-colors sm:min-w-0 sm:text-sm',
+                'flex w-full flex-col items-center justify-center gap-1 px-1 py-2.5 text-xs font-medium transition-colors sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm',
                 active
                   ? 'border-b-2 border-pink-500 text-white'
                   : 'border-b-2 border-transparent text-zinc-500 hover:text-zinc-300'
               )}
             >
-              {label}
+              <TabIcon className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="truncate">{label}</span>
             </button>
           );
         })}
       </div>
 
       {activeTab === 'images' ? (
-        <div className="-mx-4 grid w-[calc(100%+2rem)] grid-cols-3 gap-0 sm:mx-0 sm:w-full">
-          {demoImageSlots.map((slot, i) => (
-            <button
-              key={`demo-img-${i}`}
-              type="button"
-              onClick={() => setPopup({ src: slot.src, title: slot.label })}
-              className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
-            >
-              <div className="pointer-events-none absolute left-1 top-1 z-10 rounded-full bg-black/50 p-1 text-white">
-                <LucideImage className="h-3.5 w-3.5" aria-hidden />
-              </div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={slot.src} alt="" className="h-full w-full object-cover" loading="lazy" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
-                <p className="line-clamp-1 text-center text-[9px] font-medium text-white sm:text-[10px]">{slot.label}</p>
-              </div>
-            </button>
-          ))}
-        </div>
+        <ExclusiveMediaGrid
+          items={demoImageItems}
+          onTileClick={(item) => openGridItem(item, 'image')}
+        />
       ) : activeTab === 'videos' ? (
-        <div className="-mx-4 grid w-[calc(100%+2rem)] grid-cols-3 gap-0 sm:mx-0 sm:w-full">
-          {DEMO_VIDEOS.map((v) => (
-            <button
-              key={v.id}
-              type="button"
-              onClick={() => setPopup({ src: v.thumbSrc, title: v.title, videoSrc: v.videoSrc })}
-              className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
-            >
-              <div className="pointer-events-none absolute left-1 top-1 z-10 rounded-full bg-black/50 p-1 text-white">
-                <Video className="h-3.5 w-3.5" aria-hidden />
-              </div>
-              <div className="pointer-events-none absolute right-1 top-1 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-white">
-                {v.duration}
-              </div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={v.thumbSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
-                <p className="line-clamp-1 text-center text-[9px] font-medium text-white sm:text-[10px]">{v.title}</p>
-              </div>
-            </button>
-          ))}
-        </div>
+        <ExclusiveMediaGrid
+          kind="video"
+          items={demoVideoItems}
+          onTileClick={(item) => openGridItem(item, 'video')}
+        />
       ) : activeTab === 'audios' ? (
-        <div className="-mx-4 grid w-[calc(100%+2rem)] grid-cols-3 gap-0 sm:mx-0 sm:w-full">
-          {DEMO_AUDIOS.map((a) => (
-            <button
-              key={a.id}
-              type="button"
-              onClick={() =>
-                setPopup({ src: creatorAvatarSrc, title: a.title, audioSrc: a.audioSrc })
-              }
-              className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
-            >
-              <div className="pointer-events-none absolute left-1 top-1 z-10 rounded-full bg-black/50 p-1 text-white">
-                <Music className="h-3.5 w-3.5" aria-hidden />
-              </div>
-              <div className="pointer-events-none absolute right-1 top-1 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-white">
-                {a.duration}
-              </div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={a.thumbSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
-                <p className="line-clamp-1 text-center text-[9px] font-medium text-white sm:text-[10px]">{a.title}</p>
-              </div>
-            </button>
-          ))}
-        </div>
+        <ExclusiveMediaGrid
+          items={demoAudioItems}
+          onTileClick={(item) => openGridItem(item, 'audio')}
+        />
       ) : activeTab === 'products' ? (
-        <div className="-mx-4 grid w-[calc(100%+2rem)] grid-cols-3 gap-0 sm:mx-0 sm:w-full">
+        <div className="grid w-full grid-cols-3 gap-0">
           {DEMO_PRODUCTS.map((p) => (
             <button
               key={p.id}
               type="button"
               onClick={() =>
-                setPopup({ src: p.imageSrc, title: p.title, description: p.description })
+                requestAccessThen(() =>
+                  setPopup({ src: p.imageSrc, title: p.title, description: p.description })
+                )
               }
               className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
             >
-              <div className="pointer-events-none absolute left-1 top-1 z-10 rounded-full bg-black/50 p-1 text-white">
-                <Package className="h-3.5 w-3.5" aria-hidden />
-              </div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={p.imageSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
@@ -725,7 +875,7 @@ function CreatorMediaBlocks({ creatorAvatarSrc }: { creatorAvatarSrc: string }) 
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] py-12 text-center">
+        <div className="py-12 text-center">
           <p className="text-sm text-zinc-500">Nothing here yet.</p>
         </div>
       )}
@@ -745,6 +895,6 @@ function CreatorMediaBlocks({ creatorAvatarSrc }: { creatorAvatarSrc: string }) 
             : undefined
         }
       />
-    </div>
+    </Card>
   );
 }

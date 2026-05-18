@@ -118,7 +118,10 @@ export function SignupModal({ open, onClose }: SignupModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/75 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 p-4 backdrop-blur-xl supports-[backdrop-filter]:bg-black/35"
+      onClick={onClose}
+    >
       <div className="w-full max-w-[400px]" onClick={(e) => e.stopPropagation()}>
         <Card className="border-zinc-800 bg-zinc-900/95 text-white backdrop-blur-xl">
           <CardContent className="p-5">

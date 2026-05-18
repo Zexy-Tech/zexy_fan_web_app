@@ -14,13 +14,15 @@ import { Check, Crown, Clock } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { SubscriptionModal } from '@/components/subscription-modal';
+import { MembershipPopup } from '@/components/membership-popup';
 import type { SubscriptionPlan } from '@/services/subscriptions';
 
 interface SubscriptionCardSectionProps {
   plans: SubscriptionPlan[];
   isSubscribed: boolean;
   creatorName?: string;
+  creatorUsername?: string;
+  creatorAvatarUrl?: string | null;
 }
 
 /**
@@ -34,6 +36,8 @@ export function SubscriptionCardSection({
   plans,
   isSubscribed,
   creatorName = 'this creator',
+  creatorUsername,
+  creatorAvatarUrl,
 }: SubscriptionCardSectionProps) {
   const { isAuthenticated } = useAuthContext();
   const router = useRouter();
@@ -168,8 +172,11 @@ export function SubscriptionCardSection({
 
       {/* Subscription Modal */}
       {showModal && (
-        <SubscriptionModal
+        <MembershipPopup
+          open={showModal}
           creatorName={creatorName}
+          creatorUsername={creatorUsername ?? creatorName.replace(/\s+/g, '').toLowerCase()}
+          creatorAvatarUrl={creatorAvatarUrl ?? null}
           plans={plans}
           onClose={() => setShowModal(false)}
           onSuccess={() => {
