@@ -18,8 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Check, CheckCircle2, Crown, Loader2, XCircle } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { Check, CheckCircle2, Crown, Loader2, X, XCircle } from 'lucide-react';
+import { cn, formatCurrency, getMediaUrl } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { SubscriptionPlan } from '@/services/subscriptions';
 
@@ -28,6 +28,12 @@ interface SubscriptionModalProps {
   plans: SubscriptionPlan[];
   onClose: () => void;
   onSuccess?: () => void;
+  /** `membership` uses membership-oriented headings (e.g. creator profile paywall). */
+  presentation?: 'subscribe' | 'membership';
+  /** @username without leading @ — shown top-left in membership layout. */
+  creatorUsername?: string | null;
+  /** Resolved image URL for creator avatar (top-left membership layout). */
+  creatorAvatarUrl?: string | null;
 }
 
 type Status = 'select' | 'processing' | 'success' | 'error';
@@ -37,6 +43,9 @@ export function SubscriptionModal({
   plans,
   onClose,
   onSuccess,
+  presentation = 'subscribe',
+  creatorUsername,
+  creatorAvatarUrl,
 }: SubscriptionModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan>(plans[0]);
   const [status, setStatus] = useState<Status>('select');
@@ -79,44 +88,109 @@ export function SubscriptionModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center p-4">
-      <Card className="w-full max-w-md rounded-2xl">
-        <CardHeader className="text-center pb-2">
-          <div className="mx-auto h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-2">
-            <Crown className="h-6 w-6 text-white" />
-          </div>
-          <CardTitle>Subscribe to {creatorName}</CardTitle>
-          <CardDescription>Choose a plan to get exclusive access</CardDescription>
-        </CardHeader>
+  const isMembership = presentation === 'membership';
+  const handleLabel = (creatorUsername ?? '').replace(/^@+/, '') || (creatorName || 'creator').replace(/\s/g, '').toLowerCase() || 'creator';
+  const avatarSrc = creatorAvatarUrl?.trim()
+    ? creatorAvatarUrl.startsWith('http') || creatorAvatarUrl.startsWith('data:')
+      ? creatorAvatarUrl
+      : getMediaUrl(creatorAvatarUrl) || creatorAvatarUrl
+    : null;
 
-        <CardContent className="space-y-4">
+  return (
+    <div
+      className="fixed inset-0 z-[95] flex items-end justify-center bg-black/60 backdrop-blur-sm p-4 sm:items-center"
+      onClick={isMembership ? onClose : undefined}
+    >
+      <Card
+        className="w-full max-w-md rounded-2xl"
+        onClick={isMembership ? (e) => e.stopPropagation() : undefined}
+      >
+        {isMembership ? (
+          <>
+            <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 ring-2 ring-background">
+                  {avatarSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="grid h-full w-full place-items-center text-sm font-semibold text-white">
+                      {(creatorName || '?')[0].toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <p className="truncate text-sm font-medium text-foreground">@{handleLabel}</p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="shrink-0"
+                onClick={onClose}
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="relative aspect-[16/10] w-full overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={avatarSrc ?? '/sample-media/id-card-1.png'}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-transparent" />
+              <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-pink-500/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+                Exclusive
+              </span>
+            </div>
+          </>
+        ) : (
+          <CardHeader className="text-center pb-2">
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
+              <Crown className="h-6 w-6 text-white" />
+            </div>
+            <CardTitle>Subscribe to {creatorName}</CardTitle>
+            <CardDescription>Choose a plan to get exclusive access</CardDescription>
+          </CardHeader>
+        )}
+
+        <CardContent className={cn('space-y-4', isMembership && 'space-y-0 px-0 pb-4 pt-0')}>
           {status === 'select' && (
             <>
               {/* Plan Picker */}
-              <div className="space-y-3">
+              <div className={cn(isMembership ? 'divide-y divide-border' : 'space-y-3')}>
                 {plans.map((plan) => (
                   <button
                     key={plan.id}
                     onClick={() => setSelectedPlan(plan)}
-                    className={`w-full text-left rounded-xl border-2 p-4 transition-all ${
-                      selectedPlan.id === plan.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/50'
-                    }`}
+                    className={cn(
+                      'w-full text-left transition-all',
+                      isMembership
+                        ? cn(
+                            'px-4 py-3.5',
+                            selectedPlan.id === plan.id ? 'bg-primary/5' : 'hover:bg-muted/40'
+                          )
+                        : cn(
+                            'rounded-xl border-2 p-4',
+                            selectedPlan.id === plan.id
+                              ? 'border-primary bg-primary/5'
+                              : 'border-border hover:border-primary/50'
+                          )
+                    )}
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold">{plan.name}</p>
-                        {plan.description && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{plan.description}</p>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-1">{plan.duration_days} days access</p>
+                        {!isMembership && plan.description ? (
+                          <p className="mt-0.5 text-xs text-muted-foreground">{plan.description}</p>
+                        ) : null}
+                        <p className="mt-1 text-xs text-muted-foreground">{plan.duration_days} days access</p>
                       </div>
-                      <div className="text-right flex-shrink-0 ml-4">
+                      <div className="ml-4 flex-shrink-0 text-right">
                         <p className="text-xl font-bold">{formatCurrency(plan.price)}</p>
                         {selectedPlan.id === plan.id && (
-                          <Check className="h-4 w-4 text-primary ml-auto mt-1" />
+                          <Check className="ml-auto mt-1 h-4 w-4 text-primary" />
                         )}
                       </div>
                     </div>
@@ -124,20 +198,23 @@ export function SubscriptionModal({
                 ))}
               </div>
 
-              {/* Benefits */}
-              <div className="bg-muted/40 rounded-xl p-4 space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">What you get</p>
-                {[
-                  'Access to all exclusive content',
-                  'Direct messaging with creator',
-                  'Early access to new content',
-                ].map((benefit) => (
-                  <div key={benefit} className="flex items-center gap-2 text-sm">
-                    <Check className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                    <span>{benefit}</span>
-                  </div>
-                ))}
-              </div>
+              {!isMembership ? (
+                <div className="space-y-2 rounded-xl bg-muted/40 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    What you get
+                  </p>
+                  {[
+                    'Access to all exclusive content',
+                    'Direct messaging with creator',
+                    'Early access to new content',
+                  ].map((benefit) => (
+                    <div key={benefit} className="flex items-center gap-2 text-sm">
+                      <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span>{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </>
           )}
 
@@ -165,14 +242,16 @@ export function SubscriptionModal({
           )}
         </CardContent>
 
-        <CardFooter className="flex gap-2 pt-0">
+        <CardFooter className={cn('flex gap-2 pt-0', isMembership && 'px-4')}>
           {(status === 'select' || status === 'error') && (
             <>
-              <Button variant="outline" className="flex-1" onClick={onClose}>
-                Cancel
-              </Button>
+              {!isMembership ? (
+                <Button variant="outline" className="flex-1" onClick={onClose}>
+                  Cancel
+                </Button>
+              ) : null}
               <Button
-                className="flex-1"
+                className={isMembership ? 'w-full' : 'flex-1'}
                 onClick={status === 'error' ? () => setStatus('select') : handleSubscribe}
                 style={{
                   background: 'linear-gradient(to right, var(--profile-gradient-start, #9333ea), var(--profile-gradient-end, #ec4899))',

@@ -125,4 +125,17 @@ export const authService = {
 
     await apiClient.post('/api/v1/sessions/logout');
   },
+
+  /**
+   * Permanently delete the authenticated account (call after OTP re-verification).
+   * Backend may require `otp` in the body when wired.
+   */
+  deleteAccount: async (payload?: { otp?: string }): Promise<void> => {
+    if (ENV.IS_MOCK) {
+      await sleep(500);
+      return;
+    }
+
+    await apiClient.delete('/api/v1/auth/account', { data: payload ?? {} });
+  },
 };
