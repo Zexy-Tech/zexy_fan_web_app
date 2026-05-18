@@ -35,7 +35,7 @@ export default function PublicError({
             </Button>
             <Button
               variant="outline"
-              onClick={() => (window.location.href = '/feed')}
+              onClick={() => (window.location.href = '/creators')}
               className="flex-1"
             >
               Browse feed

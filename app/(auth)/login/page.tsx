@@ -61,7 +61,7 @@ function LoginPageContent() {
       await verifyOTP.mutateAsync({ mobile, otp: otpCode, role: 'fan' });
       toast.success('Login successful!');
       const next = safeInternalPath(searchParams.get('next'));
-      router.push(next ?? '/feed');
+      router.push(next ?? '/creators');
     } catch (error: any) {
       toast.error(error.response?.data?.error?.message || 'Invalid OTP');
       setOtp(['', '', '', '']);

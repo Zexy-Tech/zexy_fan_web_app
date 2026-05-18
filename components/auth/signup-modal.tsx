@@ -82,7 +82,7 @@ export function SignupModal({ open, onClose }: SignupModalProps) {
       await verifyOTP.mutateAsync({ mobile, otp: otpCode, role: 'fan' });
       toast.success('Login successful!');
       onClose();
-      router.push('/feed');
+      router.push('/creators');
     } catch (error: any) {
       toast.error(error.response?.data?.error?.message || 'Invalid OTP');
       setOtp(['', '', '', '']);

@@ -32,10 +32,10 @@ export default function ContentDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Link href="/feed">
+      <Link href="/creators">
         <Button variant="ghost" size="sm">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Feed
+          Back to Creators
         </Button>
       </Link>
 

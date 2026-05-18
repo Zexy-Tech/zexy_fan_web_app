@@ -7,11 +7,22 @@ import { useState } from 'react';
 import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, CreditCard, Home, LogOut, Menu, MessageCircle, User, Users, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  CreditCard,
+  LayoutGrid,
+  LogOut,
+  Menu,
+  MessageCircle,
+  User,
+  Users,
+  X,
+} from 'lucide-react';
+import { getCategoryBySlug } from '@/services/creatorCategories';
 
 const navItems = [
-  { href: '/feed', label: 'Feed', icon: Home },
   { href: '/creators', label: 'Creators', icon: Users },
+  { href: '/categories', label: 'Categories', icon: LayoutGrid },
   { href: '/subscriptions', label: 'My Creators', icon: CreditCard },
   { href: '/chats', label: 'Chats', icon: MessageCircle },
   { href: '/profile', label: 'Profile', icon: User },
@@ -32,6 +43,12 @@ export function Header() {
   const isDeleteAccountHeader = pathname === '/profile/delete-account';
   const isSwitchToCreatorHeader = pathname === '/profile/switch-to-creator';
   const isSavedHeader = pathname === '/profile/saved';
+  const categorySlugMatch = pathname.match(/^\/categories\/([^/]+)$/);
+  const categorySlug = categorySlugMatch?.[1] ?? null;
+  const isCategoriesListHeader = pathname === '/categories';
+  const isCategoryDetailHeader = Boolean(categorySlug);
+  const isCategoriesHeader = isCategoriesListHeader || isCategoryDetailHeader;
+  const categoryDetailName = categorySlug ? getCategoryBySlug(categorySlug)?.name : null;
   const isSubscriptionsStyleHeader =
     isMyCreatorsHeader ||
     isMembershipHeader ||
@@ -39,7 +56,8 @@ export function Header() {
     isEditProfileHeader ||
     isDeleteAccountHeader ||
     isSwitchToCreatorHeader ||
-    isSavedHeader;
+    isSavedHeader ||
+    isCategoriesHeader;
   const subscriptionsStyleTitle = isMyCreatorsHeader
     ? 'My Creators'
     : isMembershipHeader
@@ -54,7 +72,11 @@ export function Header() {
             ? 'Switch to Creator'
             : isSavedHeader
               ? 'Saved'
-              : null;
+              : isCategoriesListHeader
+                ? 'Categories'
+                : isCategoryDetailHeader
+                  ? categoryDetailName ?? 'Category'
+                  : null;
 
   return (
     <>
@@ -89,7 +111,7 @@ export function Header() {
             </>
           ) : (
             <>
-              <Link href="/feed" className="flex items-center gap-2">
+              <Link href="/creators" className="flex items-center gap-2">
                 <Image
                   src="/zexy_z_letter_logo_nobg.png"
                   alt="Zexy logo"
@@ -159,6 +181,8 @@ export function Header() {
             const isActive =
               item.href === '/subscriptions'
                 ? pathname === '/subscriptions'
+                : item.href === '/categories'
+                  ? pathname === '/categories' || pathname.startsWith('/categories/')
                 : item.href === '/profile'
                   ? pathname === '/profile' || pathname.startsWith('/profile/') || pathname === '/settings'
                   : pathname === item.href;
