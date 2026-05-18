@@ -36,7 +36,6 @@ import {
   ExternalLink,
   Menu,
   X,
-  Home,
   Users,
   CreditCard,
   MessageCircle,
@@ -311,7 +310,6 @@ const DEMO_PRODUCTS: readonly {
 ];
 
 const drawerNavItems = [
-  { href: '/feed', label: 'Feed', icon: Home },
   { href: '/creators', label: 'Creators', icon: Users },
   { href: '/subscriptions', label: 'My Creators', icon: CreditCard },
   { href: '/chats', label: 'Chats', icon: MessageCircle },

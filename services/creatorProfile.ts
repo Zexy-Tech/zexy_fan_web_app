@@ -94,7 +94,7 @@ const MOCK_PROFILE_CONFIG: CreatorProfileConfig = {
       id: 'home',
       label: 'Home',
       icon: 'Home',
-      route: '/feed',
+      route: '/creators',
       requiresAuth: false,
     },
     {

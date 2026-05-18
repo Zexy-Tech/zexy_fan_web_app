@@ -21,8 +21,8 @@ export default function NotFound() {
             <Link href="/" className="flex-1">
               <Button className="w-full">Go home</Button>
             </Link>
-            <Link href="/feed" className="flex-1">
-              <Button variant="outline" className="w-full">Browse feed</Button>
+            <Link href="/creators" className="flex-1">
+              <Button variant="outline" className="w-full">Browse creators</Button>
             </Link>
           </div>
         </CardContent>
