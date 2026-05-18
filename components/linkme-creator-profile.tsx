@@ -90,38 +90,39 @@ function inferSocialKind(url: string): SocialKind | null {
   return null;
 }
 
-function SocialIcon({ kind }: { kind: SocialKind }) {
+function SocialIcon({ kind, className }: { kind: SocialKind; className?: string }) {
+  const cls = cn('h-4 w-4', className);
   switch (kind) {
-    case 'instagram': return <Instagram className="h-5 w-5 text-[#E1306C]" />;
-    case 'facebook': return <Facebook className="h-5 w-5 text-[#1877F2]" />;
-    case 'facebook_page': return <Flag className="h-5 w-5 text-[#1877F2]" />;
+    case 'instagram': return <Instagram className={cn(cls, "text-[#E1306C]")} />;
+    case 'facebook': return <Facebook className={cn(cls, "text-[#1877F2]")} />;
+    case 'facebook_page': return <Flag className={cn(cls, "text-[#1877F2]")} />;
     case 'x':
       return (
-        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-black">
+        <svg viewBox="0 0 24 24" aria-hidden="true" className={cn(cls, "fill-current")}>
           <path d="M18.901 1.153h3.68l-8.039 9.189L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.932Zm-1.29 19.493h2.039L6.486 3.24H4.298L17.611 20.646Z" />
         </svg>
       );
-    case 'youtube': return <Youtube className="h-5 w-5 text-[#FF0000]" />;
-    case 'snapchat': return <Ghost className="h-5 w-5 text-[#FFFC00]" />;
-    case 'telegram': return <Send className="h-5 w-5 text-[#0088cc]" />;
-    case 'threads': return <AtSign className="h-5 w-5 text-black" />;
-    case 'website': return <Globe className="h-5 w-5 text-zinc-600" />;
-    case 'linkedin': return <Linkedin className="h-5 w-5 text-[#0a66c2]" />;
-    case 'reddit': return <MessageSquare className="h-5 w-5 text-[#ff4500]" />;
-    case 'discord': return <MessageSquare className="h-5 w-5 text-[#5865f2]" />;
-    case 'quora': return <HelpCircle className="h-5 w-5 text-[#b92b27]" />;
-    case 'takatak': return <Video className="h-5 w-5 text-pink-500" />;
-    case 'chingari': return <Flame className="h-5 w-5 text-orange-500" />;
-    case 'josh': return <PlayCircle className="h-5 w-5 text-red-500" />;
-    case 'link': return <ExternalLink className="h-5 w-5 text-black" />;
+    case 'youtube': return <Youtube className={cn(cls, "text-[#FF0000]")} />;
+    case 'snapchat': return <Ghost className={cn(cls, "text-[#FFFC00]")} />;
+    case 'telegram': return <Send className={cn(cls, "text-[#0088cc]")} />;
+    case 'threads': return <AtSign className={cn(cls, "text-current")} />;
+    case 'website': return <Globe className={cn(cls, "text-zinc-400")} />;
+    case 'linkedin': return <Linkedin className={cn(cls, "text-[#0a66c2]")} />;
+    case 'reddit': return <MessageSquare className={cn(cls, "text-[#ff4500]")} />;
+    case 'discord': return <MessageSquare className={cn(cls, "text-[#5865f2]")} />;
+    case 'quora': return <HelpCircle className={cn(cls, "text-[#b92b27]")} />;
+    case 'takatak': return <Video className={cn(cls, "text-pink-500")} />;
+    case 'chingari': return <Flame className={cn(cls, "text-orange-500")} />;
+    case 'josh': return <PlayCircle className={cn(cls, "text-red-500")} />;
+    case 'link': return <ExternalLink className={cn(cls, "text-zinc-400")} />;
     case 'zexy':
       return (
         <Image
           src="/zexy_z_letter_logo_nobg.png"
           alt="Zexy"
-          width={20}
-          height={20}
-          className="h-5 w-5 object-contain"
+          width={16}
+          height={16}
+          className={cn(cls, "object-contain")}
         />
       );
   }
@@ -129,6 +130,7 @@ function SocialIcon({ kind }: { kind: SocialKind }) {
 
 type SocialEntry = {
   kind: SocialKind;
+  label: string;
   button?: ActionButton;
 };
 
@@ -136,21 +138,34 @@ function buildFixedSocialRow(actionButtons: ActionButton[] | undefined): SocialE
   const links =
     actionButtons?.filter((b) => b.type === 'custom_link' && typeof b.action === 'string') ?? [];
 
-  const pick = (kind: SocialKind) =>
-    links.find((b) => inferSocialKind(b.action) === kind);
-
-  const platforms: SocialKind[] = [
-    'instagram', 'youtube', 'facebook', 'facebook_page', 'x', 
-    'snapchat', 'telegram', 'threads', 'website', 'linkedin', 
-    'reddit', 'discord', 'quora', 'takatak', 'chingari', 'josh'
+  const platforms: { kind: SocialKind; label: string }[] = [
+    { kind: 'instagram', label: 'Instagram' },
+    { kind: 'youtube', label: 'YouTube' },
+    { kind: 'x', label: 'X' },
+    { kind: 'facebook', label: 'Facebook' },
+    { kind: 'facebook_page', label: 'FB Page' },
+    { kind: 'snapchat', label: 'Snapchat' },
+    { kind: 'telegram', label: 'Telegram' },
+    { kind: 'threads', label: 'Threads' },
+    { kind: 'website', label: 'Website' },
+    { kind: 'linkedin', label: 'LinkedIn' },
+    { kind: 'reddit', label: 'Reddit' },
+    { kind: 'discord', label: 'Discord' },
+    { kind: 'quora', label: 'Quora' },
+    { kind: 'takatak', label: 'TakaTak' },
+    { kind: 'chingari', label: 'Chingari' },
+    { kind: 'josh', label: 'Josh' }
   ];
 
   const result: SocialEntry[] = platforms
-    .map(kind => ({ kind, button: pick(kind) }))
+    .map(({ kind, label }) => {
+       const button = links.find((b) => inferSocialKind(b.action) === kind);
+       return { kind, label: button?.label || label, button };
+    })
     .filter(entry => !!entry.button);
   
   // Zexy icon always present at the end
-  result.push({ kind: 'zexy' });
+  result.push({ kind: 'zexy', label: 'Zexy' });
 
   return result;
 }
@@ -415,18 +430,18 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
             <p className="mt-1 text-sm text-zinc-300">@{handle}</p>
 
             {/* Social icons row */}
-            <div className="mt-4 flex items-center justify-center gap-3">
-              {social.map(({ button, kind }, idx) => {
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+              {social.map(({ button, kind, label }, idx) => {
                 const isZexy = kind === 'zexy';
                 const isEnabled = isZexy || Boolean(button);
                 return (
                   <button
                     key={(button?.id || kind) + idx}
                     type="button"
-                    aria-label={isZexy ? 'Zexy' : button?.label || kind}
+                    aria-label={label}
                     className={[
-                      'h-11 w-11 rounded-full bg-white grid place-items-center shadow-md shadow-black/40',
-                      'hover:bg-zinc-100',
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] border border-white/10 text-white transition-all',
+                      'hover:bg-white/15 active:scale-95',
                       !isEnabled ? 'opacity-50 pointer-events-none' : '',
                     ].join(' ')}
                     onClick={
@@ -444,6 +459,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                     }
                   >
                     <SocialIcon kind={kind} />
+                    <span className="text-[11px] font-medium tracking-wide uppercase opacity-90">{label}</span>
                   </button>
                 );
               })}

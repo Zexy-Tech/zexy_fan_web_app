@@ -196,7 +196,52 @@ export const creatorProfileService = {
       `/api/v1/fan/creators/${username}/profile-config`
     );
     const payload = response.data.data;
-    return payload.data ?? payload;
+    const data = payload.data ?? payload;
+    
+    // Map snake_case from backend to camelCase for frontend
+    return {
+      creatorId: data.creator_id,
+      username: data.username,
+      theme: {
+        primaryColor: data.theme.primaryColor,
+        secondaryColor: data.theme.secondaryColor,
+        gradientStart: data.theme.gradientStart,
+        gradientEnd: data.theme.gradientEnd,
+        fontFamily: data.theme.fontFamily,
+        borderRadius: data.theme.borderRadius,
+        buttonStyle: data.theme.buttonStyle,
+      },
+      intro: {
+        greeting: data.intro.greeting,
+        bio: data.intro.bio,
+        showAvatar: data.intro.showAvatar,
+        avatarStyle: data.intro.avatarStyle,
+      },
+      actionButtons: (data.action_buttons || []).map((btn: any) => ({
+        id: btn.id,
+        label: btn.label,
+        type: btn.type,
+        action: btn.action,
+        icon: btn.icon,
+        style: btn.style,
+      })),
+      sections: (data.sections || []).map((sec: any) => ({
+        id: sec.id,
+        type: sec.type,
+        enabled: sec.enabled,
+        order: sec.order,
+        config: sec.config,
+      })),
+      bottomNav: (data.bottom_nav || []).map((nav: any) => ({
+        id: nav.id,
+        label: nav.label,
+        icon: nav.icon,
+        route: nav.route,
+        requiresAuth: nav.requiresAuth,
+      })),
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
   },
 
   /**
