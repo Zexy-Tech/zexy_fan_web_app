@@ -44,6 +44,8 @@ export interface Content {
   creator_avatar: string | null;
   title: string;
   description: string | null;
+  type: 'image' | 'video' | 'audio' | null;
+  thumbnail_url: string | null;
   url: string | null; // null if locked
   media: ContentMedia[];
   media_urls: string[];

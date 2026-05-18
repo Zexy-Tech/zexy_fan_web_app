@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, MouseEvent, TouchEvent } from 'react';
 import { X, Heart, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
 import { contentEngagementService } from '@/services/contentEngagement';
+import { VideoPlayer } from '@/components/content/video-player';
 
 export interface ContentPopupProps {
   open: boolean;
@@ -211,11 +212,11 @@ export function ContentPopup({
             role="presentation"
           >
             {videoSrc ? (
-              <video
+              <VideoPlayer
                 src={videoSrc}
-                controls
-                playsInline
-                className="absolute inset-0 h-full w-full bg-black object-contain"
+                poster={imageSrc}
+                className="absolute inset-0 h-full w-full"
+                autoPlay
               />
             ) : (
               <>

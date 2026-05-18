@@ -565,7 +565,12 @@ function ExclusiveMediaGrid({
 
     if (kind === 'video' && isExclusive && item.videoSrc) {
       return (
-        <div key={item.id} className={tileClass}>
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onTileClick(item)}
+          className={cn(tileClass, 'p-0 text-left')}
+        >
           {overlays}
           <video
             src={item.videoSrc}
@@ -578,7 +583,7 @@ function ExclusiveMediaGrid({
             className="h-full w-full object-cover"
             aria-label={item.title}
           />
-        </div>
+        </button>
       );
     }
 
@@ -639,11 +644,11 @@ function CreatorMediaBlocks({
 
   const imageItems = useMemo<MediaGridItem[]>(() => {
     return content
-      .filter((c) => c.media.some((m) => m.media_type === 'image'))
+      .filter((c) => c.type === 'image' || (!c.type && c.media.some((m) => m.media_type === 'image')))
       .map((c) => ({
         id: String(c.id),
         contentId: c.id,
-        thumbSrc: getMediaUrl(c.media.find((m) => m.media_type === 'image')?.url) || '',
+        thumbSrc: getMediaUrl(c.thumbnail_url || c.url || c.media.find((m) => m.media_type === 'image')?.url) || '',
         title: c.title,
         description: c.description,
         tags: c.tags ?? [],
@@ -655,18 +660,18 @@ function CreatorMediaBlocks({
 
   const videoItems = useMemo<MediaGridItem[]>(() => {
     return content
-      .filter((c) => c.media.some((m) => m.media_type === 'video'))
+      .filter((c) => c.type === 'video' || (!c.type && c.media.some((m) => m.media_type === 'video')))
       .map((c) => ({
         id: String(c.id),
         contentId: c.id,
-        thumbSrc: getMediaUrl(c.media.find((m) => m.media_type === 'video')?.url) || '',
+        thumbSrc: getMediaUrl(c.thumbnail_url || c.media.find((m) => m.media_type === 'video')?.url) || '',
         title: c.title,
         description: c.description,
         tags: c.tags ?? [],
         isLiked: c.is_liked,
         isSaved: c.is_saved,
         isLocked: c.is_locked,
-        videoSrc: getMediaUrl(c.media.find((m) => m.media_type === 'video')?.url) || '',
+        videoSrc: getMediaUrl(c.url || c.media.find((m) => m.media_type === 'video')?.url) || '',
       }));
   }, [content]);
 
