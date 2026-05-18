@@ -30,6 +30,9 @@ const MOCK_CONTENT_DETAIL: ContentDetail = {
   is_exclusive: false,
   visibility: 'public',
   is_locked: true,
+  tags: [],
+  is_liked: false,
+  is_saved: false,
   created_on: new Date(Date.now() - 3600000).toISOString(),
   duration_seconds: 1200,
 };

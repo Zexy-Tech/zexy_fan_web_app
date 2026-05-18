@@ -5,6 +5,7 @@ import type { CSSProperties, MouseEvent, TouchEvent } from 'react';
 import { X, Heart, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { contentEngagementService } from '@/services/contentEngagement';
 
 export interface ContentPopupProps {
   open: boolean;
@@ -17,6 +18,10 @@ export interface ContentPopupProps {
   /** Optional: show a playable audio player (image can still be used as cover). */
   audioSrc?: string;
   imageAlt?: string;
+  contentId?: number;
+  initialLiked?: boolean;
+  initialSaved?: boolean;
+  tags?: string[];
   /**
    * Max width of the rounded panel (CSS length).
    * @default 100vw — edge-to-edge on screen
@@ -64,6 +69,10 @@ export function ContentPopup({
   videoSrc,
   audioSrc,
   imageAlt = '',
+  contentId,
+  initialLiked = false,
+  initialSaved = false,
+  tags = [],
   panelMaxWidth = DEFAULT_MAX_W,
   panelMaxHeight = DEFAULT_MAX_H,
   panelHeight,
@@ -88,11 +97,35 @@ export function ContentPopup({
 
   useEffect(() => {
     if (!open) return;
-    setLiked(false);
-    setSaved(false);
+    setLiked(initialLiked);
+    setSaved(initialSaved);
     setBurstKey(0);
     setDescriptionExpanded(false);
-  }, [open, imageSrc, description, videoSrc, audioSrc]);
+  }, [open, imageSrc, description, videoSrc, audioSrc, initialLiked, initialSaved]);
+
+  const toggleLiked = async () => {
+    const next = !liked;
+    setLiked(next);
+    if (!contentId) return;
+    try {
+      if (next) await contentEngagementService.like(contentId);
+      else await contentEngagementService.unlike(contentId);
+    } catch {
+      setLiked(!next);
+    }
+  };
+
+  const toggleSaved = async () => {
+    const next = !saved;
+    setSaved(next);
+    if (!contentId) return;
+    try {
+      if (next) await contentEngagementService.save(contentId);
+      else await contentEngagementService.unsave(contentId);
+    } catch {
+      setSaved(!next);
+    }
+  };
 
   const triggerDoubleTapLike = () => {
     setLiked(true);
@@ -133,6 +166,7 @@ export function ContentPopup({
   if (!open) return null;
 
   const showProductFooter = Boolean(description?.trim());
+  const showPostDetails = !onBuyNow && (Boolean(description?.trim()) || tags.length > 0);
 
   return (
     <div className="fixed inset-0 z-[100]" role="dialog" aria-modal="true" aria-label={title}>
@@ -215,7 +249,7 @@ export function ContentPopup({
             )}
           </div>
 
-          {/* Bottom: like + save; optional product row (description + Buy Now) */}
+          {/* Bottom: like/save + details */}
           <footer className="flex shrink-0 flex-col border-t border-white/10">
             <div className="flex items-center justify-between px-4 py-3">
               <Button
@@ -225,7 +259,7 @@ export function ContentPopup({
                 className="h-11 w-11 rounded-full text-white hover:bg-white/10"
                 aria-label={liked ? 'Unlike' : 'Like'}
                 aria-pressed={liked}
-                onClick={() => setLiked((v) => !v)}
+                onClick={toggleLiked}
               >
                 <Heart
                   className={cn('h-7 w-7', liked ? 'fill-red-500 text-red-500' : 'fill-transparent')}
@@ -239,7 +273,7 @@ export function ContentPopup({
                 className="h-11 w-11 rounded-full text-white hover:bg-white/10"
                 aria-label={saved ? 'Remove from saved' : 'Save'}
                 aria-pressed={saved}
-                onClick={() => setSaved((v) => !v)}
+                onClick={toggleSaved}
               >
                 <Bookmark
                   className={cn('h-7 w-7', saved && 'fill-white text-white')}
@@ -248,7 +282,41 @@ export function ContentPopup({
               </Button>
             </div>
 
-            {showProductFooter ? (
+            {showPostDetails ? (
+              <div className="space-y-2 border-t border-white/10 px-4 pb-3 pt-2">
+                {description?.trim() ? (
+                  <button
+                    type="button"
+                    onClick={() => setDescriptionExpanded((v) => !v)}
+                    className={cn(
+                      'w-full bg-transparent p-0 text-left text-xs leading-snug text-zinc-300 outline-none ring-offset-zinc-950 transition-colors',
+                      'focus-visible:ring-2 focus-visible:ring-pink-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
+                      descriptionExpanded
+                        ? 'max-h-28 cursor-pointer overflow-y-auto'
+                        : 'line-clamp-2 cursor-pointer'
+                    )}
+                    aria-expanded={descriptionExpanded}
+                  >
+                    {description.trim()}
+                  </button>
+                ) : null}
+
+                {tags.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-zinc-200"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {showProductFooter && onBuyNow ? (
               <div className="flex gap-2 border-t border-white/10 px-4 pb-3 pt-2">
                 <div className="min-w-0 flex-[7]">
                   <button

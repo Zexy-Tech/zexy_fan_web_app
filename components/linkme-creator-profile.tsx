@@ -497,8 +497,14 @@ type MediaGridKind = 'image' | 'video' | 'audio';
 
 type MediaGridItem = {
   id: string;
+  contentId?: number;
   thumbSrc: string;
   title: string;
+  description?: string | null;
+  tags: string[];
+  isLiked: boolean;
+  isSaved: boolean;
+  isLocked: boolean;
   duration?: string;
   videoSrc?: string;
   audioSrc?: string;
@@ -619,9 +625,14 @@ function CreatorMediaBlocks({
 }) {
   const [activeTab, setActiveTab] = useState<ContentTabId>('images');
   const [popup, setPopup] = useState<{
+    contentId?: number;
     src: string;
     title: string;
     description?: string;
+    isProduct?: boolean;
+    tags?: string[];
+    isLiked?: boolean;
+    isSaved?: boolean;
     videoSrc?: string;
     audioSrc?: string;
   } | null>(null);
@@ -631,8 +642,14 @@ function CreatorMediaBlocks({
       .filter((c) => c.media.some((m) => m.media_type === 'image'))
       .map((c) => ({
         id: String(c.id),
+        contentId: c.id,
         thumbSrc: getMediaUrl(c.media.find((m) => m.media_type === 'image')?.url) || '',
         title: c.title,
+        description: c.description,
+        tags: c.tags ?? [],
+        isLiked: c.is_liked,
+        isSaved: c.is_saved,
+        isLocked: c.is_locked,
       }));
   }, [content]);
 
@@ -641,8 +658,14 @@ function CreatorMediaBlocks({
       .filter((c) => c.media.some((m) => m.media_type === 'video'))
       .map((c) => ({
         id: String(c.id),
+        contentId: c.id,
         thumbSrc: getMediaUrl(c.media.find((m) => m.media_type === 'video')?.url) || '',
         title: c.title,
+        description: c.description,
+        tags: c.tags ?? [],
+        isLiked: c.is_liked,
+        isSaved: c.is_saved,
+        isLocked: c.is_locked,
         videoSrc: getMediaUrl(c.media.find((m) => m.media_type === 'video')?.url) || '',
       }));
   }, [content]);
@@ -652,18 +675,24 @@ function CreatorMediaBlocks({
       .filter((c) => c.media.some((m) => m.media_type === 'audio'))
       .map((c) => ({
         id: String(c.id),
+        contentId: c.id,
         thumbSrc: creatorAvatarSrc,
         title: c.title,
+        description: c.description,
+        tags: c.tags ?? [],
+        isLiked: c.is_liked,
+        isSaved: c.is_saved,
+        isLocked: c.is_locked,
         audioSrc: getMediaUrl(c.media.find((m) => m.media_type === 'audio')?.url) || '',
       }));
   }, [content, creatorAvatarSrc]);
 
-  const requestAccessThen = (openContent: () => void) => {
-    if (!isAuthenticated) {
+  const requestAccessThen = (needsAccess: boolean, openContent: () => void) => {
+    if (needsAccess && !isAuthenticated) {
       onRequireLogin();
       return;
     }
-    if (!isMember) {
+    if (needsAccess && !isMember) {
       onRequireMembership();
       return;
     }
@@ -671,13 +700,13 @@ function CreatorMediaBlocks({
   };
 
   const openGridItem = (item: MediaGridItem, kind: MediaGridKind) => {
-    requestAccessThen(() => {
+    requestAccessThen(item.isLocked, () => {
       if (kind === 'audio') {
-        setPopup({ src: creatorAvatarSrc, title: item.title, audioSrc: item.audioSrc });
+        setPopup({ src: creatorAvatarSrc, title: item.title, audioSrc: item.audioSrc, contentId: item.contentId, description: item.description || undefined, tags: item.tags, isLiked: item.isLiked, isSaved: item.isSaved });
       } else if (kind === 'video') {
-        setPopup({ src: item.thumbSrc, title: item.title, videoSrc: item.videoSrc });
+        setPopup({ src: item.thumbSrc, title: item.title, videoSrc: item.videoSrc, contentId: item.contentId, description: item.description || undefined, tags: item.tags, isLiked: item.isLiked, isSaved: item.isSaved });
       } else {
-        setPopup({ src: item.thumbSrc, title: item.title });
+        setPopup({ src: item.thumbSrc, title: item.title, contentId: item.contentId, description: item.description || undefined, tags: item.tags, isLiked: item.isLiked, isSaved: item.isSaved });
       }
     });
   };
@@ -737,11 +766,12 @@ function CreatorMediaBlocks({
               key={p.id}
               type="button"
               onClick={() =>
-                requestAccessThen(() =>
+                requestAccessThen(true, () =>
                   setPopup({
                     src: getMediaUrl(p.image_urls?.[0]) || '',
                     title: p.name,
                     description: p.description,
+                    isProduct: true,
                   })
                 )
               }
@@ -781,14 +811,18 @@ function CreatorMediaBlocks({
       <ContentPopup
         open={popup !== null}
         onClose={() => setPopup(null)}
+        contentId={popup?.contentId}
         title={popup?.title ?? ''}
         imageSrc={popup?.src ?? ''}
         imageAlt={popup?.title ?? ''}
         videoSrc={popup?.videoSrc}
         audioSrc={popup?.audioSrc}
         description={popup?.description}
+        tags={popup?.tags}
+        initialLiked={popup?.isLiked}
+        initialSaved={popup?.isSaved}
         onBuyNow={
-          popup?.description ? () => toast.message('Checkout coming soon.') : undefined
+          popup?.isProduct ? () => toast.message('Checkout coming soon.') : undefined
         }
       />
     </Card>

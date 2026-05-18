@@ -52,6 +52,9 @@ export interface Content {
   is_exclusive: boolean;
   visibility: 'public' | 'subscription';
   is_locked: boolean; // Computed: true if subscription and not subscribed
+  tags: string[];
+  is_liked: boolean;
+  is_saved: boolean;
   created_on: string;
 }
 
@@ -115,6 +118,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: false,
     visibility: 'public',
     is_locked: false,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date().toISOString(),
   },
   {
@@ -132,6 +138,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: false,
     visibility: 'public',
     is_locked: false,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date(Date.now() - 86400000).toISOString(),
   },
   {
@@ -149,6 +158,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: true,
     visibility: 'subscription',
     is_locked: true,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date(Date.now() - 172800000).toISOString(),
   },
   {
@@ -166,6 +178,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: false,
     visibility: 'subscription',
     is_locked: true,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date(Date.now() - 259200000).toISOString(),
   },
 
@@ -185,6 +200,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: false,
     visibility: 'public',
     is_locked: false,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date(Date.now() - 3600000).toISOString(),
   },
   {
@@ -202,6 +220,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: true,
     visibility: 'subscription',
     is_locked: true,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date(Date.now() - 86400000).toISOString(),
   },
   {
@@ -219,6 +240,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: false,
     visibility: 'subscription',
     is_locked: true,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date(Date.now() - 172800000).toISOString(),
   },
 
@@ -238,6 +262,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: false,
     visibility: 'public',
     is_locked: false,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date(Date.now() - 7200000).toISOString(),
   },
   {
@@ -255,6 +282,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: true,
     visibility: 'subscription',
     is_locked: true,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date(Date.now() - 86400000).toISOString(),
   },
   {
@@ -272,6 +302,9 @@ const MOCK_CONTENT: Content[] = [
     is_exclusive: false,
     visibility: 'subscription',
     is_locked: true,
+    tags: [],
+    is_liked: false,
+    is_saved: false,
     created_on: new Date(Date.now() - 172800000).toISOString(),
   },
 ];
