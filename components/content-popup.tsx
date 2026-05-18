@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, MouseEvent, TouchEvent } from 'react';
 import { X, Heart, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn, getMediaUrl } from '@/lib/utils';
+import { cn, getMediaUrl, formatCurrency } from '@/lib/utils';
 import { contentEngagementService } from '@/services/contentEngagement';
 import { VideoPlayer } from '@/components/content/video-player';
 
@@ -50,6 +50,10 @@ export interface ContentPopupProps {
    * Omit or leave empty for image-only popups.
    */
   description?: string;
+  /** Optional price for products. */
+  price?: number;
+  /** Is this a product? */
+  isProduct?: boolean;
   /** Called when the user taps Buy Now (only shown when `description` is non-empty). */
   onBuyNow?: () => void;
 }
@@ -80,6 +84,8 @@ export function ContentPopup({
   borderRadius = DEFAULT_RADIUS,
   panelClassName,
   description,
+  price,
+  isProduct = false,
   onBuyNow,
 }: ContentPopupProps) {
   const [liked, setLiked] = useState(false);
@@ -107,6 +113,18 @@ export function ContentPopup({
   const toggleLiked = async () => {
     const next = !liked;
     setLiked(next);
+    
+    if (isProduct) {
+      if (!contentId) return;
+      try {
+        if (next) await contentEngagementService.likeProduct(contentId);
+        else await contentEngagementService.unlikeProduct(contentId);
+      } catch {
+        setLiked(!next);
+      }
+      return;
+    }
+
     if (!contentId) return;
     try {
       if (next) await contentEngagementService.like(contentId);
@@ -119,6 +137,18 @@ export function ContentPopup({
   const toggleSaved = async () => {
     const next = !saved;
     setSaved(next);
+
+    if (isProduct) {
+      if (!contentId) return;
+      try {
+        if (next) await contentEngagementService.saveProduct(contentId);
+        else await contentEngagementService.unsaveProduct(contentId);
+      } catch {
+        setSaved(!next);
+      }
+      return;
+    }
+
     if (!contentId) return;
     try {
       if (next) await contentEngagementService.save(contentId);
@@ -318,36 +348,44 @@ export function ContentPopup({
             ) : null}
 
             {showProductFooter && onBuyNow ? (
-              <div className="flex gap-2 border-t border-white/10 px-4 pb-3 pt-2">
-                <div className="min-w-0 flex-[7]">
-                  <button
-                    type="button"
-                    onClick={() => setDescriptionExpanded((v) => !v)}
-                    className={cn(
-                      'w-full bg-transparent p-0 text-left text-xs leading-snug text-zinc-400 outline-none ring-offset-zinc-950 transition-colors',
-                      'focus-visible:ring-2 focus-visible:ring-pink-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
-                      descriptionExpanded
-                        ? 'max-h-28 cursor-pointer overflow-y-auto hover:text-zinc-300'
-                        : 'line-clamp-2 cursor-pointer hover:text-zinc-300'
-                    )}
-                    aria-expanded={descriptionExpanded}
-                    aria-label={
-                      descriptionExpanded ? 'Collapse product description' : 'Expand product description'
-                    }
-                  >
-                    {description?.trim()}
-                  </button>
-                </div>
-                <div className="flex min-w-0 flex-[3] items-center">
-                  <Button
-                    type="button"
-                    variant="default"
-                    size="sm"
-                    className="h-auto min-h-9 w-full whitespace-normal px-2 py-2 text-center text-xs font-semibold leading-tight"
-                    onClick={() => onBuyNow?.()}
-                  >
-                    Buy Now
-                  </Button>
+              <div className="flex flex-col gap-2 border-t border-white/10 px-4 pb-3 pt-3">
+                {price !== undefined && (
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Price</span>
+                    <span className="text-sm font-bold text-pink-500">{formatCurrency(price)}</span>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <div className="min-w-0 flex-[7]">
+                    <button
+                      type="button"
+                      onClick={() => setDescriptionExpanded((v) => !v)}
+                      className={cn(
+                        'w-full bg-transparent p-0 text-left text-xs leading-snug text-zinc-400 outline-none ring-offset-zinc-950 transition-colors',
+                        'focus-visible:ring-2 focus-visible:ring-pink-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
+                        descriptionExpanded
+                          ? 'max-h-28 cursor-pointer overflow-y-auto hover:text-zinc-300'
+                          : 'line-clamp-2 cursor-pointer hover:text-zinc-300'
+                      )}
+                      aria-expanded={descriptionExpanded}
+                      aria-label={
+                        descriptionExpanded ? 'Collapse product description' : 'Expand product description'
+                      }
+                    >
+                      {description?.trim()}
+                    </button>
+                  </div>
+                  <div className="flex min-w-0 flex-[3] items-center">
+                    <Button
+                      type="button"
+                      variant="default"
+                      size="sm"
+                      className="h-auto min-h-9 w-full whitespace-normal px-2 py-2 text-center text-xs font-semibold leading-tight"
+                      onClick={() => onBuyNow?.()}
+                    >
+                      Buy Now
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : null}

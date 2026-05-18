@@ -69,6 +69,10 @@ export interface Product {
   description: string;
   price: number;
   image_urls: string[] | null;
+  likes_count: number;
+  saves_count: number;
+  is_liked: boolean;
+  is_saved: boolean;
 }
 
 // ============================================================================

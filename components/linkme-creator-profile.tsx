@@ -634,6 +634,7 @@ function CreatorMediaBlocks({
     src: string;
     title: string;
     description?: string;
+    price?: number;
     isProduct?: boolean;
     tags?: string[];
     isLiked?: boolean;
@@ -771,12 +772,16 @@ function CreatorMediaBlocks({
               key={p.id}
               type="button"
               onClick={() =>
-                requestAccessThen(true, () =>
+                requestAccessThen(false, () =>
                   setPopup({
+                    contentId: p.id,
                     src: getMediaUrl(p.image_urls?.[0]) || '',
                     title: p.name,
                     description: p.description,
+                    price: p.price,
                     isProduct: true,
+                    isLiked: p.is_liked,
+                    isSaved: p.is_saved,
                   })
                 )
               }
@@ -823,6 +828,8 @@ function CreatorMediaBlocks({
         videoSrc={popup?.videoSrc}
         audioSrc={popup?.audioSrc}
         description={popup?.description}
+        price={popup?.price}
+        isProduct={popup?.isProduct}
         tags={popup?.tags}
         initialLiked={popup?.isLiked}
         initialSaved={popup?.isSaved}
