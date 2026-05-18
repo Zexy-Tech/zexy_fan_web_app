@@ -72,8 +72,8 @@
 
 ### Products
 
-- [ ] T2.3 `services/payment.ts` or `products.ts` — `confirmProductPurchase(productId, gatewayOrderId)`
-- [ ] T2.4 Wire product buy flow on creator profile shop section
+- [ ] T2.3 Wire product buy flow on creator profile shop section via payment intent + verify
+- [ ] T2.4 Optional: `services/payment.ts` or `products.ts` — `confirmProductPurchase(productId, gatewayOrderId)` only if backend keeps confirm as required
 
 ### Messages
 

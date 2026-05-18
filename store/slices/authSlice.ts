@@ -7,6 +7,7 @@ export interface User {
   name: string | null;
   avatar: string | null;
   role: 'fan' | 'creator' | 'admin';
+  has_completed_onboarding: boolean;
 }
 
 interface AuthState {

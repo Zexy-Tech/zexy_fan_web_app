@@ -112,7 +112,7 @@ export default function ContentDetailPage() {
             {content.is_paid && (
               <div>
                 <p className="text-xs text-muted-foreground">Price</p>
-                <p className="text-sm font-semibold">{formatCurrency(content.price)}</p>
+                <p className="text-sm font-semibold">{formatCurrency(content.price || 0)}</p>
               </div>
             )}
           </div>

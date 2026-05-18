@@ -61,7 +61,8 @@ Legend: **READY** = backend exists, frontend fix only · **PARTIAL** = backend e
 | Profile config | `GET /fan/creators/{id}/profile-config` → snake_case root | `CreatorProfileConfig` camelCase | **BROKEN** | **FE:** map `creator_id`→display layer or rename types to snake_case |
 | Intro greeting | Not in `IntroConfig` schema | `intro.greeting` required in UI | **BROKEN** | **Decision:** derive greeting from `creator.name` on FE, or **BE:** add optional `greeting` |
 | Categories browse | Filter `?category=` on list endpoint | Hardcoded `creatorCategories.ts` | PARTIAL | **FE:** use API `category` query; remove demo grid or keep as empty-state only |
-| Q&A list/submit | `GET/POST /fan/creators/{id}/qa` (stub empty) | `qaService` + mocks | STUB | **BE:** implement Q&A CRUD · **FE:** snake_case `created_at`, remove mock |
+| Q&A list | `GET /fan/creators/{id}/qa` (stub empty) | `qaService.getQAItems` + mocks | STUB | **BE:** replace stub with real list response · **FE:** snake_case `created_at`, remove mock |
+| Q&A submit | No `POST /fan/creators/{id}/qa` endpoint | `qaService.submitQuestion` posts to missing path | MISSING-BE | **BE:** add submit endpoint before removing submit mock, or hide submit UI |
 
 ### 2.4 Feed & content
 
@@ -111,7 +112,7 @@ Legend: **READY** = backend exists, frontend fix only · **PARTIAL** = backend e
 | Capability | Backend | Frontend | Status | Action |
 |------------|---------|----------|--------|--------|
 | Browse creator products | public on creator page | wired | READY | Purchase via `POST /fan/products/{id}/purchase` raises PAY_002 — use payment intent + `post_payment confirm` |
-| Product confirm | `POST /fan/products/{id}/confirm` | Not wired | MISSING-FE | After verify |
+| Product confirm | `POST /fan/products/{id}/confirm` exists, but `POST /fan/payments/verify` already dispatches product side effects | Not wired | OPTIONAL | Prefer verify-first flow; wire confirm only if backend keeps it as required idempotency check |
 | Tips history | `GET /fan/tips` | Not wired | MISSING-FE | Low priority |
 | Live list/join | `/common/live/*` | Not in fan web app | MISSING-FE | Out of scope unless pages exist |
 | Activity log | `GET /fan/activity` | `activityService` | READY | Event types fixed set on BE |
@@ -173,7 +174,7 @@ sender_uid, receiver_uid, message_type, media_url, created_at, ...
 ### Phase 2 — Complete fan UX on existing APIs
 
 - Signed content URL for locked media playback
-- Product purchase confirm post-payment
+- Product purchase verify-first flow; optional confirm call only if backend makes it required
 - Media messages (common API)
 - Settings language PATCH
 - Enriched membership list (FE join or BE aggregate endpoint)

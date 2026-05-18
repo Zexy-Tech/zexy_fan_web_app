@@ -195,7 +195,8 @@ export const creatorProfileService = {
     const response = await apiClient.get(
       `/api/v1/fan/creators/${username}/profile-config`
     );
-    return response.data.data;
+    const payload = response.data.data;
+    return payload.data ?? payload;
   },
 
   /**

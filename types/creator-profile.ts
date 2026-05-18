@@ -68,6 +68,8 @@ export type ProfileSectionType =
   | 'qa' 
   | 'exclusives' 
   | 'subscription' 
+  | 'membership'
+  | 'products'
   | 'custom';
 
 export interface ProfileSection {

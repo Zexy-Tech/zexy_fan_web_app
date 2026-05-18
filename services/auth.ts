@@ -57,7 +57,7 @@ export interface User {
   username: string | null;
   name: string | null;
   avatar: string | null;
-  role: 'fan';
+  role: 'fan' | 'creator' | 'admin';
   has_completed_onboarding: boolean;
 }
 

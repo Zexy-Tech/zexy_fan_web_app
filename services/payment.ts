@@ -10,6 +10,7 @@ export interface CreateIntentRequest {
   purpose: 'subscription' | 'content' | 'product' | 'message' | 'live_access' | 'tip';
   reference_id: number;
   amount?: number; // Required for tips
+  currency?: string;
   reference_type?: string; // 'creator' for standalone tips
   extra_data?: Record<string, any>;
 }

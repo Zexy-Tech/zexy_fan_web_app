@@ -48,6 +48,7 @@ export interface Content {
   media: ContentMedia[];
   media_urls: string[];
   is_paid: boolean;
+  price?: number;
   is_exclusive: boolean;
   visibility: 'public' | 'subscription';
   is_locked: boolean; // Computed: true if subscription and not subscribed
@@ -337,7 +338,8 @@ export const feedService = {
    */
   getCreatorByUsername: async (username: string): Promise<Creator> => {
     const response = await apiClient.get(`/api/v1/fan/creators/${username}`);
-    return response.data.data;
+    const payload = response.data.data;
+    return payload.data ?? payload;
   },
 
   /**
