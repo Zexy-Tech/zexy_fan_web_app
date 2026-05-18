@@ -22,6 +22,7 @@ import { Check, CheckCircle2, Crown, Loader2, X, XCircle } from 'lucide-react';
 import { cn, formatCurrency, getMediaUrl } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { SubscriptionPlan } from '@/services/subscriptions';
+import { AxiosError } from 'axios';
 
 interface SubscriptionModalProps {
   creatorName: string;
@@ -82,9 +83,10 @@ export function SubscriptionModal({
         onClose();
         onSuccess?.();
       }, 1500);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('error');
-      toast.error(err.response?.data?.error?.message || 'Subscription failed. Please try again.');
+      const axiosError = err as AxiosError<{ error?: { message?: string } }>;
+      toast.error(axiosError.response?.data?.error?.message || 'Subscription failed. Please try again.');
     }
   };
 
@@ -228,8 +230,8 @@ export function SubscriptionModal({
           {status === 'success' && (
             <div className="flex flex-col items-center justify-center py-10 space-y-4">
               <CheckCircle2 className="h-12 w-12 text-green-500" />
-              <p className="font-semibold">You're subscribed!</p>
-              <p className="text-sm text-muted-foreground">Enjoy exclusive access to {creatorName}'s content.</p>
+              <p className="font-semibold">You&apos;re subscribed!</p>
+              <p className="text-sm text-muted-foreground">Enjoy exclusive access to {creatorName}&apos;s content.</p>
             </div>
           )}
 

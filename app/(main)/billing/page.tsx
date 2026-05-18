@@ -22,7 +22,7 @@ export default function BillingPage() {
     try {
       const data = await paymentService.getHistory();
       setTransactions(data);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load payment history');
     } finally {
       setIsLoading(false);
@@ -34,7 +34,7 @@ export default function BillingPage() {
     try {
       await paymentService.downloadInvoice(id);
       toast.success('Invoice downloaded');
-    } catch (error) {
+    } catch {
       toast.error('Failed to download invoice');
     } finally {
       setIsDownloading(null);

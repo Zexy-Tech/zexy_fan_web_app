@@ -53,15 +53,15 @@ export function PaymentModal({ contentId, amount, title, onClose }: PaymentModal
 
       // Redirect to content page after 1 second
       setTimeout(() => {
-        router.push(`/content/${contentId}`);
-        onClose();
+      router.push(`/content/${contentId}`);
+      onClose();
       }, 1000);
-    } catch (error: any) {
+      } catch (error: unknown) {
       setStatus('error');
-      toast.error(error.response?.data?.error?.message || 'Payment failed');
-    }
-  };
-
+      const errorMessage = (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Payment failed';
+      toast.error(errorMessage);
+      }
+      };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <Card className="w-full max-w-md">

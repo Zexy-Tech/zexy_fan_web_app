@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, CreditCard, Home, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid } from 'lucide-react';
 import { getCategoryBySlug } from '@/services/creatorCategories';
 
 const navItems = [

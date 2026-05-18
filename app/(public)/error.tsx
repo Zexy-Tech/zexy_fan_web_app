@@ -27,7 +27,7 @@ export default function PublicError({
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
-            We couldn't load this creator profile. Please try again.
+            We couldn&apos;t load this creator profile. Please try again.
           </p>
           <div className="flex gap-2">
             <Button onClick={reset} className="flex-1">

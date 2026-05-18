@@ -5,10 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useSendOTP, useVerifyOTP, useLoginWithPIN } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AxiosError } from 'axios';
 
 function safeInternalPath(raw: string | null): string | null {
   if (!raw || !raw.startsWith('/')) return null;
@@ -46,8 +47,9 @@ function LoginPageContent() {
       await sendOTP.mutateAsync({ mobile, role: 'fan' });
       toast.success('OTP sent successfully');
       setStep('otp');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to send OTP');
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error?: { message?: string } }>;
+      toast.error(axiosError.response?.data?.error?.message || 'Failed to send OTP');
     }
   };
 
@@ -70,8 +72,9 @@ function LoginPageContent() {
         const next = safeInternalPath(searchParams.get('next'));
         router.push(next ?? '/feed');
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Invalid OTP');
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error?: { message?: string } }>;
+      toast.error(axiosError.response?.data?.error?.message || 'Invalid OTP');
       setOtp(['', '', '', '']);
       otpInputRefs.current[0]?.focus();
     }
@@ -91,8 +94,9 @@ function LoginPageContent() {
       toast.success('Login successful!');
       const next = safeInternalPath(searchParams.get('next'));
       router.push(next ?? '/feed');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Invalid PIN');
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error?: { message?: string } }>;
+      toast.error(axiosError.response?.data?.error?.message || 'Invalid PIN');
       setPin(['', '', '', '']);
       pinInputRefs.current[0]?.focus();
     }
@@ -327,7 +331,7 @@ function LoginPageContent() {
                   </Button>
                   
                   <p className="text-center text-sm text-zinc-500">
-                    Didn't receive code? <button type="button" className="text-purple-400 font-medium hover:underline" onClick={handleSendOTP}>Resend</button>
+                    Didn&apos;t receive code? <button type="button" className="text-purple-400 font-medium hover:underline" onClick={handleSendOTP}>Resend</button>
                   </p>
                 </div>
               </form>

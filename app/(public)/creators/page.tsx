@@ -8,8 +8,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useInfiniteCreators } from '@/hooks/useFeed';
 import { CreatorsGrid } from '@/components/creators-grid';
 import { CreatorSearchFilters } from '@/components/creator-search-filters';
@@ -17,8 +15,6 @@ import { Loader2 } from 'lucide-react';
 import { Creator, CreatorFilters } from '@/services/feed';
 
 export default function CreatorsPage() {
-  const router = useRouter();
-  const { isDesktop } = useDeviceDetection();
   const [isChecking, setIsChecking] = useState(true);
   const [filters, setFilters] = useState<CreatorFilters>({});
   const loadMoreRef = useRef<HTMLDivElement | null>(null);

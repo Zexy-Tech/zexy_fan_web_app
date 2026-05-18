@@ -192,21 +192,10 @@ export const creatorProfileService = {
    * @returns Profile configuration object
    */
   getProfileConfig: async (username: string): Promise<CreatorProfileConfig> => {
-    if (ENV.IS_MOCK) {
-      await sleep(600);
-      
-      const config = MOCK_PROFILE_CONFIGS[username];
-      if (!config) {
-        throw new Error('Profile configuration not found');
-      }
-      
-      return config;
-    }
-
     const response = await apiClient.get(
       `/api/v1/fan/creators/${username}/profile-config`
     );
-    return response.data.data.data;
+    return response.data.data;
   },
 
   /**
@@ -220,28 +209,6 @@ export const creatorProfileService = {
     creatorId: number,
     config: Partial<CreatorProfileConfig>
   ): Promise<CreatorProfileConfig> => {
-    if (ENV.IS_MOCK) {
-      await sleep(800);
-      
-      // Find existing config
-      const existingConfig = Object.values(MOCK_PROFILE_CONFIGS).find(
-        c => c.creatorId === creatorId
-      );
-      
-      if (!existingConfig) {
-        throw new Error('Profile configuration not found');
-      }
-      
-      // Merge with updates
-      const updated = {
-        ...existingConfig,
-        ...config,
-        updatedAt: new Date().toISOString(),
-      };
-      
-      return updated;
-    }
-
     const response = await apiClient.put(
       `/api/v1/creators/${creatorId}/profile-config`,
       config

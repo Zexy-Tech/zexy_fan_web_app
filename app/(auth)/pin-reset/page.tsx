@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2, KeyRound, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AxiosError } from 'axios';
 
 function PinResetPageContent() {
   const router = useRouter();
@@ -36,8 +37,9 @@ function PinResetPageContent() {
       await initiateReset.mutateAsync({ mobile });
       toast.success('Reset code sent successfully');
       setStep('otp');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to initiate PIN reset');
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error?: { message?: string } }>;
+      toast.error(axiosError.response?.data?.error?.message || 'Failed to initiate PIN reset');
     }
   };
 
@@ -61,8 +63,9 @@ function PinResetPageContent() {
       });
       toast.success('PIN reset successful! You can now login with your new PIN.');
       router.push('/login');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to reset PIN');
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error?: { message?: string } }>;
+      toast.error(axiosError.response?.data?.error?.message || 'Failed to reset PIN');
     }
   };
 

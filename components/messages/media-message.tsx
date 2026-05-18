@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import type { Message } from '@/services/messages';
 import { messageService } from '@/services/messages';
@@ -86,18 +87,19 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
           <p className="text-xs text-destructive">Could not load media</p>
         ) : m.message_type === 'image' ? (
           <>
-            {/* Use img for simplicity (Next Image requires domain config). */}
             <button
               type="button"
               className="block"
               onClick={() => setViewerOpen(true)}
               aria-label="Open image viewer"
             >
-              <img
+              <Image
                 src={urlToUse}
                 alt={m.body || 'Image'}
-                className="rounded-xl max-h-[320px] w-auto object-contain"
-                loading="lazy"
+                width={320}
+                height={320}
+                unoptimized
+                className="rounded-xl max-h-[320px] w-auto h-auto object-contain"
               />
             </button>
             {viewerOpen && urlToUse ? (
@@ -119,10 +121,13 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
                   >
                     <X className="h-5 w-5" />
                   </button>
-                  <img
+                  <Image
                     src={urlToUse}
                     alt={m.body || 'Image'}
-                    className="rounded-xl max-h-[90vh] w-auto object-contain select-none"
+                    width={1200}
+                    height={900}
+                    unoptimized
+                    className="rounded-xl max-h-[90vh] w-auto h-auto object-contain select-none"
                   />
                 </div>
               </div>
@@ -147,11 +152,13 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
                 )}
               >
                 {thumb && !thumbFailed ? (
-                  <img
+                  <Image
                     src={thumb}
                     alt="Video thumbnail"
-                    className="absolute inset-0 h-full w-full object-cover"
-                    loading="lazy"
+                    fill
+                    className="object-cover"
+                    sizes="250px"
+                    unoptimized
                     onError={() => setThumbFailed(true)}
                   />
                 ) : null}

@@ -69,8 +69,9 @@ export default function SettingsPage() {
       setNewPIN(['', '', '', '']);
       setConfirmPIN(['', '', '', '']);
       setStep('new');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to update PIN');
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to update PIN';
+      toast.error(errorMessage);
     }
   };
 

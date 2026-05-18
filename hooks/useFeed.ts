@@ -65,3 +65,11 @@ export function useCreatorContentByUsername(username: string) {
     enabled: !!username,
   });
 }
+
+export function useCreatorProductsByUsername(username: string) {
+  return useQuery({
+    queryKey: ['creator', 'username', username, 'products'],
+    queryFn: () => feedService.getCreatorProductsByUsername(username),
+    enabled: !!username,
+  });
+}

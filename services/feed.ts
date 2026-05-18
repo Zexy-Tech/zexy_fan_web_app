@@ -54,6 +54,15 @@ export interface Content {
   created_on: string;
 }
 
+export interface Product {
+  id: number;
+  creator_uid: number;
+  name: string;
+  description: string;
+  price: number;
+  image_urls: string[] | null;
+}
+
 // ============================================================================
 // MOCK DATA
 // ============================================================================
@@ -275,13 +284,8 @@ export const feedService = {
    * Get list of creators
    */
   getCreators: async (): Promise<Creator[]> => {
-    if (ENV.IS_MOCK) {
-      await sleep(600);
-      return MOCK_CREATORS;
-    }
-
     const response = await apiClient.get('/api/v1/fan/creators');
-    return response.data.data.data;
+    return response.data.data;
   },
 
   getCreatorsPage: async ({
@@ -293,43 +297,6 @@ export const feedService = {
     limit?: number;
     filters?: CreatorFilters;
   }): Promise<CreatorsPageResponse> => {
-    if (ENV.IS_MOCK) {
-      await sleep(500);
-      let dataset = [...MOCK_CREATORS];
-
-      if (filters.search) {
-        const q = filters.search.toLowerCase();
-        dataset = dataset.filter(
-          (c) =>
-            c.name?.toLowerCase().includes(q) ||
-            c.username?.toLowerCase().includes(q) ||
-            c.category?.toLowerCase().includes(q)
-        );
-      }
-
-      if (filters.category) {
-        dataset = dataset.filter((c) => c.category?.toLowerCase() === filters.category?.toLowerCase());
-      }
-
-      const startIndex = cursor
-        ? Math.max(
-            dataset.findIndex((c) => c.id === cursor) + 1,
-            0
-          )
-        : 0;
-      const pageItems = dataset.slice(startIndex, startIndex + limit);
-      const hasMore = startIndex + limit < dataset.length;
-      const nextCursor = hasMore && pageItems.length > 0 ? pageItems[pageItems.length - 1].id : null;
-
-      return {
-        items: pageItems,
-        total: dataset.length,
-        limit,
-        hasMore,
-        nextCursor,
-      };
-    }
-
     const params: Record<string, string | number> = { limit };
     if (cursor) params.cursor = cursor;
     if (filters.search) params.search = filters.search;
@@ -353,11 +320,6 @@ export const feedService = {
    * Get feed content (all creators)
    */
   getFeed: async (): Promise<Content[]> => {
-    if (ENV.IS_MOCK) {
-      await sleep(800);
-      return MOCK_CONTENT;
-    }
-
     const response = await apiClient.get('/api/v1/fan/feed');
     return response.data.data;
   },
@@ -366,11 +328,6 @@ export const feedService = {
    * Get content by specific creator (by ID)
    */
   getCreatorContent: async (creatorId: number): Promise<Content[]> => {
-    if (ENV.IS_MOCK) {
-      await sleep(700);
-      return MOCK_CONTENT.filter((c) => c.creator_uid === creatorId);
-    }
-
     const response = await apiClient.get(`/api/v1/fan/content/${creatorId}`);
     return response.data.data;
   },
@@ -379,29 +336,23 @@ export const feedService = {
    * Get creator by username
    */
   getCreatorByUsername: async (username: string): Promise<Creator> => {
-    if (ENV.IS_MOCK) {
-      await sleep(600);
-      const creator = MOCK_CREATORS.find((c) => c.username === username);
-      if (!creator) {
-        throw new Error('Creator not found');
-      }
-      return creator;
-    }
-
     const response = await apiClient.get(`/api/v1/fan/creators/${username}`);
-    return response.data.data.data;
+    return response.data.data;
   },
 
   /**
    * Get content by creator username
    */
   getCreatorContentByUsername: async (username: string): Promise<Content[]> => {
-    if (ENV.IS_MOCK) {
-      await sleep(700);
-      return MOCK_CONTENT.filter((c) => c.creator_username === username);
-    }
-
     const response = await apiClient.get(`/api/v1/fan/creators/${username}/content`);
+    return response.data.data;
+  },
+
+  /**
+   * Get products by creator username
+   */
+  getCreatorProductsByUsername: async (username: string): Promise<Product[]> => {
+    const response = await apiClient.get(`/api/v1/fan/creators/${username}/products`);
     return response.data.data;
   },
 };

@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useCreatorByUsername } from '@/hooks/useFeed';
+import { useCreatorByUsername, useCreatorContentByUsername, useCreatorProductsByUsername } from '@/hooks/useFeed';
 import { useCreatorProfileConfig } from '@/hooks/useCreatorProfile';
 import { useCreatorPlans, useMySubscriptions } from '@/hooks/useSubscriptions';
 import { useAuthContext } from '@/hooks/useAuth';
@@ -27,6 +27,7 @@ import { SignupModal } from '@/components/auth/signup-modal';
 import { MembershipPopup } from '@/components/membership-popup';
 import { ContentPopup } from '@/components/content-popup';
 import type { ActionButton } from '@/types/creator-profile';
+import type { Content, Product } from '@/services/feed';
 import type { LucideIcon } from 'lucide-react';
 import {
   Instagram,
@@ -167,148 +168,6 @@ const CONTENT_TABS: { id: ContentTabId; label: string; icon: LucideIcon }[] = [
   { id: 'products', label: 'Products', icon: Package },
 ];
 
-/** Local demo assets only (Images tab). Not used for hero / cover — those stay on creator API. */
-const DEMO_PROFILE_IMAGE_SRCS = [
-  '/sample-media/tom.png',
-  '/sample-media/id-card-1.png',
-  '/sample-media/id-card-2.png',
-  '/sample-media/id-card-3.png',
-] as const;
-
-const DEMO_IMAGES_GRID_COUNT = 9;
-
-const DEMO_VIDEOS: readonly {
-  id: string;
-  title: string;
-  duration: string;
-  thumbSrc: string;
-  videoSrc: string;
-}[] = [
-  {
-    id: 'vid-1',
-    title: 'Morning stretch routine',
-    duration: '02:18',
-    thumbSrc: '/sample-media/id-card-1.png',
-    videoSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-  },
-  {
-    id: 'vid-2',
-    title: 'Quick HIIT finisher',
-    duration: '04:05',
-    thumbSrc: '/sample-media/id-card-2.png',
-    videoSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-  },
-  {
-    id: 'vid-3',
-    title: 'Core workout (no equipment)',
-    duration: '03:12',
-    thumbSrc: '/sample-media/id-card-3.png',
-    videoSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-  },
-  {
-    id: 'vid-4',
-    title: 'Cool-down + mobility',
-    duration: '01:47',
-    thumbSrc: '/sample-media/tom.png',
-    videoSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-  },
-] as const;
-
-const DEMO_AUDIOS: readonly {
-  id: string;
-  title: string;
-  duration: string;
-  thumbSrc: string;
-  audioSrc: string;
-}[] = [
-  {
-    id: 'aud-1',
-    title: 'Breathing reset (guided)',
-    duration: '05:30',
-    thumbSrc: '/sample-media/id-card-1.png',
-    audioSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
-  },
-  {
-    id: 'aud-2',
-    title: 'Focus track — deep work',
-    duration: '12:10',
-    thumbSrc: '/sample-media/id-card-2.png',
-    audioSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
-  },
-  {
-    id: 'aud-3',
-    title: 'Sleep wind-down (calm)',
-    duration: '09:45',
-    thumbSrc: '/sample-media/id-card-3.png',
-    audioSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
-  },
-  {
-    id: 'aud-4',
-    title: 'Motivation talk (short)',
-    duration: '03:20',
-    thumbSrc: '/sample-media/tom.png',
-    audioSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
-  },
-] as const;
-
-/** Local demo catalog (Products tab). Paths are served from `public/sample-products/`. */
-const DEMO_PRODUCTS: readonly {
-  id: string;
-  title: string;
-  price: number;
-  imageSrc: string;
-  description: string;
-}[] = [
-  {
-    id: 's-391801261',
-    title: "Men's Grey Checkered Slim Fit Shirt",
-    price: 1899,
-    imageSrc: '/sample-products/check-grey-shirt.png',
-    description:
-      'Long-sleeve button-down with a black grid on dark grey fabric. Chest pocket and a slim, tailored fit—easy to dress up or down.',
-  },
-  {
-    id: 'prod-ae-gradient-plaid',
-    title: 'American Eagle Gradient Plaid Flannel Shirt',
-    price: 2199,
-    imageSrc: '/sample-products/gradient-plaid-flannel.png',
-    description:
-      'Soft brushed flannel with plaid up top that fades through purple into deep navy at the hem. Twin chest pockets and classic collar.',
-  },
-  {
-    id: 'prod-navy-zip',
-    title: "Men's Navy Zip-Up Utility Shirt",
-    price: 1999,
-    imageSrc: '/sample-products/navy-zip-shirt.png',
-    description:
-      'Navy short-sleeve utility shirt with full front zip, spread collar, and two chest patch pockets. Layer over a tee for a clean casual look.',
-  },
-  {
-    id: 'prod-mandarin-green',
-    title: "Men's Dark Green Mandarin Collar Shirt",
-    price: 1799,
-    imageSrc: '/sample-products/mandarin-green-shirt.png',
-    description:
-      'Forest-green shirt with a mandarin collar, button front, and a single chest pocket. Rolled sleeves pair easily with denim.',
-  },
-  {
-    id: 'prod-beyours-dusk-blue',
-    title: 'Beyours Dusk Blue Shirt',
-    price: 1699,
-    imageSrc: '/sample-products/dusk-blue-shirt.png',
-    description:
-      'Long-sleeve dress shirt in Dusk Blue from Beyours: pointed collar, tonal buttons, and a curved hem—ideal for office or evenings out.',
-  },
-  {
-    id: 'prod-brown-plaid',
-    title: "Men's Brown Plaid Button-Down Shirt",
-    price: 1999,
-    imageSrc: '/sample-products/brown-plaid-shirt.png',
-    description:
-      'Brown and black plaid on breathable cotton feel. Single chest pocket, versatile regular fit—great for layering or wearing solo.',
-  },
-];
-
 const drawerNavItems = [
   { href: '/creators', label: 'Creators', icon: Users },
   { href: '/subscriptions', label: 'My Creators', icon: CreditCard },
@@ -319,6 +178,8 @@ const drawerNavItems = [
 export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
   const { data: creator, isLoading: creatorLoading, error: creatorError } = useCreatorByUsername(username);
   const { data: config, isLoading: configLoading } = useCreatorProfileConfig(username);
+  const { data: content, isLoading: contentLoading } = useCreatorContentByUsername(username);
+  const { data: products, isLoading: productsLoading } = useCreatorProductsByUsername(username);
   const { handleButtonClick } = useActionButton();
   const router = useRouter();
   const { isAuthenticated } = useAuthContext();
@@ -387,7 +248,13 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
     return getMediaUrl(creator?.avatar) || null;
   }, [creator?.avatar]);
 
-  const social = useMemo(() => buildFixedSocialRow(config?.actionButtons), [config?.actionButtons]);
+  const social = useMemo(() => {
+    const fromConfig = buildFixedSocialRow(config?.actionButtons);
+    
+    // If we want to be extra sure or handle legacy, we can also build from creator.social_links
+    // but the backend merge is preferred.
+    return fromConfig;
+  }, [config?.actionButtons]);
 
   if (creatorLoading || configLoading) {
     return (
@@ -599,6 +466,9 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
             isMember={isMember}
             onRequireLogin={() => setIsLoginOpen(true)}
             onRequireMembership={openMembership}
+            content={content || []}
+            products={products || []}
+            isLoading={contentLoading || productsLoading}
           />
         </div>
       </div>
@@ -734,12 +604,18 @@ function CreatorMediaBlocks({
   isMember,
   onRequireLogin,
   onRequireMembership,
+  content,
+  products,
+  isLoading,
 }: {
   creatorAvatarSrc: string;
   isAuthenticated: boolean;
   isMember: boolean;
   onRequireLogin: () => void;
   onRequireMembership: () => void;
+  content: Content[];
+  products: Product[];
+  isLoading: boolean;
 }) {
   const [activeTab, setActiveTab] = useState<ContentTabId>('images');
   const [popup, setPopup] = useState<{
@@ -750,39 +626,37 @@ function CreatorMediaBlocks({
     audioSrc?: string;
   } | null>(null);
 
-  const demoImageItems = useMemo<MediaGridItem[]>(
-    () =>
-      Array.from({ length: DEMO_IMAGES_GRID_COUNT }, (_, i) => ({
-        id: `demo-img-${i}`,
-        thumbSrc: DEMO_PROFILE_IMAGE_SRCS[i % DEMO_PROFILE_IMAGE_SRCS.length],
-        title: i === 0 ? 'Exclusive highlight' : `Demo ${i + 1}`,
-      })),
-    []
-  );
+  const imageItems = useMemo<MediaGridItem[]>(() => {
+    return content
+      .filter((c) => c.media.some((m) => m.media_type === 'image'))
+      .map((c) => ({
+        id: String(c.id),
+        thumbSrc: getMediaUrl(c.media.find((m) => m.media_type === 'image')?.url) || '',
+        title: c.title,
+      }));
+  }, [content]);
 
-  const demoVideoItems = useMemo<MediaGridItem[]>(
-    () =>
-      DEMO_VIDEOS.map((v, i) => ({
-        id: v.id,
-        thumbSrc: v.thumbSrc,
-        title: i === 0 ? 'Exclusive highlight' : v.title,
-        duration: v.duration,
-        videoSrc: v.videoSrc,
-      })),
-    []
-  );
+  const videoItems = useMemo<MediaGridItem[]>(() => {
+    return content
+      .filter((c) => c.media.some((m) => m.media_type === 'video'))
+      .map((c) => ({
+        id: String(c.id),
+        thumbSrc: getMediaUrl(c.media.find((m) => m.media_type === 'video')?.url) || '',
+        title: c.title,
+        videoSrc: getMediaUrl(c.media.find((m) => m.media_type === 'video')?.url) || '',
+      }));
+  }, [content]);
 
-  const demoAudioItems = useMemo<MediaGridItem[]>(
-    () =>
-      DEMO_AUDIOS.map((a, i) => ({
-        id: a.id,
-        thumbSrc: a.thumbSrc,
-        title: i === 0 ? 'Exclusive highlight' : a.title,
-        duration: a.duration,
-        audioSrc: a.audioSrc,
-      })),
-    []
-  );
+  const audioItems = useMemo<MediaGridItem[]>(() => {
+    return content
+      .filter((c) => c.media.some((m) => m.media_type === 'audio'))
+      .map((c) => ({
+        id: String(c.id),
+        thumbSrc: creatorAvatarSrc,
+        title: c.title,
+        audioSrc: getMediaUrl(c.media.find((m) => m.media_type === 'audio')?.url) || '',
+      }));
+  }, [content, creatorAvatarSrc]);
 
   const requestAccessThen = (openContent: () => void) => {
     if (!isAuthenticated) {
@@ -807,6 +681,14 @@ function CreatorMediaBlocks({
       }
     });
   };
+
+  if (isLoading) {
+    return (
+      <Card className="-mx-4 w-[calc(100%+2rem)] overflow-hidden rounded-2xl border-white/10 bg-white/[0.03] p-12 shadow-none sm:mx-0 sm:w-full flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+      </Card>
+    );
+  }
 
   return (
     <Card className="-mx-4 w-[calc(100%+2rem)] overflow-hidden rounded-2xl border-white/10 bg-white/[0.03] p-0 shadow-none sm:mx-0 sm:w-full">
@@ -834,43 +716,61 @@ function CreatorMediaBlocks({
 
       {activeTab === 'images' ? (
         <ExclusiveMediaGrid
-          items={demoImageItems}
+          items={imageItems}
           onTileClick={(item) => openGridItem(item, 'image')}
         />
       ) : activeTab === 'videos' ? (
         <ExclusiveMediaGrid
           kind="video"
-          items={demoVideoItems}
+          items={videoItems}
           onTileClick={(item) => openGridItem(item, 'video')}
         />
       ) : activeTab === 'audios' ? (
         <ExclusiveMediaGrid
-          items={demoAudioItems}
+          items={audioItems}
           onTileClick={(item) => openGridItem(item, 'audio')}
         />
       ) : activeTab === 'products' ? (
         <div className="grid w-full grid-cols-3 gap-0">
-          {DEMO_PRODUCTS.map((p) => (
+          {products.map((p) => (
             <button
               key={p.id}
               type="button"
               onClick={() =>
                 requestAccessThen(() =>
-                  setPopup({ src: p.imageSrc, title: p.title, description: p.description })
+                  setPopup({
+                    src: getMediaUrl(p.image_urls?.[0]) || '',
+                    title: p.name,
+                    description: p.description,
+                  })
                 )
               }
               className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.imageSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
+              {p.image_urls?.[0] && (
+                <Image
+                  src={getMediaUrl(p.image_urls[0]) || ''}
+                  alt={p.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 33vw, 200px"
+                />
+              )}
               <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
-                <p className="line-clamp-2 text-center text-[9px] font-medium leading-tight text-white sm:text-[10px]">{p.title}</p>
+                <p className="line-clamp-2 text-center text-[9px] font-medium leading-tight text-white sm:text-[10px]">
+                  {p.name}
+                </p>
                 <p className="mt-0.5 text-center text-[8px] font-semibold text-zinc-200 sm:text-[9px]">
                   {formatCurrency(p.price)}
                 </p>
               </div>
             </button>
           ))}
+          {products.length === 0 && (
+            <div className="col-span-3 py-12 text-center">
+              <p className="text-sm text-zinc-500">No products yet.</p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="py-12 text-center">
@@ -888,9 +788,7 @@ function CreatorMediaBlocks({
         audioSrc={popup?.audioSrc}
         description={popup?.description}
         onBuyNow={
-          popup?.description
-            ? () => toast.message('Checkout coming soon.')
-            : undefined
+          popup?.description ? () => toast.message('Checkout coming soon.') : undefined
         }
       />
     </Card>

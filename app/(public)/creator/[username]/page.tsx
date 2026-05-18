@@ -8,17 +8,14 @@
 
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { LinkMeCreatorProfile } from '@/components/linkme-creator-profile';
 import { Loader2 } from 'lucide-react';
 
 export default function PublicCreatorProfilePage() {
   const params = useParams();
-  const router = useRouter();
   const username = params.username as string;
-  const { isDesktop } = useDeviceDetection();
   const [isChecking, setIsChecking] = useState(true);
   
   useEffect(() => {

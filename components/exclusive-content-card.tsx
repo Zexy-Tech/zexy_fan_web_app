@@ -7,7 +7,7 @@
 'use client';
 
 import { ExclusiveContent } from '@/types/creator-profile';
-import { Lock, Play, Image as ImageIcon, Music, Package } from 'lucide-react';
+import { Lock, Play, Image as ImageIcon, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ExclusiveContentCardProps {

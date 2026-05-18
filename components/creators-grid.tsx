@@ -12,7 +12,7 @@ import { CreatorCard } from '@/components/creator-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyStatePlaceholder } from '@/components/ui/empty-state-placeholder';
-import { Loader2, AlertCircle, Users } from 'lucide-react';
+import { AlertCircle, Users } from 'lucide-react';
 
 interface CreatorsGridProps {
   creators?: Creator[];

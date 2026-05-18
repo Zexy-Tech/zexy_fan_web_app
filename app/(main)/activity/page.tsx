@@ -1,12 +1,13 @@
 'use client';
 
+import React from 'react';
 import { useActivity } from '@/hooks/useActivity';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, CreditCard, Lock, Package, MessageSquare, Heart, Shield, LogIn, Key, Mail, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
-const EVENT_CONFIG: Record<string, { icon: any, label: string, color: string }> = {
+const EVENT_CONFIG: Record<string, { icon: React.ElementType, label: string, color: string }> = {
   subscription_purchased: { icon: CreditCard, label: 'Subscription', color: 'text-purple-400' },
   content_unlocked: { icon: Lock, label: 'Content Unlock', color: 'text-pink-400' },
   product_purchased: { icon: Package, label: 'Product', color: 'text-yellow-400' },

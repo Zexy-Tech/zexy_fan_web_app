@@ -22,7 +22,7 @@ export default function PaymentTestPage() {
       
       console.log('Intent Created:', intent);
       setActiveIntent(intent);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('Failed to create intent');
       console.error(err);
     } finally {
@@ -58,7 +58,7 @@ export default function PaymentTestPage() {
           toast.error('Verification failed on backend');
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('An unexpected error occurred');
       console.error(err);
     } finally {

@@ -5,6 +5,7 @@
  * Used in the creators grid listing page.
  */
 
+import Image from 'next/image';
 import { Creator } from '@/services/feed';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -48,10 +49,12 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
         {/* Avatar Section */}
         <div className="relative aspect-square bg-gradient-to-br from-primary/20 to-primary/5">
           {creator.avatar ? (
-            <img
+            <Image
               src={getMediaUrl(creator.avatar) || ''}
               alt={creator.name || creator.username}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 50vw, 300px"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

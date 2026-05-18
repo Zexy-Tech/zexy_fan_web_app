@@ -89,10 +89,9 @@ export function resetTheme(): void {
 /**
  * Get theme CSS class names for gradient background
  * 
- * @param theme - Theme configuration
  * @returns Tailwind CSS class string for gradient
  */
-export function getGradientClasses(theme: ThemeConfig): string {
+export function getGradientClasses(): string {
   // Since we're using CSS custom properties, we can use them in Tailwind
   return 'bg-gradient-to-br';
 }

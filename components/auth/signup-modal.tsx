@@ -64,8 +64,9 @@ export function SignupModal({ open, onClose }: SignupModalProps) {
       await sendOTP.mutateAsync({ mobile, role: 'fan' });
       toast.success('OTP sent successfully');
       setStep('otp');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to send OTP');
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to send OTP';
+      toast.error(errorMessage);
     }
   };
 
@@ -83,8 +84,9 @@ export function SignupModal({ open, onClose }: SignupModalProps) {
       toast.success('Login successful!');
       onClose();
       router.push('/creators');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Invalid OTP');
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Invalid OTP';
+      toast.error(errorMessage);
       setOtp(['', '', '', '']);
       otpInputRefs.current[0]?.focus();
     }

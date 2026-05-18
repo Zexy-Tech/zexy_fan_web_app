@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AxiosError } from 'axios';
 
 function PinSetupPageContent() {
   const router = useRouter();
@@ -66,8 +67,9 @@ function PinSetupPageContent() {
       await setupPIN.mutateAsync({ pin: pinCode });
       toast.success('PIN setup successful!');
       router.push('/feed');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to setup PIN');
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error?: { message?: string } }>;
+      toast.error(axiosError.response?.data?.error?.message || 'Failed to setup PIN');
     }
   };
 

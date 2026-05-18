@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useFanCommonProfile } from '@/hooks/useFanCommonProfile';
@@ -50,12 +51,14 @@ export default function ProfilePage() {
           </div>
         ) : profile ? (
           <div className="flex items-center gap-4">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-3xl font-semibold text-white">
+            <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-3xl font-semibold text-white">
               {profile.avatar ? (
-                <img
+                <Image
                   src={getMediaUrl(profile.avatar) || ''}
                   alt={profile.name || profile.username || 'Profile'}
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="80px"
                 />
               ) : (
                 profile.name?.[0] || profile.username?.[0] || 'F'

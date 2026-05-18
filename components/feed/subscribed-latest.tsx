@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useFeed, useCreators } from '@/hooks/useFeed';
 import { getMediaUrl } from '@/lib/utils';
@@ -69,12 +70,14 @@ export function SubscribedLatest() {
               {/* Creator & Title */}
               <div className="absolute bottom-3 left-3 right-3">
                 <div className="flex items-center gap-2 mb-1.5">
-                  <div className="h-6 w-6 rounded-full border border-white/20 overflow-hidden ring-2 ring-purple-500/20">
+                  <div className="relative h-6 w-6 rounded-full border border-white/20 overflow-hidden ring-2 ring-purple-500/20">
                     {post!.creator_avatar ? (
-                      <img 
-                        src={getMediaUrl(post!.creator_avatar)!} 
-                        alt={post!.creator_name} 
-                        className="w-full h-full object-cover" 
+                      <Image
+                        src={getMediaUrl(post!.creator_avatar)!}
+                        alt={post!.creator_name}
+                        fill
+                        className="object-cover"
+                        sizes="24px"
                       />
                     ) : (
                       <div className="w-full h-full bg-purple-600 flex items-center justify-center text-[10px] font-bold">

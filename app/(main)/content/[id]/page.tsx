@@ -52,7 +52,7 @@ export default function ContentDetailPage() {
               >
                 {content.creator_name || content.creator_username}
               </Link>
-              <p className="text-xs text-muted-foreground">{formatDate(content.created_at)}</p>
+              <p className="text-xs text-muted-foreground">{formatDate(content.created_on)}</p>
             </div>
           </div>
           <CardTitle>{content.title}</CardTitle>
@@ -64,11 +64,11 @@ export default function ContentDetailPage() {
             {content.is_locked ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
                 <p className="text-white text-lg font-semibold">Content Locked</p>
-                <p className="text-white/80 text-sm">This shouldn't happen - payment required</p>
+                <p className="text-white/80 text-sm">This shouldn&apos;t happen - payment required</p>
               </div>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-black">
-                {content.type === 'video' ? (
+                {content.media?.[0]?.media_type === 'video' ? (
                   <>
                     <Play className="h-16 w-16 text-white/80" />
                     <p className="absolute bottom-4 text-white text-sm">Video Player (Mock)</p>
@@ -95,7 +95,7 @@ export default function ContentDetailPage() {
           <div className="grid grid-cols-2 gap-4 pt-4 border-t">
             <div>
               <p className="text-xs text-muted-foreground">Type</p>
-              <p className="text-sm font-semibold capitalize">{content.type}</p>
+              <p className="text-sm font-semibold capitalize">{content.media?.[0]?.media_type || 'image'}</p>
             </div>
             {content.duration_seconds && (
               <div>

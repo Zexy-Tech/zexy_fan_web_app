@@ -101,11 +101,6 @@ const MOCK_MESSAGES: Message[] = [
 export const messageService = {
   /** Latest Message per thread (API: GET fan/messages/conversations). */
   getConversations: async (): Promise<Message[]> => {
-    if (ENV.IS_MOCK) {
-      await sleep(600);
-      return MOCK_CONVERSATION_MESSAGES;
-    }
-
     const response = await apiClient.get('/api/v1/fan/messages/conversations');
     return response.data.data;
   },
@@ -114,11 +109,6 @@ export const messageService = {
    * Get message thread with a creator
    */
   getThread: async (creatorId: number): Promise<Message[]> => {
-    if (ENV.IS_MOCK) {
-      await sleep(700);
-      return MOCK_MESSAGES;
-    }
-
     const response = await apiClient.get(`/api/v1/fan/messages/thread/${creatorId}`);
     return response.data.data;
   },
@@ -127,31 +117,6 @@ export const messageService = {
    * Send text message
    */
   sendMessage: async (creatorId: number, body: string): Promise<Message> => {
-    if (ENV.IS_MOCK) {
-      await sleep(500);
-      return {
-        id: Date.now(),
-        sender_uid: 1,
-        receiver_uid: creatorId,
-        sender_name: 'John Doe',
-        sender_username: 'fan_user',
-        sender_avatar: null,
-        receiver_name: 'Creator',
-        receiver_username: 'creator',
-        receiver_avatar: null,
-        body,
-        message_type: 'text',
-        media_url: null,
-        is_paid: false,
-        price: 0,
-        is_unlocked: true,
-        tip_amount: null,
-        tip_paid: false,
-        created_at: new Date().toISOString(),
-        read_at: null,
-      };
-    }
-
     const response = await apiClient.post('/api/v1/fan/messages/send', {
       receiver_uid: creatorId,
       body,
@@ -163,20 +128,11 @@ export const messageService = {
    * Mark message as read
    */
   markAsRead: async (messageId: number): Promise<void> => {
-    if (ENV.IS_MOCK) {
-      await sleep(300);
-      return;
-    }
-
     await apiClient.post(`/api/v1/common/messages/${messageId}/read`);
   },
 
   /** Signed URL for rendering protected media in a message bubble. */
   getSignedMediaUrl: async (messageId: number): Promise<{ url: string }> => {
-    if (ENV.IS_MOCK) {
-      await sleep(150);
-      return { url: '' };
-    }
     const response = await apiClient.get(`/api/v1/common/messages/${messageId}/signed-media-url`);
     return response.data.data;
   },
@@ -185,17 +141,6 @@ export const messageService = {
    * Razorpay order intent for paying a creator's tip_demand DM (see POST fan/messages/tip-demands/...).
    */
   createTipDemandIntent: async (messageId: number): Promise<CreateIntentResponse> => {
-    if (ENV.IS_MOCK) {
-      await sleep(500);
-      return {
-        intent_id: Math.floor(Math.random() * 100000),
-        gateway_order_id: 'order_tip_mock_' + Date.now(),
-        amount: 99,
-        currency: 'INR',
-        key_id: ENV.RAZORPAY_KEY_ID,
-      };
-    }
-
     const response = await apiClient.post(
       `/api/v1/fan/messages/tip-demands/${messageId}/intents`
     );

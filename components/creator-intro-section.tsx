@@ -6,6 +6,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { IntroConfig } from '@/types/creator-profile';
 import { Creator } from '@/services/feed';
 import { getMediaUrl } from '@/lib/utils';
@@ -46,16 +47,18 @@ export function CreatorIntroSection({
       {config.showAvatar && (
         <div className="flex justify-center">
           <div
-            className={`h-24 w-24 flex items-center justify-center text-white text-4xl font-semibold overflow-hidden ${avatarStyleClasses[config.avatarStyle]}`}
+            className={`relative h-24 w-24 flex items-center justify-center text-white text-4xl font-semibold overflow-hidden ${avatarStyleClasses[config.avatarStyle]}`}
             style={{
               background: 'linear-gradient(to bottom right, var(--profile-gradient-start), var(--profile-gradient-end))',
             }}
           >
             {creator.avatar ? (
-              <img
+              <Image
                 src={getMediaUrl(creator.avatar) || ''}
                 alt={creator.name || creator.username}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="96px"
               />
             ) : (
               creator.name?.charAt(0) || creator.username?.charAt(0) || '?'

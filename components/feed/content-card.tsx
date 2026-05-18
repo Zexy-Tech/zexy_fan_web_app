@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,12 +18,14 @@ export function ContentCard({ content }: ContentCardProps) {
       <Card className="overflow-hidden">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+            <div className="relative h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold overflow-hidden">
               {content.creator_avatar ? (
-                <img
+                <Image
                   src={getMediaUrl(content.creator_avatar) || ''}
                   alt={content.creator_name || content.creator_username}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="40px"
                 />
               ) : (
                 content.creator_name?.[0] || 'C'

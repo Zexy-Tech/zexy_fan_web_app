@@ -29,9 +29,15 @@ apiClient.interceptors.request.use(
 
 // Response interceptor - handle errors and token refresh
 let isRefreshing = false;
-let failedQueue: any[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+interface FailedRequest {
+  resolve: (token: string | null) => void;
+  reject: (error: unknown) => void;
+}
+
+let failedQueue: FailedRequest[] = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -47,7 +53,7 @@ apiClient.interceptors.response.use(
     // Handle standard Zexy API wrapper { success: true, data: {}, error: null }
     if (response.data && response.data.success === false) {
         const errorMsg = response.data.error?.message || 'API Error';
-        const error = new Error(errorMsg) as any;
+        const error = new Error(errorMsg) as Error & { response?: unknown; data?: unknown };
         error.response = response;
         error.data = response.data;
         return Promise.reject(error);

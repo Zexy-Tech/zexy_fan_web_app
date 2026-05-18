@@ -205,11 +205,6 @@ export const subscriptionService = {
    * Get creator's subscription plans
    */
   getCreatorPlans: async (creatorId: number): Promise<SubscriptionPlan[]> => {
-    if (ENV.IS_MOCK) {
-      await sleep(600);
-      return MOCK_PLANS.map((p) => ({ ...p, creator_uid: creatorId }));
-    }
-
     const response = await apiClient.get(`/api/v1/fan/creators/${creatorId}/subscriptions`);
     const data = response.data.data as SubscriptionPlan[];
     if (Array.isArray(data) && data.length > 0) {
@@ -222,11 +217,6 @@ export const subscriptionService = {
    * Get fan's active subscriptions
    */
   getMySubscriptions: async (): Promise<ActiveSubscription[]> => {
-    if (ENV.IS_MOCK) {
-      await sleep(500);
-      return MOCK_ACTIVE_SUBSCRIPTIONS;
-    }
-
     const response = await apiClient.get('/api/v1/fan/subscriptions');
     return response.data.data;
   },
@@ -235,11 +225,6 @@ export const subscriptionService = {
    * Cancel subscription
    */
   cancelSubscription: async (subscriptionId: number): Promise<void> => {
-    if (ENV.IS_MOCK) {
-      await sleep(700);
-      return;
-    }
-
     await apiClient.post(`/api/v1/fan/subscriptions/${subscriptionId}/cancel`);
   },
 
@@ -253,17 +238,6 @@ export const subscriptionService = {
     currency: string;
     key_id: string;
   }> => {
-    if (ENV.IS_MOCK) {
-      await sleep(800);
-      return {
-        intent_id: Math.floor(Math.random() * 10000),
-        gateway_order_id: 'order_mock_' + Date.now(),
-        amount: 299,
-        currency: 'INR',
-        key_id: 'rzp_test_xxxxx',
-      };
-    }
-
     const response = await apiClient.post('/api/v1/fan/payments/intents', {
       purpose: 'subscription',
       reference_id: planId,
@@ -274,15 +248,10 @@ export const subscriptionService = {
   /**
    * Activate subscription after payment verified
    */
-  activateSubscription: async (planId: number, gatewayOrderId: string): Promise<{ status: string; subscription_id: number }> => {
-    if (ENV.IS_MOCK) {
-      await sleep(1000);
-      return { status: 'activated', subscription_id: Math.floor(Math.random() * 1000) };
-    }
-
-    const response = await apiClient.post(`/api/v1/fan/subscriptions/${planId}/activate`, {
+  activateSubscription: async (subscriptionId: number, gatewayOrderId: string): Promise<{ status: string; subscription_id: number }> => {
+    const response = await apiClient.post(`/api/v1/fan/subscriptions/${subscriptionId}/activate`, {
       gateway_order_id: gatewayOrderId,
     });
-    return response.data;
+    return response.data.data;
   },
 };
