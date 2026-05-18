@@ -72,4 +72,36 @@ export const contentService = {
     const response = await apiClient.post(`/api/v1/common/content/${contentId}/unlock-after-payment`);
     return response.data.data;
   },
+
+  /**
+   * Like content
+   */
+  likeContent: async (contentId: number): Promise<{ liked: boolean }> => {
+    const response = await apiClient.post(`/api/v1/fan/content/items/${contentId}/like`);
+    return response.data;
+  },
+
+  /**
+   * Unlike content
+   */
+  unlikeContent: async (contentId: number): Promise<{ liked: boolean }> => {
+    const response = await apiClient.delete(`/api/v1/fan/content/items/${contentId}/like`);
+    return response.data;
+  },
+
+  /**
+   * Save content
+   */
+  saveContent: async (contentId: number): Promise<{ saved: boolean }> => {
+    const response = await apiClient.post(`/api/v1/fan/content/items/${contentId}/save`);
+    return response.data;
+  },
+
+  /**
+   * Unsave content
+   */
+  unsaveContent: async (contentId: number): Promise<{ saved: boolean }> => {
+    const response = await apiClient.delete(`/api/v1/fan/content/items/${contentId}/save`);
+    return response.data;
+  },
 };

@@ -23,3 +23,26 @@ export function useUnlockContent() {
     },
   });
 }
+
+export function useLikeContent() {
+  return useMutation({
+    mutationFn: ({ contentId, liked }: { contentId: number; liked: boolean }) =>
+      liked ? contentService.likeContent(contentId) : contentService.unlikeContent(contentId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['content', variables.contentId] });
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+    },
+  });
+}
+
+export function useSaveContent() {
+  return useMutation({
+    mutationFn: ({ contentId, saved }: { contentId: number; saved: boolean }) =>
+      saved ? contentService.saveContent(contentId) : contentService.unsaveContent(contentId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['content', variables.contentId] });
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['saved-content'] });
+    },
+  });
+}

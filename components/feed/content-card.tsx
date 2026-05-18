@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Lock, Play, Image as ImageIcon } from 'lucide-react';
+import { Lock, Play, Image as ImageIcon, Heart, Bookmark } from 'lucide-react';
 import { formatDate, getMediaUrl } from '@/lib/utils';
 import type { Content } from '@/services/feed';
 
@@ -68,7 +68,18 @@ export function ContentCard({ content }: ContentCardProps) {
           </div>
         </CardContent>
 
-        <CardFooter className="pt-0">
+        <CardFooter className="pt-0 flex flex-col gap-3">
+          <div className="flex items-center gap-4 w-full px-1">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Heart className="h-4 w-4" />
+              <span className="text-xs font-medium">{content.likes_count || 0}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Bookmark className="h-4 w-4" />
+              <span className="text-xs font-medium">{content.saves_count || 0}</span>
+            </div>
+          </div>
+
           {content.is_locked ? (
             <Link href={`/creator/${content.creator_username}`} className="w-full">
               <Button className="w-full">

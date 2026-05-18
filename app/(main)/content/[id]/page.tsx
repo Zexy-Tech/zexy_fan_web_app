@@ -1,11 +1,11 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useContentDetail } from '@/hooks/useContent';
+import { useContentDetail, useLikeContent, useSaveContent } from '@/hooks/useContent';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Play, Image as ImageIcon, ArrowLeft } from 'lucide-react';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { Loader2, Play, Image as ImageIcon, ArrowLeft, Heart, Bookmark, MessageCircle, Share2 } from 'lucide-react';
+import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import Link from 'next/link';
 
 export default function ContentDetailPage() {
@@ -13,6 +13,8 @@ export default function ContentDetailPage() {
   const contentId = parseInt(params.id as string);
 
   const { data: content, isLoading, error } = useContentDetail(contentId);
+  const likeMutation = useLikeContent();
+  const saveMutation = useSaveContent();
 
   if (isLoading) {
     return (
@@ -81,6 +83,42 @@ export default function ContentDetailPage() {
                 )}
               </div>
             )}
+          </div>
+
+          {/* Engagement Bar */}
+          <div className="flex items-center gap-6 py-2 border-t border-b">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("flex items-center gap-2", content.is_liked && "text-pink-500")}
+              onClick={() => likeMutation.mutate({ contentId: content.id, liked: !content.is_liked })}
+              disabled={likeMutation.isPending}
+            >
+              <Heart className={cn("h-5 w-5", content.is_liked && "fill-current")} />
+              <span className="font-semibold">{content.likes_count || 0}</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("flex items-center gap-2", content.is_saved && "text-blue-500")}
+              onClick={() => saveMutation.mutate({ contentId: content.id, saved: !content.is_saved })}
+              disabled={saveMutation.isPending}
+            >
+              <Bookmark className={cn("h-5 w-5", content.is_saved && "fill-current")} />
+              <span className="font-semibold">{content.saves_count || 0}</span>
+            </Button>
+
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              <span className="font-semibold">0</span>
+            </Button>
+
+            <div className="flex-1" />
+
+            <Button variant="ghost" size="icon">
+              <Share2 className="h-5 w-5" />
+            </Button>
           </div>
 
           {/* Description */}

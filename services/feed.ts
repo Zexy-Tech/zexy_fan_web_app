@@ -55,6 +55,8 @@ export interface Content {
   tags: string[];
   is_liked: boolean;
   is_saved: boolean;
+  likes_count: number;
+  saves_count: number;
   created_on: string;
 }
 
