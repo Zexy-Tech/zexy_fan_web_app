@@ -60,6 +60,7 @@ export interface Content {
   likes_count: number;
   saves_count: number;
   created_on: string;
+  duration_seconds?: number | null;
 }
 
 export interface Product {

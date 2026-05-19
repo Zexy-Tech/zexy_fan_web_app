@@ -10,6 +10,20 @@ export function useContentDetail(contentId: number) {
   });
 }
 
+export function useSavedContent(type?: 'image' | 'video' | 'audio') {
+  return useQuery({
+    queryKey: ['saved-content', type],
+    queryFn: () => contentService.getSavedContent(type),
+  });
+}
+
+export function useSavedProducts() {
+  return useQuery({
+    queryKey: ['saved-products'],
+    queryFn: () => contentService.getSavedProducts(),
+  });
+}
+
 export function useUnlockContent() {
   return useMutation({
     mutationFn: (contentId: number) => contentService.unlockContent(contentId),

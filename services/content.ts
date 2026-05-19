@@ -1,7 +1,7 @@
 import { apiClient } from '@/lib/axios';
 import { ENV } from '@/constants/env';
 import { sleep } from '@/lib/utils';
-import type { Content } from './feed';
+import type { Content, Product } from './feed';
 
 // ============================================================================
 // TYPES
@@ -24,6 +24,7 @@ const MOCK_CONTENT_DETAIL: ContentDetail = {
   title: 'Premium Pasta Recipe',
   description: 'Learn my secret technique for perfect pasta. This comprehensive guide covers everything from selecting the right ingredients to achieving the perfect al dente texture.',
   url: null,
+  type: 'video',
   media: [{ url: 'https://example.com/preview2.mp4', media_type: 'video' }],
   media_urls: ['https://example.com/preview2.mp4'],
   is_paid: true,
@@ -53,6 +54,34 @@ export const contentService = {
 
     const response = await apiClient.get(`/api/v1/fan/content/${contentId}/detail`);
     return response.data.data;
+  },
+
+  /**
+   * Get saved content
+   */
+  getSavedContent: async (type?: 'image' | 'video' | 'audio'): Promise<Content[]> => {
+    if (ENV.IS_MOCK) {
+      await sleep(500);
+      return []; // Return empty for mock or some dummy data if needed
+    }
+
+    const response = await apiClient.get('/api/v1/fan/content/saved', {
+      params: { type },
+    });
+    return response.data.data || response.data;
+  },
+
+  /**
+   * Get saved products
+   */
+  getSavedProducts: async (): Promise<Product[]> => {
+    if (ENV.IS_MOCK) {
+      await sleep(500);
+      return [];
+    }
+
+    const response = await apiClient.get('/api/v1/fan/products/saved');
+    return response.data.data || response.data;
   },
 
   /**

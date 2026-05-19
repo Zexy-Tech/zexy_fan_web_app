@@ -250,14 +250,19 @@ export function ContentPopup({
               />
             ) : (
               <>
-                {/* Full bleed: image pinned to edges of this strip (width + height of flex area) */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={imageSrc}
-                  alt={imageAlt || title}
-                  className="absolute inset-0 h-full w-full select-none object-cover object-center"
-                  draggable={false}
-                />
+                {imageSrc ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={imageSrc}
+                    alt={imageAlt || title}
+                    className="absolute inset-0 h-full w-full select-none object-cover object-center"
+                    draggable={false}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50">
+                    <Music className="h-20 w-20 text-zinc-700 sm:h-24 sm:w-24" strokeWidth={1} />
+                  </div>
+                )}
 
                 {audioSrc ? (
                   <div className="absolute inset-x-0 bottom-0 z-10 bg-black/55 px-3 py-3 backdrop-blur-sm">

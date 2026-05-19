@@ -33,7 +33,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="-mt-6 -mx-4 space-y-1 bg-black px-4 pb-10 pt-2 text-white sm:-mx-0 sm:rounded-none sm:px-0">
+    <div className="-mx-4 space-y-1 bg-black px-4 pb-10 pt-2 text-white sm:-mx-0 sm:rounded-none sm:px-0">
       <div className="pb-1">
         {isLoading ? (
           <div className="flex items-center justify-center gap-3 py-8">
@@ -72,7 +72,6 @@ export default function ProfilePage() {
                 {profile.username ? (
                   <span className="truncate text-sm text-zinc-400">@{profile.username}</span>
                 ) : null}
-                <RoleBadge role={profile.role} />
               </div>
             </div>
           </div>

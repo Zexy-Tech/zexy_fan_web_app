@@ -603,6 +603,22 @@ function ExclusiveMediaGrid({
       );
     }
 
+    if (kind === 'audio') {
+      return (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onTileClick(item)}
+          className={cn(tileClass, 'p-0')}
+        >
+          {overlays}
+          <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
+            <Music className={cn("text-zinc-700", isExclusive ? "h-16 w-16" : "h-10 w-10")} strokeWidth={1.5} />
+          </div>
+        </button>
+      );
+    }
+
     return (
       <button
         key={item.id}
@@ -698,7 +714,7 @@ function CreatorMediaBlocks({
       .map((c) => ({
         id: String(c.id),
         contentId: c.id,
-        thumbSrc: creatorAvatarSrc,
+        thumbSrc: getMediaUrl(c.thumbnail_url) || '',
         title: c.title,
         description: c.description,
         tags: c.tags ?? [],
@@ -707,7 +723,7 @@ function CreatorMediaBlocks({
         isLocked: c.is_locked,
         audioSrc: getMediaUrl(c.media.find((m) => m.media_type === 'audio')?.url) || '',
       }));
-  }, [content, creatorAvatarSrc]);
+  }, [content]);
 
   const requestAccessThen = (needsAccess: boolean, openContent: () => void) => {
     if (needsAccess && !isAuthenticated) {
@@ -724,7 +740,7 @@ function CreatorMediaBlocks({
   const openGridItem = (item: MediaGridItem, kind: MediaGridKind) => {
     requestAccessThen(item.isLocked, () => {
       if (kind === 'audio') {
-        setPopup({ src: creatorAvatarSrc, title: item.title, audioSrc: item.audioSrc, contentId: item.contentId, description: item.description || undefined, tags: item.tags, isLiked: item.isLiked, isSaved: item.isSaved });
+        setPopup({ src: item.thumbSrc, title: item.title, audioSrc: item.audioSrc, contentId: item.contentId, description: item.description || undefined, tags: item.tags, isLiked: item.isLiked, isSaved: item.isSaved });
       } else if (kind === 'video') {
         setPopup({ src: item.thumbSrc, title: item.title, videoSrc: item.videoSrc, contentId: item.contentId, description: item.description || undefined, tags: item.tags, isLiked: item.isLiked, isSaved: item.isSaved });
       } else {
@@ -778,6 +794,7 @@ function CreatorMediaBlocks({
         />
       ) : activeTab === 'audios' ? (
         <ExclusiveMediaGrid
+          kind="audio"
           items={audioItems}
           onTileClick={(item) => openGridItem(item, 'audio')}
         />

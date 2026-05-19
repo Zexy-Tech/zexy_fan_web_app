@@ -218,7 +218,20 @@ export const subscriptionService = {
    */
   getMySubscriptions: async (): Promise<ActiveSubscription[]> => {
     const response = await apiClient.get('/api/v1/fan/subscriptions');
-    return response.data.data;
+    const data = response.data.data;
+    
+    if (Array.isArray(data)) {
+        return data.map((s: any) => ({
+            ...s,
+            // Ensure compatibility if backend uses different names or cases
+            creator_username: s.creator_username || s.creator_user?.username || '',
+            creator_name: s.creator_name || s.creator_user?.name || '',
+            creator_avatar: s.creator_avatar || s.creator_user?.avatar || null,
+            plan_name: s.plan_name || s.subscription_plan?.name || 'Active Plan',
+        }));
+    }
+    
+    return data;
   },
 
   /**
