@@ -10,9 +10,16 @@ interface VideoPlayerProps {
   poster?: string;
   className?: string;
   autoPlay?: boolean;
+  variant?: 'full' | 'basic';
 }
 
-export function VideoPlayer({ src, poster, className, autoPlay = false }: VideoPlayerProps) {
+export function VideoPlayer({ 
+  src, 
+  poster, 
+  className, 
+  autoPlay = false,
+  variant = 'full'
+}: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -142,7 +149,7 @@ export function VideoPlayer({ src, poster, className, autoPlay = false }: VideoP
         src={src}
         poster={poster}
         autoPlay={autoPlay}
-        className="w-full h-full object-contain"
+        className="w-full h-full object-cover"
         playsInline
       />
 
@@ -225,29 +232,33 @@ export function VideoPlayer({ src, poster, className, autoPlay = false }: VideoP
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/20 h-9 w-9"
-              onClick={() => skip(-10)}
-            >
-              <RotateCcw className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/20 h-9 w-9"
-              onClick={() => skip(10)}
-            >
-              <RotateCw className="w-5 h-5" />
-            </Button>
+            {variant === 'full' && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/20 h-9 w-9"
+                  onClick={() => skip(-10)}
+                >
+                  <RotateCcw className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/20 h-9 w-9"
+                  onClick={() => skip(10)}
+                >
+                  <RotateCw className="h-5 w-5" />
+                </Button>
+              </>
+            )}
             <Button
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/20 h-9 w-9"
               onClick={toggleFullscreen}
             >
-              <Maximize className="w-5 h-5" />
+              <Maximize className="h-5 w-5" />
             </Button>
           </div>
         </div>
