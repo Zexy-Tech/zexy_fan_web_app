@@ -277,8 +277,17 @@ export default function ChatThreadPage() {
             className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left transition-colors hover:bg-zinc-900/90 active:bg-zinc-800 sm:-ml-1 sm:px-1"
             aria-label={`Open ${partnerDisplayName}'s profile`}
           >
-            <div className="h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center font-semibold">
-              {partnerDisplayName[0]}
+            <div className="h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center font-semibold overflow-hidden border border-white/5">
+              {creator?.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img 
+                  src={getMediaUrl(creator.avatar) || ''} 
+                  alt={partnerDisplayName} 
+                  className="h-full w-full object-cover" 
+                />
+              ) : (
+                partnerDisplayName[0]
+              )}
             </div>
 
             <div className="min-w-0">

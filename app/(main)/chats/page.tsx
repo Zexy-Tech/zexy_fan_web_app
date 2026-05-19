@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { MessageCircle, Loader2 } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getMediaUrl } from '@/lib/utils';
 import { useConversations } from '@/hooks/useMessages';
 
 function formatChatTimestamp(value: string) {
@@ -50,7 +50,7 @@ export default function ChatsPage() {
   }
 
   return (
-    <div className="divide-y border-t border-b">
+    <div className="divide-y border-b">
       {conversations.map((chat) => (
         <Link
           key={chat.other_user_id}
@@ -58,10 +58,14 @@ export default function ChatsPage() {
           className="block cursor-pointer px-4 py-3 transition-colors hover:bg-accent/40"
         >
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden border border-white/5 shadow-sm">
               {chat.other_user_avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={chat.other_user_avatar} alt={chat.other_user_username || ''} className="h-full w-full object-cover" />
+                <img 
+                  src={getMediaUrl(chat.other_user_avatar) || ''} 
+                  alt={chat.other_user_username || ''} 
+                  className="h-full w-full object-cover" 
+                />
               ) : (
                 chat.other_user_name?.[0] || chat.other_user_username?.[0] || 'U'
               )}
