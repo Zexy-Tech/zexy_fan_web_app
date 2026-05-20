@@ -101,6 +101,8 @@ export interface NavItem {
 export interface CreatorProfileConfig {
   creatorId: number;
   username: string;
+  is_live?: boolean;
+  active_room_id?: string | null;
   theme: ThemeConfig;
   intro: IntroConfig;
   actionButtons: ActionButton[];

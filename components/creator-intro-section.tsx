@@ -11,10 +11,14 @@ import { IntroConfig } from '@/types/creator-profile';
 import { Creator } from '@/services/feed';
 import { getMediaUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Radio } from 'lucide-react';
 
 interface CreatorIntroSectionProps {
   creator: Creator;
   config: IntroConfig;
+  isLive?: boolean;
+  onLiveClick?: () => void;
   showSubscribeButton?: boolean;
   onSubscribeClick?: () => void;
   showMessageButton?: boolean;
@@ -30,6 +34,8 @@ interface CreatorIntroSectionProps {
 export function CreatorIntroSection({
   creator,
   config,
+  isLive = false,
+  onLiveClick,
   showSubscribeButton = false,
   onSubscribeClick,
   showMessageButton = false,
@@ -68,10 +74,19 @@ export function CreatorIntroSection({
       )}
       
       {/* Greeting */}
-      <div className="text-center">
+      <div className="text-center flex flex-col items-center gap-2">
         <h1 className="text-3xl font-bold" style={{ color: 'var(--profile-primary)' }}>
           {config.greeting}
         </h1>
+        {isLive && (
+          <Badge 
+            className="bg-red-500 hover:bg-red-600 text-white cursor-pointer px-3 py-1 flex items-center gap-1.5 animate-pulse"
+            onClick={onLiveClick}
+          >
+            <Radio className="h-4 w-4" />
+            LIVE NOW
+          </Badge>
+        )}
       </div>
       
       {/* Bio */}

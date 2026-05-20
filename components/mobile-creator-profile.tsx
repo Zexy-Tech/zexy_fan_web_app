@@ -103,6 +103,8 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                     key={section.id}
                     creator={creator}
                     config={config.intro}
+                    isLive={config.is_live}
+                    onLiveClick={() => router.push(`/live/${config.active_room_id}`)}
                     showSubscribeButton={!creator.is_subscribed && hasSubscriptionSection}
                     onSubscribeClick={handleSubscribeClick}
                     showMessageButton={creator.is_subscribed}

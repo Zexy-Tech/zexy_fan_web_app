@@ -7,12 +7,13 @@ import { useState } from 'react';
 import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid } from 'lucide-react';
-import { getCategoryBySlug } from '@/services/creatorCategories';
+import { ArrowLeft, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid, Radio } from 'lucide-react';
+import { LiveNowSidebar } from './live-now-sidebar';
 
 const navItems = [
   { href: '/creators', label: 'Creators', icon: Users },
   { href: '/categories', label: 'Categories', icon: LayoutGrid },
+  { href: '/live', label: 'Live Now', icon: Radio },
   { href: '/subscriptions', label: 'My Creators', icon: CreditCard },
   { href: '/chats', label: 'Chats', icon: MessageCircle },
   { href: '/activity', label: 'Activity History', icon: History },
@@ -67,9 +68,8 @@ export function Header() {
               : isCategoriesListHeader
                 ? 'Categories'
                 : isCategoryDetailHeader
-                  ? categoryDetailName ?? 'Category'
-                  : null;
-
+                  ? (categoryDetailName ?? 'Category') : null;
+                  
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -165,9 +165,11 @@ export function Header() {
           >
             <X className="h-5 w-5" />
           </Button>
-        </div>
+          </div>
 
-        <nav className="px-2 py-3">
+          <LiveNowSidebar />
+
+          <nav className="px-2 py-3">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =

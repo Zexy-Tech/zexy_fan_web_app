@@ -35,7 +35,18 @@ export function PaymentModal({ contentId, amount, title, onClose }: PaymentModal
         reference_id: contentId,
       });
 
-      // Step 2: Simulate Razorpay payment (in real app, this would open Razorpay modal)
+      if (intent.mock_checkout_url) {
+        // Handle mock:// protocol if returned by backend, or absolute/relative URLs
+        let targetUrl = intent.mock_checkout_url;
+        if (targetUrl.startsWith('mock://')) {
+          const urlParams = targetUrl.replace('mock://checkout?', '');
+          targetUrl = `/mock-pg?${urlParams}`;
+        }
+        window.location.href = targetUrl;
+        return; // Component will unmount
+      }
+
+      // Step 2: Simulate Razorpay payment (fallback/legacy)
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Step 3: Verify payment

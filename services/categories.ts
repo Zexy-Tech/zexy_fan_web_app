@@ -11,6 +11,7 @@ export const categoriesService = {
    */
   getCategories: async (): Promise<Category[]> => {
     const response = await apiClient.get('/api/v1/common/categories');
-    return response.data;
+    const payload = response.data;
+    return payload.data ?? payload;
   },
 };

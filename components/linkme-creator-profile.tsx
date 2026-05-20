@@ -55,8 +55,11 @@ import {
   Flame,
   PlayCircle,
   Ghost,
+  Radio,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { LiveNowSidebar } from './layout/live-now-sidebar';
 
 interface LinkMeCreatorProfileProps {
   username: string;
@@ -346,6 +349,8 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
           </button>
         </div>
 
+        <LiveNowSidebar />
+
         <nav className="px-2 py-3">
           {drawerNavItems.map((item) => {
             const Icon = item.icon;
@@ -425,9 +430,22 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
 
         {/* Center content */}
         <div className="absolute inset-x-0 bottom-10 px-4">
-          <div className="mx-auto max-w-md text-center">
+          <div className="mx-auto max-w-md text-center flex flex-col items-center">
             <h1 className="text-4xl font-semibold tracking-tight drop-shadow-sm">{displayName}</h1>
             <p className="mt-1 text-sm text-zinc-300">@{handle}</p>
+
+            {config?.is_live && (
+              <Badge 
+                className="mt-4 bg-red-500 hover:bg-red-600 text-white cursor-pointer px-3 py-1.5 flex items-center gap-2 animate-pulse rounded-full border-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/live/${config.active_room_id}`);
+                }}
+              >
+                <Radio className="h-4 w-4" />
+                <span className="font-bold tracking-wider">LIVE NOW</span>
+              </Badge>
+            )}
 
             {/* Social icons row */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">

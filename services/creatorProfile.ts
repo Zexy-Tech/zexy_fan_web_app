@@ -202,6 +202,8 @@ export const creatorProfileService = {
     return {
       creatorId: data.creator_id,
       username: data.username,
+      is_live: data.is_live,
+      active_room_id: data.active_room_id,
       theme: {
         primaryColor: data.theme.primaryColor,
         secondaryColor: data.theme.secondaryColor,

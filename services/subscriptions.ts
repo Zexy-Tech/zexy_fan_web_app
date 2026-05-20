@@ -250,6 +250,7 @@ export const subscriptionService = {
     amount: number;
     currency: string;
     key_id: string;
+    mock_checkout_url?: string;
   }> => {
     const response = await apiClient.post('/api/v1/fan/payments/intents', {
       purpose: 'subscription',

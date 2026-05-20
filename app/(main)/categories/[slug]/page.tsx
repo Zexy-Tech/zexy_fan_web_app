@@ -34,7 +34,7 @@ export default function CategoryCreatorsPage() {
   }, [inView, fetchNextPage, hasNextPage]);
 
   // Transform infinite pages into a flat array of creators
-  const creators = data?.pages.flatMap((page) => page.data) ?? [];
+  const creators = data?.pages.flatMap((page) => page.items) ?? [];
 
   if (isLoading) {
     return (

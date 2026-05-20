@@ -11,6 +11,7 @@ import { getMediaUrl } from '@/lib/utils';
 function formatRole(role: string | null | undefined) {
   if (!role) return '—';
   const r = role.toLowerCase();
+  if (!r) return '—';
   return r.charAt(0).toUpperCase() + r.slice(1);
 }
 

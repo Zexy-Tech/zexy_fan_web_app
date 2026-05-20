@@ -61,6 +61,16 @@ export function SubscriptionModal({
       // Step 1: Create payment intent
       const intent = await createIntent.mutateAsync(selectedPlan.id);
 
+      if (intent.mock_checkout_url) {
+        let targetUrl = intent.mock_checkout_url;
+        if (targetUrl.startsWith('mock://')) {
+          const urlParams = targetUrl.replace('mock://checkout?', '');
+          targetUrl = `/mock-pg?${urlParams}`;
+        }
+        window.location.href = targetUrl;
+        return;
+      }
+
       // Step 2: Simulate Razorpay (in real app, open Razorpay modal here)
       await new Promise((r) => setTimeout(r, 1500));
 

@@ -14,6 +14,8 @@ export interface Creator {
   category: string | null;
   subscriber_count: number;
   is_subscribed: boolean;
+  is_live?: boolean;
+  active_room_id?: string | null;
 }
 
 export interface CreatorFilters {
