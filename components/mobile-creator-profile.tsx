@@ -10,11 +10,9 @@ import { useMemo } from 'react';
 import { useCreatorByUsername, useCreatorContentByUsername } from '@/hooks/useFeed';
 import { useCreatorProfileConfig } from '@/hooks/useCreatorProfile';
 import { useCreatorPlans } from '@/hooks/useSubscriptions';
-import { useQAItems } from '@/hooks/useQA';
 import { ProfileThemeProvider } from '@/components/profile-theme-provider';
 import { CreatorIntroSection } from '@/components/creator-intro-section';
 import { ActionButtonsSection } from '@/components/action-buttons-section';
-import { FanConnectQASection } from '@/components/fan-connect-qa-section';
 import { ExclusivesGridSection } from '@/components/exclusives-grid-section';
 import { SubscriptionCardSection } from '@/components/subscription-card-section';
 import { BottomNavigation } from '@/components/bottom-navigation';
@@ -40,7 +38,6 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
   const { data: config, isLoading: configLoading } = useCreatorProfileConfig(username);
   const { data: content, isLoading: contentLoading } = useCreatorContentByUsername(username);
   const { data: plans } = useCreatorPlans(creator?.id || 0);
-  const { data: qaItems } = useQAItems(creator?.id || 0);
 
   const membershipPlans = useMemo(() => {
     if (!creator) return [];
@@ -132,15 +129,6 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                     />
                   ) : null
                 );
-              
-              case 'qa':
-                return qaItems ? (
-                  <FanConnectQASection
-                    key={section.id}
-                    items={qaItems}
-                    showAddQuestion={section.config?.showAddQuestion || false}
-                  />
-                ) : null;
               
               case 'exclusives':
                 return content ? (

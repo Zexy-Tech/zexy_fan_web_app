@@ -40,7 +40,7 @@ export function Header() {
   const isCategoriesListHeader = pathname === '/categories';
   const isCategoryDetailHeader = Boolean(categorySlug);
   const isCategoriesHeader = isCategoriesListHeader || isCategoryDetailHeader;
-  const categoryDetailName = categorySlug ? getCategoryBySlug(categorySlug)?.name : null;
+  const categoryDetailName = categorySlug ? categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1) : null;
   const isSubscriptionsStyleHeader =
     isMyCreatorsHeader ||
     isMembershipHeader ||
