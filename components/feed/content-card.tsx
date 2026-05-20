@@ -58,11 +58,22 @@ export function ContentCard({ content }: ContentCardProps) {
               </div>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
-                {content.media?.[0]?.media_type === 'video' ? (
-                  <Play className="h-16 w-16 text-white/80" />
-                ) : (
-                  <ImageIcon className="h-16 w-16 text-white/80" />
-                )}
+                {(content.thumbnail_url || content.url) ? (
+                  <Image
+                    src={getMediaUrl(content.thumbnail_url || content.url) || ''}
+                    alt={content.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 800px"
+                  />
+                ) : null}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                  {content.media?.[0]?.media_type === 'video' ? (
+                    <Play className="h-16 w-16 text-white/80 drop-shadow-lg" />
+                  ) : !content.thumbnail_url && !content.url ? (
+                    <ImageIcon className="h-16 w-16 text-white/80" />
+                  ) : null}
+                </div>
               </div>
             )}
           </div>

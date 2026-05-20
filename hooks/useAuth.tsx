@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const logout = () => {
+  const logout = (redirectPath: string = '/login') => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('session_token');
@@ -79,7 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     dispatch(clearAuth());
     queryClient.clear();
-    router.push('/login');
+    if (redirectPath) {
+      router.push(redirectPath);
+    }
   };
 
   return (

@@ -55,6 +55,8 @@ export function ExclusivesGridSection({ content }: ExclusivesGridSectionProps) {
                 title: item.title,
                 isLocked: item.is_locked,
                 media_type: item.media?.[0]?.media_type || 'image',
+                thumbnail_url: item.thumbnail_url,
+                url: item.url,
               }}
               onUnlock={handleUnlock}
               isAuthenticated={isAuthenticated}

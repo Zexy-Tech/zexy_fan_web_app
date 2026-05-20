@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useFeed, useCreators } from '@/hooks/useFeed';
-import { getMediaUrl } from '@/lib/utils';
+import { getMediaUrl, cn } from '@/lib/utils';
 import { Lock, Play, Image as ImageIcon, Music } from 'lucide-react';
 
 export function SubscribedLatest() {
@@ -47,13 +47,28 @@ export function SubscribedLatest() {
             <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-xl group-hover:border-purple-500/50 transition-all duration-300">
               {/* Thumbnail / Placeholder */}
               <div className="w-full h-full bg-gradient-to-br from-purple-900/20 via-zinc-900 to-pink-900/20 flex items-center justify-center">
-                {post!.media?.[0]?.media_type === 'video' ? (
-                  <Play className="w-10 h-10 text-purple-500/40" />
-                ) : post!.media?.[0]?.media_type === 'audio' ? (
-                  <Music className="w-10 h-10 text-purple-500/40" />
-                ) : (
-                  <ImageIcon className="w-10 h-10 text-purple-500/40" />
-                )}
+                {(post!.thumbnail_url || post!.url) ? (
+                  <Image
+                    src={getMediaUrl(post!.thumbnail_url || post!.url) || ''}
+                    alt={post!.title}
+                    fill
+                    className={cn(
+                      "object-cover transition-transform duration-500 group-hover:scale-110",
+                      post!.is_locked && "blur-sm opacity-50"
+                    )}
+                    sizes="240px"
+                  />
+                ) : null}
+                
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {post!.media?.[0]?.media_type === 'video' ? (
+                    <Play className="w-10 h-10 text-white/80 drop-shadow-lg" />
+                  ) : post!.media?.[0]?.media_type === 'audio' ? (
+                    <Music className="w-10 h-10 text-white/80 drop-shadow-lg" />
+                  ) : !post!.thumbnail_url && !post!.url ? (
+                    <ImageIcon className="w-10 h-10 text-white/80" />
+                  ) : null}
+                </div>
               </div>
 
               {/* Overlay Gradient */}

@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, MouseEvent, TouchEvent } from 'react';
-import { X, Heart, Bookmark } from 'lucide-react';
+import { X, Heart, Bookmark, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn, getMediaUrl, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { contentEngagementService } from '@/services/contentEngagement';
 import { VideoPlayer } from '@/components/content/video-player';
 

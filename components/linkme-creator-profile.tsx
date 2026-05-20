@@ -477,7 +477,6 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
         {/* Exclusive (big) + Public grid */}
         <div className="pt-6 space-y-4">
           <CreatorMediaBlocks
-            creatorAvatarSrc={coverUrl || '/sample-media/tom.png'}
             isAuthenticated={isAuthenticated}
             isMember={isMember}
             onRequireLogin={() => setIsLoginOpen(true)}
@@ -596,9 +595,25 @@ function ExclusiveMediaGrid({
             loop
             playsInline
             preload="auto"
-            className="h-full w-full object-cover"
+            className={cn("h-full w-full object-cover", item.isLocked && "blur-sm opacity-60")}
             aria-label={item.title}
           />
+        </button>
+      );
+    }
+
+    if (kind === 'video' && !item.thumbSrc) {
+       return (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onTileClick(item)}
+          className={cn(tileClass, 'p-0')}
+        >
+          {overlays}
+          <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
+            <Video className={cn("text-zinc-700", isExclusive ? "h-16 w-16" : "h-10 w-10")} strokeWidth={1.5} />
+          </div>
         </button>
       );
     }
@@ -613,7 +628,15 @@ function ExclusiveMediaGrid({
         >
           {overlays}
           <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
-            <Music className={cn("text-zinc-700", isExclusive ? "h-16 w-16" : "h-10 w-10")} strokeWidth={1.5} />
+            {item.thumbSrc ? (
+              <img 
+                src={item.thumbSrc} 
+                alt="" 
+                className={cn("h-full w-full object-cover", item.isLocked && "blur-sm opacity-60")} 
+              />
+            ) : (
+              <Music className={cn("text-zinc-700", isExclusive ? "h-16 w-16" : "h-10 w-10")} strokeWidth={1.5} />
+            )}
           </div>
         </button>
       );
@@ -627,8 +650,18 @@ function ExclusiveMediaGrid({
         className={cn(tileClass, 'p-0')}
       >
         {overlays}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={item.thumbSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
+        {item.thumbSrc ? (
+          <img 
+            src={item.thumbSrc} 
+            alt="" 
+            className={cn("h-full w-full object-cover", item.isLocked && "blur-sm opacity-60")} 
+            loading="lazy" 
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
+            <LucideImage className={cn("text-zinc-700", isExclusive ? "h-16 w-16" : "h-10 w-10")} strokeWidth={1.5} />
+          </div>
+        )}
       </button>
     );
   };
@@ -642,7 +675,6 @@ function ExclusiveMediaGrid({
 }
 
 function CreatorMediaBlocks({
-  creatorAvatarSrc,
   isAuthenticated,
   isMember,
   onRequireLogin,
@@ -651,7 +683,6 @@ function CreatorMediaBlocks({
   products,
   isLoading,
 }: {
-  creatorAvatarSrc: string;
   isAuthenticated: boolean;
   isMember: boolean;
   onRequireLogin: () => void;
@@ -697,7 +728,7 @@ function CreatorMediaBlocks({
       .map((c) => ({
         id: String(c.id),
         contentId: c.id,
-        thumbSrc: getMediaUrl(c.thumbnail_url || c.media.find((m) => m.media_type === 'video')?.url) || '',
+        thumbSrc: getMediaUrl(c.thumbnail_url || c.media.find((m) => m.media_type === 'image')?.url) || '',
         title: c.title,
         description: c.description,
         tags: c.tags ?? [],

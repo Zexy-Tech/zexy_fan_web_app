@@ -9,6 +9,8 @@
 import { ExclusiveContent } from '@/types/creator-profile';
 import { Lock, Play, Image as ImageIcon, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import { getMediaUrl, cn } from '@/lib/utils';
 
 interface ExclusiveContentCardProps {
   content: ExclusiveContent;
@@ -43,6 +45,7 @@ export function ExclusiveContentCard({
   isAuthenticated 
 }: ExclusiveContentCardProps) {
   const Icon = getContentIcon(content.media_type);
+  const thumbUrl = content.thumbnail_url || content.url;
   
   return (
     <div className="relative aspect-square rounded-lg overflow-hidden group">
@@ -55,7 +58,19 @@ export function ExclusiveContentCard({
             : 'linear-gradient(to bottom right, rgba(147, 51, 234, 0.2), rgba(236, 72, 153, 0.2))',
         }}
       >
-        <Icon className="h-12 w-12 text-white/50" />
+        {thumbUrl && (
+          <Image
+            src={getMediaUrl(thumbUrl) || ''}
+            alt={content.title}
+            fill
+            className={cn(
+              "object-cover transition-transform duration-500 group-hover:scale-110",
+              content.isLocked && "blur-sm opacity-60"
+            )}
+            sizes="(max-width: 640px) 50vw, 300px"
+          />
+        )}
+        <Icon className={cn("h-12 w-12 text-white/50", thumbUrl && "text-white/80 drop-shadow-lg")} />
       </div>
       
       {/* Locked Overlay */}

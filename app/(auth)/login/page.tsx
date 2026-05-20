@@ -44,12 +44,17 @@ function LoginPageContent() {
     }
 
     try {
-      await sendOTP.mutateAsync({ mobile, role: 'fan' });
-      toast.success('OTP sent successfully');
-      setStep('otp');
+      const response = await sendOTP.mutateAsync({ mobile, role: 'fan' });
+      if (response.auth_method === 'pin') {
+        setStep('pin');
+        toast.success('Please enter your PIN');
+      } else {
+        setStep('otp');
+        toast.success('OTP sent successfully');
+      }
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ error?: { message?: string } }>;
-      toast.error(axiosError.response?.data?.error?.message || 'Failed to send OTP');
+      toast.error(axiosError.response?.data?.error?.message || 'Failed to process request');
     }
   };
 
@@ -194,23 +199,8 @@ function LoginPageContent() {
                     className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all active:scale-[0.98]" 
                     disabled={sendOTP.isPending || mobile.length < 10}
                   >
-                    {sendOTP.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-4 animate-spin" />
-                        Sending OTP...
-                      </>
-                    ) : (
-                      'Get Verification Code'
-                    )}
+                    Continue
                   </Button>
-                  
-                  <button 
-                    type="button"
-                    onClick={() => mobile.length === 10 ? setStep('pin') : toast.error('Enter mobile number first')}
-                    className="w-full text-center text-sm font-semibold text-purple-400 hover:underline py-2"
-                  >
-                    Already have a PIN? Login here
-                  </button>
                 </div>
               </form>
             ) : step === 'pin' ? (
@@ -245,6 +235,7 @@ function LoginPageContent() {
                         )}
                         disabled={loginWithPIN.isPending}
                         maxLength={1}
+                        autoFocus={index === 0}
                       />
                     ))}
                   </div>
@@ -268,10 +259,7 @@ function LoginPageContent() {
                   
                   <div className="flex flex-col gap-2 pt-2">
                     <p className="text-center text-sm text-zinc-500">
-                      Forgot PIN? <button type="button" className="text-purple-400 font-medium hover:underline" onClick={handleSendOTP}>Use OTP instead</button>
-                    </p>
-                    <p className="text-center text-xs text-zinc-600">
-                      or <button type="button" className="text-purple-400 font-medium hover:underline" onClick={() => router.push('/pin-reset')}>Reset your PIN</button>
+                      Forgot PIN? <button type="button" className="text-purple-400 font-medium hover:underline" onClick={() => router.push(`/pin-reset?mobile=${mobile}`)}>Reset your PIN</button>
                     </p>
                   </div>
                 </div>

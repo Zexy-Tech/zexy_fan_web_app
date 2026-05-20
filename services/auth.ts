@@ -14,6 +14,7 @@ export interface SendOTPRequest {
 export interface SendOTPResponse {
   status: string;
   message: string;
+  auth_method: 'otp' | 'pin';
 }
 
 export interface VerifyOTPRequest {
@@ -89,6 +90,7 @@ export const authService = {
       return {
         status: 'success',
         message: 'OTP sent successfully',
+        auth_method: 'otp',
       };
     }
 
@@ -103,11 +105,6 @@ export const authService = {
     if (ENV.IS_MOCK) {
       await sleep(1000);
       
-      // Mock: Accept any 4-digit OTP
-      if (data.otp.length !== 4) {
-        throw new Error('Invalid OTP');
-      }
-
       return {
         access_token: 'mock_access_token_' + Date.now(),
         refresh_token: 'mock_refresh_token_' + Date.now(),

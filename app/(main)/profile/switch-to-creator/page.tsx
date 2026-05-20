@@ -1,9 +1,33 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { commonProfileService } from '@/services/commonProfile';
+import { RoleSwitchConfirmationModal } from '@/components/profile/role-switch-confirmation-modal';
+import { useAuthContext } from '@/hooks/useAuth';
 
 export default function SwitchToCreatorPage() {
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { logout } = useAuthContext();
+
+  const handleSwitch = async () => {
+    setIsLoading(true);
+    try {
+      await commonProfileService.switchToCreator();
+      toast.success('Successfully switched to creator!');
+      // Backend invalidates sessions, clear local state and go to success page
+      logout('/switch-success');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? (error as { response?: { data?: { error?: { message?: string } } } }).response?.data?.error?.message || error.message : 'Failed to switch to creator';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+      setIsConfirmOpen(false);
+    }
+  };
+
   return (
     <div className="-mt-2 space-y-8 pb-8">
       <section className="space-y-2">
@@ -57,10 +81,17 @@ export default function SwitchToCreatorPage() {
         type="button"
         className="w-full"
         size="lg"
-        onClick={() => toast.message('Creator signup is not available yet. We will add this flow soon.')}
+        onClick={() => setIsConfirmOpen(true)}
       >
         Make Me Creator
       </Button>
+
+      <RoleSwitchConfirmationModal
+        open={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleSwitch}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

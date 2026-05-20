@@ -45,12 +45,14 @@ function SavedMediaGrid({
   items,
   isProduct,
   isAudio,
+  isVideo,
   onTileClick,
   isLoading,
 }: {
   items: SavedItem[];
   isProduct?: boolean;
   isAudio?: boolean;
+  isVideo?: boolean;
   onTileClick: (item: SavedItem) => void;
   isLoading?: boolean;
 }) {
@@ -83,13 +85,21 @@ function SavedMediaGrid({
             </div>
           ) : null}
 
-          {isAudio ? (
+          {isAudio && !item.thumbSrc ? (
             <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
               <Music className="h-8 w-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
             </div>
-          ) : (
+          ) : isVideo && !item.thumbSrc ? (
+            <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
+              <Video className="h-8 w-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
+            </div>
+          ) : item.thumbSrc ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={item.thumbSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
+              <LucideImage className="h-8 w-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
+            </div>
           )}
 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
@@ -156,7 +166,8 @@ export function SavedContentView() {
     return (contentData || []).map(
       (c: Content): SavedItem => {
         const isAudio = c.type === 'audio' || c.media.some((m) => m.media_type === 'audio');
-        const thumbUrl = c.thumbnail_url || (isAudio ? undefined : c.media?.[0]?.url);
+        const isVideo = c.type === 'video' || c.media.some((m) => m.media_type === 'video');
+        const thumbUrl = c.thumbnail_url || c.media.find(m => m.media_type === 'image')?.url;
         
         return {
           id: String(c.id),
@@ -164,7 +175,7 @@ export function SavedContentView() {
           title: c.title,
           thumbSrc: getMediaUrl(thumbUrl) || '',
           duration: formatDuration(c.duration_seconds),
-          videoSrc: c.type === 'video' ? getMediaUrl(c.url || c.media?.[0]?.url) || undefined : undefined,
+          videoSrc: isVideo ? getMediaUrl(c.url || c.media.find(m => m.media_type === 'video')?.url) || undefined : undefined,
           audioSrc: isAudio ? getMediaUrl(c.url || c.media.find(m => m.media_type === 'audio')?.url) || undefined : undefined,
           description: c.description || undefined,
           isLiked: c.is_liked,
@@ -243,6 +254,7 @@ export function SavedContentView() {
             items={filteredItems}
             isProduct={activeTab === 'products'}
             isAudio={activeTab === 'audios'}
+            isVideo={activeTab === 'videos'}
             onTileClick={openItem}
             isLoading={isLoading}
           />

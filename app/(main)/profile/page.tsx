@@ -65,9 +65,12 @@ export default function ProfilePage() {
               )}
             </div>
             <div className="min-w-0 space-y-1">
-              <p className="truncate text-2xl font-semibold leading-none tracking-tight text-white">
-                {profile.name || '—'}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="truncate text-2xl font-semibold leading-none tracking-tight text-white">
+                  {profile.name || '—'}
+                </p>
+                <RoleBadge role={profile.role} />
+              </div>
               <div className="flex flex-wrap items-center gap-2">
                 {profile.username ? (
                   <span className="truncate text-sm text-zinc-400">@{profile.username}</span>

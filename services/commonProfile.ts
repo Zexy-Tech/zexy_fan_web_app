@@ -98,4 +98,11 @@ export const commonProfileService = {
     );
     return response.data.data;
   },
+
+  switchToCreator: async (): Promise<{ status: string; message: string; role: string }> => {
+    const response = await apiClient.post<{ success: boolean; data: { status: string; message: string; role: string } }>(
+      '/api/v1/common/profile/role/creator'
+    );
+    return response.data.data;
+  },
 };

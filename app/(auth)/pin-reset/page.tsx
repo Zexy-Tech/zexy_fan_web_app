@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useInitiatePINReset, useConfirmPINReset } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,8 +13,11 @@ import { AxiosError } from 'axios';
 
 function PinResetPageContent() {
   const router = useRouter();
-  const [step, setStep] = useState<'phone' | 'otp' | 'new_pin' | 'confirm'>('phone');
-  const [mobile, setMobile] = useState('');
+  const searchParams = useSearchParams();
+  const initialMobile = searchParams.get('mobile') || '';
+
+  const [step, setStep] = useState<'phone' | 'otp' | 'new_pin' | 'confirm'>(initialMobile ? 'otp' : 'phone');
+  const [mobile, setMobile] = useState(initialMobile);
   const [otp, setOtp] = useState(['', '', '', '']);
   const [newPin, setNewPin] = useState(['', '', '', '']);
   const [confirmPin, setConfirmPin] = useState(['', '', '', '']);

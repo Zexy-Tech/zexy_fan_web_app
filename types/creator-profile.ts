@@ -48,6 +48,8 @@ export interface ExclusiveContent {
   title: string;
   isLocked: boolean;
   media_type: 'image' | 'video' | 'audio';
+  thumbnail_url?: string | null;
+  url?: string | null;
 }
 
 export interface SubscriptionPlan {
