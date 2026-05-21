@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, MoreVertical, Send, Smile, Trash2, Loader2, MessageCircle, Heart, Bookmark, Share2, Paperclip } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Send, Smile, Trash2, Loader2, MessageCircle, Heart, Bookmark, Share2, Image as ImageIcon, Video, Mic, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TipModal } from '@/components/tip-modal';
@@ -460,7 +460,7 @@ export default function ChatThreadPage() {
         </button>
       </div>
 
-        {showEmoji && (
+          {showEmoji && (
           <div className="absolute bottom-16 left-2 z-50">
             <EmojiPicker onEmojiClick={(e) => setDraft(prev => prev + e.emoji)} theme={"dark" as any} />
           </div>
@@ -475,16 +475,7 @@ export default function ChatThreadPage() {
           >
             <Smile className="h-5 w-5" />
           </Button>
-          <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileUpload} accept="image/*,video/*,audio/*" />
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Attachment"
-            onClick={() => fileInputRef.current?.click()}
-            className="text-zinc-300 hover:bg-zinc-800 hover:text-white"
-          >
-            <Paperclip className="h-5 w-5" />
-          </Button>
+          {/* Media sending disabled for fans in this version */}
           <Input
             ref={messageInputRef}
             placeholder="Type a message"
