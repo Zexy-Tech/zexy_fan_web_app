@@ -200,7 +200,7 @@ export function SubscriptionModal({
                         <p className="mt-1 text-xs text-muted-foreground">{plan.duration_days} days access</p>
                       </div>
                       <div className="ml-4 flex-shrink-0 text-right">
-                        <p className="text-xl font-bold">{formatCurrency(plan.price)}</p>
+                        <p className="text-lg font-bold">{formatCurrency(plan.price)}</p>
                         {selectedPlan.id === plan.id && (
                           <Check className="ml-auto mt-1 h-4 w-4 text-primary" />
                         )}

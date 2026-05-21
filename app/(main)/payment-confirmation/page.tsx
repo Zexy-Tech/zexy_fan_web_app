@@ -71,7 +71,7 @@ function PaymentConfirmationContent() {
           {status === 'success' && (
             <div className="text-center space-y-4">
               <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto" />
-              <p className="text-xl font-bold">Payment Successful!</p>
+              <p className="text-lg font-bold">Payment Successful!</p>
               <p className="text-muted-foreground">Your transaction has been verified. You can now access the content.</p>
               <Button onClick={() => router.push('/creators')} className="mt-4 w-full">
                 Continue Browsing
@@ -82,7 +82,7 @@ function PaymentConfirmationContent() {
           {status === 'error' && (
             <div className="text-center space-y-4">
               <XCircle className="h-16 w-16 text-destructive mx-auto" />
-              <p className="text-xl font-bold">Payment Failed</p>
+              <p className="text-lg font-bold">Payment Failed</p>
               <p className="text-destructive">{errorMsg}</p>
               <Button onClick={() => router.back()} variant="outline" className="mt-4 w-full">
                 Try Again

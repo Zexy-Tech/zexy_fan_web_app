@@ -43,12 +43,12 @@ export default function MockPhonePePage() {
           </div>
           <div className="text-right">
              <p className="text-[10px] opacity-70 uppercase font-bold">Amount to pay</p>
-             <p className="text-xl font-bold">{currency === 'INR' ? '₹' : currency} {amount}</p>
+             <p className="text-lg font-bold">{currency === 'INR' ? '₹' : currency} {amount}</p>
           </div>
         </div>
 
         <CardHeader className="pt-8 text-center">
-          <CardTitle className="text-xl">Zexy Platform</CardTitle>
+          <CardTitle className="text-lg">Zexy Platform</CardTitle>
           <CardDescription>Order ID: {orderId}</CardDescription>
         </CardHeader>
 

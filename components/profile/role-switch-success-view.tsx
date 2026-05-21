@@ -9,11 +9,11 @@ export function RoleSwitchSuccessView() {
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black p-4">
       <div className="w-full max-w-[440px] text-center space-y-8 animate-in fade-in zoom-in duration-500">
         <div className="flex flex-col items-center space-y-4">
-          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-4xl shadow-lg shadow-purple-500/20">
+          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-lg shadow-lg shadow-purple-500/20">
             ✨
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-white">Success!</h1>
+            <h1 className="text-lg font-bold tracking-tight text-white">Success!</h1>
             <p className="text-zinc-400 text-lg">
               Your account has been upgraded to <strong>Creator</strong>.
             </p>
@@ -33,7 +33,7 @@ export function RoleSwitchSuccessView() {
               <Apple className="h-8 w-8 fill-current mr-4 group-hover:scale-110 transition-transform" />
               <div className="text-left">
                 <p className="text-[10px] font-medium uppercase leading-none opacity-70">Available on the</p>
-                <p className="text-xl font-bold leading-tight">App Store</p>
+                <p className="text-lg font-bold leading-tight">App Store</p>
               </div>
             </button>
             
@@ -48,7 +48,7 @@ export function RoleSwitchSuccessView() {
               </div>
               <div className="text-left">
                 <p className="text-[10px] font-medium uppercase leading-none opacity-70">GET IT ON</p>
-                <p className="text-xl font-bold leading-tight">Google Play</p>
+                <p className="text-lg font-bold leading-tight">Google Play</p>
               </div>
             </button>
           </div>

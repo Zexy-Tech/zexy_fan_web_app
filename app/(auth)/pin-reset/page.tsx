@@ -109,7 +109,7 @@ function PinResetPageContent() {
           <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20">
             <KeyRound className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-lg font-bold tracking-tight">
             {step === 'phone' ? 'Reset PIN' : step === 'otp' ? 'Verify Reset Code' : step === 'new_pin' ? 'New PIN' : 'Confirm New PIN'}
           </h1>
           <p className="text-muted-foreground">
@@ -173,7 +173,7 @@ function PinResetPageContent() {
                       onChange={(e) => handleDigitChange(e.target.value, index, otp, setOtp, otpInputRefs, () => setStep('new_pin'))}
                       onKeyDown={(e) => handleKeyDown(e, index, otp, otpInputRefs)}
                       className={cn(
-                        "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-2xl font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
+                        "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-lg font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
                         digit && "border-purple-500 bg-zinc-800/80"
                       )}
                       maxLength={1}
@@ -189,7 +189,7 @@ function PinResetPageContent() {
                       onChange={(e) => handleDigitChange(e.target.value, index, newPin, setNewPin, pinInputRefs, () => setStep('confirm'))}
                       onKeyDown={(e) => handleKeyDown(e, index, newPin, pinInputRefs)}
                       className={cn(
-                        "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-2xl font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
+                        "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-lg font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
                         digit && "border-purple-500 bg-zinc-800/80"
                       )}
                       maxLength={1}
@@ -205,7 +205,7 @@ function PinResetPageContent() {
                       onChange={(e) => handleDigitChange(e.target.value, index, confirmPin, setConfirmPin, confirmInputRefs, handleFinish)}
                       onKeyDown={(e) => handleKeyDown(e, index, confirmPin, confirmInputRefs)}
                       className={cn(
-                        "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-2xl font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
+                        "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-lg font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
                         digit && "border-purple-500 bg-zinc-800/80"
                       )}
                       maxLength={1}

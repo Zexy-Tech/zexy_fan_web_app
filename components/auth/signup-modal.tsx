@@ -128,7 +128,7 @@ export function SignupModal({ open, onClose }: SignupModalProps) {
         <Card className="border-zinc-800 bg-zinc-900/95 text-white backdrop-blur-xl">
           <CardContent className="p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-xl font-bold tracking-tight">
+              <h3 className="text-lg font-bold tracking-tight">
                 {step === 'phone' ? 'Welcome to Zexy' : 'Verify OTP'}
               </h3>
               <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Close signup modal">
@@ -201,7 +201,7 @@ export function SignupModal({ open, onClose }: SignupModalProps) {
                         onChange={(e) => handleOtpChange(e.target.value, index)}
                         onKeyDown={(e) => handleKeyDown(e, index)}
                         className={cn(
-                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800 text-center text-2xl font-bold outline-none transition-all focus:border-purple-500 focus:ring-1 focus:ring-purple-500',
+                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800 text-center text-lg font-bold outline-none transition-all focus:border-purple-500 focus:ring-1 focus:ring-purple-500',
                           digit && 'border-purple-500 bg-zinc-800/80'
                         )}
                         disabled={verifyOTP.isPending}

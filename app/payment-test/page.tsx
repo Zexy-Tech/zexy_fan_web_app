@@ -71,7 +71,7 @@ export default function PaymentTestPage() {
     <div className="min-h-screen bg-black text-white p-8 flex flex-col items-center justify-center">
       <div className="max-w-md w-full space-y-8 text-center">
         <div className="space-y-2">
-          <h1 className="text-4xl font-black tracking-tighter">PAYMENT POC</h1>
+          <h1 className="text-lg font-black tracking-tighter">PAYMENT POC</h1>
           <p className="text-zinc-500 uppercase text-xs tracking-widest">End-to-End Simulation Test</p>
         </div>
 

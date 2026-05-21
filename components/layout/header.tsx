@@ -96,7 +96,7 @@ export function Header() {
               </Button>
 
               <div className="pointer-events-none absolute left-1/2 -translate-x-1/2">
-                <h1 className="text-base font-semibold tracking-tight">{subscriptionsStyleTitle}</h1>
+                <h1 className="text-sm font-semibold tracking-tight">{subscriptionsStyleTitle}</h1>
               </div>
 
               <Button

@@ -33,7 +33,7 @@ export default function LiveListingPage() {
         <div className="bg-zinc-900 w-20 h-20 rounded-full flex items-center justify-center mx-auto">
           <Radio className="h-10 w-10 text-zinc-600" />
         </div>
-        <h2 className="text-xl font-semibold">No one is live right now</h2>
+        <h2 className="text-lg font-semibold">No one is live right now</h2>
         <p className="text-muted-foreground max-w-xs mx-auto">
           Follow your favorite creators to get notified when they go live!
         </p>
@@ -47,7 +47,7 @@ export default function LiveListingPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
+        <h1 className="text-lg font-bold flex items-center gap-2">
           <Radio className="h-6 w-6 text-red-500 animate-pulse" />
           Live Now
         </h1>
@@ -70,7 +70,7 @@ export default function LiveListingPage() {
                       className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-6xl font-bold text-zinc-800">
+                    <div className="absolute inset-0 flex items-center justify-center text-lg font-bold text-zinc-800">
                       {(live.creator_name || '?').charAt(0)}
                     </div>
                   )}

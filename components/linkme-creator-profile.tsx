@@ -364,7 +364,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
         {/* Center content */}
         <div className="absolute inset-x-0 bottom-10 px-4">
           <div className="mx-auto max-w-md text-center flex flex-col items-center">
-            <h1 className="text-4xl font-semibold tracking-tight drop-shadow-sm">{displayName}</h1>
+            <h1 className="text-lg font-semibold tracking-tight drop-shadow-sm">{displayName}</h1>
             <p className="mt-1 text-sm text-zinc-300">@{handle}</p>
 
             {config?.is_live && (
@@ -416,7 +416,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
               })}
             </div>
 
-            {bio ? <p className="mt-5 text-base text-zinc-100">{bio}</p> : null}
+            {bio ? <p className="mt-5 text-sm text-zinc-100">{bio}</p> : null}
           </div>
         </div>
       </section>

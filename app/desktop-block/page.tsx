@@ -16,7 +16,7 @@ export default function DesktopBlockPage() {
           <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
             <Smartphone className="h-8 w-8 text-white" />
           </div>
-          <CardTitle className="text-2xl">Mobile Only</CardTitle>
+          <CardTitle className="text-lg">Mobile Only</CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <p className="text-muted-foreground">

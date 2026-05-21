@@ -86,7 +86,7 @@ export function ActionButtonsSection({
           <Button
             key={button.id}
             variant={variant}
-            className="w-full h-12 text-base"
+            className="w-full h-12 text-sm"
             onClick={() => handleButtonClick(button)}
             style={{
               background: button.style === 'primary' 

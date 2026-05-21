@@ -59,15 +59,15 @@ export function TipModal({
           <div className="text-center">
             <div className="text-sm text-zinc-400">{title}</div>
             {lockAmount ? (
-              <div className="mt-2 text-4xl font-bold tabular-nums">₹{amount}</div>
+              <div className="mt-2 text-lg font-bold tabular-nums">₹{amount}</div>
             ) : (
               <div className="mt-3 flex items-center justify-center gap-2">
-                <span className="text-2xl font-bold">₹</span>
+                <span className="text-lg font-bold">₹</span>
                 <Input
                   type="number"
                   min={1}
                   inputMode="numeric"
-                  className="h-11 max-w-[160px] border-zinc-600 bg-black text-center text-2xl font-bold tabular-nums text-white [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  className="h-11 max-w-[160px] border-zinc-600 bg-black text-center text-lg font-bold tabular-nums text-white [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   value={amount < 1 ? '' : amount}
                   onChange={(e) => {
                     const raw = e.target.value;
@@ -93,7 +93,7 @@ export function TipModal({
                     type="button"
                     onClick={() => onAmountChange(preset)}
                     className={[
-                      'min-w-0 flex-1 rounded-xl border px-2 py-3 text-center text-sm font-semibold transition-colors sm:px-3 sm:text-base',
+                      'min-w-0 flex-1 rounded-xl border px-2 py-3 text-center text-sm font-semibold transition-colors sm:px-3 sm:text-sm',
                       active
                         ? 'border-pink-500 bg-pink-500/20 text-white'
                         : 'border-zinc-600 bg-zinc-800 text-zinc-200 hover:bg-zinc-700',

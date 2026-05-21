@@ -56,7 +56,7 @@ export default function BillingPage() {
            <Receipt className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Billing & Invoices</h1>
+          <h1 className="text-lg font-bold">Billing & Invoices</h1>
           <p className="text-zinc-400 text-sm">Manage your payments and download receipts</p>
         </div>
       </div>

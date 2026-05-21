@@ -41,7 +41,7 @@ export function ExclusivesGridSection({ content }: ExclusivesGridSectionProps) {
       {/* Section Header */}
       <div className="flex items-center gap-2">
         <Lock className="h-5 w-5" style={{ color: 'var(--profile-primary)' }} />
-        <h2 className="text-xl font-bold">Exclusives</h2>
+        <h2 className="text-lg font-bold">Exclusives</h2>
       </div>
       
       {/* Content Grid or Empty State */}

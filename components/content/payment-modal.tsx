@@ -85,7 +85,7 @@ export function PaymentModal({ contentId, amount, title, onClose }: PaymentModal
             <div className="space-y-4">
               <div className="flex items-center justify-between py-4 border-y">
                 <span className="text-muted-foreground">Amount</span>
-                <span className="text-2xl font-bold">{formatCurrency(amount)}</span>
+                <span className="text-lg font-bold">{formatCurrency(amount)}</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 You will get instant access to this content after payment.

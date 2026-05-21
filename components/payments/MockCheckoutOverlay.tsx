@@ -21,7 +21,7 @@ export const MockCheckoutOverlay: React.FC<MockCheckoutOverlayProps> = ({
       <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
         {/* Header */}
         <div className="bg-zinc-800/50 px-6 py-4 border-b border-zinc-800">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
             Payment Simulation
           </h2>
@@ -34,7 +34,7 @@ export const MockCheckoutOverlay: React.FC<MockCheckoutOverlayProps> = ({
         <div className="p-6 space-y-6">
           <div className="flex justify-between items-baseline">
             <span className="text-zinc-400">Amount to Pay</span>
-            <span className="text-3xl font-black text-white">
+            <span className="text-lg font-black text-white">
               {intent.currency} {intent.amount.toFixed(2)}
             </span>
           </div>

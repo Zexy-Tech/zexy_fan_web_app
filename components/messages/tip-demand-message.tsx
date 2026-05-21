@@ -80,7 +80,7 @@ export function TipDemandMessage({
           )}
         </div>
 
-        <p className="text-2xl font-bold tabular-nums mt-3 text-foreground">
+        <p className="text-lg font-bold tabular-nums mt-3 text-foreground">
           {formatCurrency(amount)}
         </p>
 

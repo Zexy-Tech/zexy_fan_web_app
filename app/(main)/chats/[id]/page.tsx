@@ -453,7 +453,7 @@ export default function ChatThreadPage() {
         <button
           type="button"
           onClick={openFreeTipPopup}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pink-600 text-base font-bold text-white shadow-md hover:bg-pink-500"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pink-600 text-sm font-bold text-white shadow-md hover:bg-pink-500"
           aria-label="Send tip"
         >
           ₹

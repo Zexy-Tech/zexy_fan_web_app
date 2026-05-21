@@ -197,12 +197,12 @@ export default function MockLiveRoomPage() {
             {broadcasterExists ? (
               <div className="text-center space-y-4">
                 <Loader2 className="h-12 w-12 text-red-500 mx-auto animate-spin" />
-                <p className="text-xl font-medium text-zinc-400">Tuning in...</p>
+                <p className="text-lg font-medium text-zinc-400">Tuning in...</p>
               </div>
             ) : (
               <div className="text-center space-y-4">
                 <Radio className="h-20 w-20 text-zinc-700 mx-auto" />
-                <p className="text-xl font-medium text-zinc-400">Off Air</p>
+                <p className="text-lg font-medium text-zinc-400">Off Air</p>
                 <p className="text-sm text-zinc-500 italic">Waiting for signal...</p>
               </div>
             )}

@@ -60,7 +60,7 @@ export function SubscriptionCardSection({
           <CardHeader>
             <div className="flex items-center gap-2">
               <Crown className="h-6 w-6 text-muted-foreground" />
-              <CardTitle className="text-2xl text-muted-foreground">Subscription</CardTitle>
+              <CardTitle className="text-lg text-muted-foreground">Subscription</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -73,7 +73,7 @@ export function SubscriptionCardSection({
                 </p>
               </div>
             </div>
-            <Button className="w-full h-12 text-base font-semibold" disabled>
+            <Button className="w-full h-12 text-sm font-semibold" disabled>
               Coming Soon
             </Button>
           </CardContent>
@@ -91,7 +91,7 @@ export function SubscriptionCardSection({
         {/* Section header */}
         <div className="flex items-center gap-2 mb-1">
           <Crown className="h-5 w-5" style={{ color: 'var(--profile-primary)' }} />
-          <h2 className="text-xl font-bold">Subscription</h2>
+          <h2 className="text-lg font-bold">Subscription</h2>
         </div>
 
         {/* Plan cards */}
@@ -126,7 +126,7 @@ export function SubscriptionCardSection({
             <CardContent className="space-y-4">
               {/* Price */}
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold" style={{ color: 'var(--profile-primary)' }}>
+                <span className="text-lg font-bold" style={{ color: 'var(--profile-primary)' }}>
                   {formatCurrency(plan.price)}
                 </span>
                 <span className="text-muted-foreground text-sm">/ {plan.duration_days} days</span>
@@ -154,7 +154,7 @@ export function SubscriptionCardSection({
 
         {/* Single Subscribe CTA */}
         <Button
-          className="w-full h-12 text-base font-semibold mt-2"
+          className="w-full h-12 text-sm font-semibold mt-2"
           onClick={handleSubscribeClick}
           disabled={isSubscribed}
           style={

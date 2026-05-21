@@ -17,6 +17,17 @@ const config: Config = {
       },
     },
     extend: {
+      fontSize: {
+        xs: ['12px', '16px'],
+        sm: ['14px', '20px'],
+        base: ['14px', '20px'],
+        lg: ['18px', '28px'],
+        xl: ['18px', '28px'],
+        '2xl': ['18px', '28px'],
+        '3xl': ['18px', '28px'],
+        '4xl': ['18px', '28px'],
+        '5xl': ['18px', '28px'],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

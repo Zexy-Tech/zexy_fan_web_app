@@ -85,7 +85,7 @@ export default function SettingsPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-2xl font-bold">{step === 'new' ? 'Set New PIN' : 'Confirm New PIN'}</h1>
+          <h1 className="text-lg font-bold">{step === 'new' ? 'Set New PIN' : 'Confirm New PIN'}</h1>
         </div>
 
         <Card className="border-zinc-800 bg-zinc-900/50 backdrop-blur-xl">
@@ -101,7 +101,7 @@ export default function SettingsPage() {
                   onChange={(e) => handleDigitChange(e.target.value, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   className={cn(
-                    "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-2xl font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
+                    "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-lg font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
                     digit && "border-purple-500 bg-zinc-800/80"
                   )}
                   disabled={setupPIN.isPending}
@@ -132,7 +132,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 px-4 py-6">
-      <h1 className="text-2xl font-bold">Settings</h1>
+      <h1 className="text-lg font-bold">Settings</h1>
 
       <div className="space-y-4">
         <section>

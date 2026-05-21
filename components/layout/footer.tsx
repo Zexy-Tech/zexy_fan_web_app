@@ -31,7 +31,7 @@ export function Footer() {
             <button
               type="button"
               onClick={() => setIsSignupModalOpen(true)}
-              className="mb-2 text-center text-2xl  leading-tight tracking-tight transition-opacity hover:opacity-85"
+              className="mb-2 text-center text-lg  leading-tight tracking-tight transition-opacity hover:opacity-85"
             >
               Create Your Profile On Zexy
             </button>

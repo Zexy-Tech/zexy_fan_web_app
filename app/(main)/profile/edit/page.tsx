@@ -184,7 +184,7 @@ export default function EditProfilePage() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="grid h-full w-full place-items-center text-3xl font-semibold text-muted-foreground">
+                      <span className="grid h-full w-full place-items-center text-lg font-semibold text-muted-foreground">
                         {initials}
                       </span>
                     )}

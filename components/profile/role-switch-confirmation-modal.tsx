@@ -33,7 +33,7 @@ export function RoleSwitchConfirmationModal({
               </div>
               
               <div className="space-y-2">
-                <h3 className="text-xl font-bold tracking-tight">Become a Creator?</h3>
+                <h3 className="text-lg font-bold tracking-tight">Become a Creator?</h3>
                 <p className="text-sm text-zinc-400">
                   Switching to a creator account will <strong>log you out</strong> from all active sessions. 
                   You will need to login again to access your new creator tools.

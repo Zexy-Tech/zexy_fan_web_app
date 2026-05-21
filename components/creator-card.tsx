@@ -69,7 +69,7 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-4xl font-bold text-primary">
+                <span className="text-lg font-bold text-primary">
                   {creator.name?.charAt(0) || creator.username?.charAt(0) || '?'}
                 </span>
               </div>

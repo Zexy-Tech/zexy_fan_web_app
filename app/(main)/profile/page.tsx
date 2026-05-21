@@ -52,7 +52,7 @@ export default function ProfilePage() {
           </div>
         ) : profile ? (
           <div className="flex items-center gap-4">
-            <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-3xl font-semibold text-white">
+            <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
               {profile.avatar ? (
                 <Image
                   src={getMediaUrl(profile.avatar) || ''}
@@ -67,7 +67,7 @@ export default function ProfilePage() {
             </div>
             <div className="min-w-0 space-y-1">
               <div className="flex items-center gap-2">
-                <p className="truncate text-2xl font-semibold leading-none tracking-tight text-white">
+                <p className="truncate text-lg font-semibold leading-none tracking-tight text-white">
                   {profile.name || '—'}
                 </p>
                 <RoleBadge role={profile.role} />

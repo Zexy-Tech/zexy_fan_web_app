@@ -219,7 +219,7 @@ export function ContentPopup({
         >
           {/* Top: title left, close right */}
           <header className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-3 py-3 sm:px-4">
-            <h2 className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-white sm:text-base">
+            <h2 className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-white sm:text-sm">
               {title}
             </h2>
             <Button

@@ -53,7 +53,7 @@ export function CreatorIntroSection({
       {config.showAvatar && (
         <div className="flex justify-center">
           <div
-            className={`relative h-24 w-24 flex items-center justify-center text-white text-4xl font-semibold overflow-hidden ${avatarStyleClasses[config.avatarStyle]}`}
+            className={`relative h-24 w-24 flex items-center justify-center text-white text-lg font-semibold overflow-hidden ${avatarStyleClasses[config.avatarStyle]}`}
             style={{
               background: 'linear-gradient(to bottom right, var(--profile-gradient-start), var(--profile-gradient-end))',
             }}
@@ -75,7 +75,7 @@ export function CreatorIntroSection({
       
       {/* Greeting */}
       <div className="text-center flex flex-col items-center gap-2">
-        <h1 className="text-3xl font-bold" style={{ color: 'var(--profile-primary)' }}>
+        <h1 className="text-lg font-bold" style={{ color: 'var(--profile-primary)' }}>
           {config.greeting}
         </h1>
         {isLive && (
@@ -99,7 +99,7 @@ export function CreatorIntroSection({
       {/* Stats */}
       <div className="flex justify-center gap-6 pt-2">
         <div className="text-center">
-          <p className="text-2xl font-bold" style={{ color: 'var(--profile-primary)' }}>
+          <p className="text-lg font-bold" style={{ color: 'var(--profile-primary)' }}>
             {creator.subscriber_count.toLocaleString()}
           </p>
           <p className="text-sm text-muted-foreground">Subscribers</p>
@@ -108,7 +108,7 @@ export function CreatorIntroSection({
 
       {showSubscribeButton && (
         <Button
-          className="w-full h-12 text-base font-semibold text-white"
+          className="w-full h-12 text-sm font-semibold text-white"
           onClick={onSubscribeClick}
           style={{
             background:
@@ -122,7 +122,7 @@ export function CreatorIntroSection({
       {showMessageButton && (
         <Button
           variant="secondary"
-          className="w-full h-12 text-base font-semibold"
+          className="w-full h-12 text-sm font-semibold"
           onClick={onMessageClick}
         >
           Message
