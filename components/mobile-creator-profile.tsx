@@ -22,6 +22,9 @@ import { getDefaultTheme } from '@/lib/validation/profile-config';
 import { getDemoCreatorMembershipPlans } from '@/services/subscriptions';
 import { getMediaUrl } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { MembershipPopup } from '@/components/membership-popup';
+import { queryClient } from '@/lib/queryClient';
 
 interface MobileCreatorProfileProps {
   username: string;
@@ -34,6 +37,7 @@ interface MobileCreatorProfileProps {
  */
 export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
   const router = useRouter();
+  const [isMembershipOpen, setIsMembershipOpen] = useState(false);
   const { data: creator, isLoading: creatorLoading, error: creatorError } = useCreatorByUsername(username);
   const { data: config, isLoading: configLoading } = useCreatorProfileConfig(username);
   const { data: content, isLoading: contentLoading } = useCreatorContentByUsername(username);
@@ -80,10 +84,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
   const hasSubscriptionSection = enabledSections.some((s) => s.type === 'subscription' || s.type === 'membership');
 
   const handleSubscribeClick = () => {
-    const section = document.getElementById('membership-section') || document.getElementById('subscription-section');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    setIsMembershipOpen(true);
   };
 
   const handleMessageClick = () => {
@@ -176,6 +177,21 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
           )}
         </div>
         
+        {isMembershipOpen && (
+          <MembershipPopup
+            open={isMembershipOpen}
+            creatorName={creator.name || creator.username}
+            creatorUsername={creator.username}
+            creatorAvatarUrl={getMediaUrl(creator.avatar)}
+            plans={membershipPlans}
+            onClose={() => setIsMembershipOpen(false)}
+            onSuccess={() => {
+              void queryClient.invalidateQueries({ queryKey: ['creator', 'username', username] });
+              void queryClient.invalidateQueries({ queryKey: ['subscriptions', 'my'] });
+            }}
+          />
+        )}
+
         {/* Bottom Navigation */}
         {bottomNav.length > 0 && (
           <BottomNavigation items={bottomNav} />

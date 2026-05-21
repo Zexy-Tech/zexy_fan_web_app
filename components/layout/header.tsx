@@ -175,10 +175,7 @@ export function Header() {
           </Button>
           </div>
 
-          <LiveNowSidebar />
-
-          <nav className="px-2 py-3">
-          {navItems.map((item) => {
+          <nav className="px-2 py-3">          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
               item.href === '/subscriptions'
