@@ -206,7 +206,6 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMembershipOpen, setIsMembershipOpen] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [scrollY, setScrollY] = useState(0);
 
@@ -303,72 +302,6 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Always-visible sidebar/menu button */}
-      <button
-        type="button"
-        aria-label="Open menu"
-        className="fixed right-4 top-4 z-[60] grid h-10 w-10 place-items-center rounded-md bg-black/30 text-white backdrop-blur hover:bg-black/45"
-        onClick={() => setIsDrawerOpen(true)}
-      >
-        <Menu className="h-5 w-5" />
-      </button>
-
-      <div
-        className={[
-          'fixed inset-0 z-[70] bg-black/50 transition-opacity',
-          isDrawerOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
-        ].join(' ')}
-        onClick={() => setIsDrawerOpen(false)}
-      />
-
-      <aside
-        className={[
-          'fixed right-0 top-0 z-[80] h-full w-72 max-w-[85vw] border-l border-white/10 bg-black shadow-xl transition-transform duration-300',
-          isDrawerOpen ? 'translate-x-0' : 'translate-x-full',
-        ].join(' ')}
-        aria-hidden={!isDrawerOpen}
-      >
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-4">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/zexy_z_letter_logo_nobg.png"
-              alt="Zexy logo"
-              width={22}
-              height={22}
-              className="h-6 w-6 object-contain"
-            />
-            <span className="text-sm font-semibold tracking-[0.15em]">ZEXY</span>
-          </div>
-          <button
-            type="button"
-            aria-label="Close menu"
-            className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white"
-            onClick={() => setIsDrawerOpen(false)}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <LiveNowSidebar />
-
-        <nav className="px-2 py-3">
-          {drawerNavItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsDrawerOpen(false)}
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
-              >
-                <Icon className="h-4 w-4" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      </aside>
-
       {/* Profile bar overlay (hidden until hero fully disappears) */}
       <div
         className={[

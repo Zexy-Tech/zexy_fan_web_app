@@ -8,7 +8,7 @@ import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid, Radio } from 'lucide-react';
-import { LiveNowSidebar } from './live-now-sidebar';
+
 
 const navItems = [
   { href: '/creators', label: 'Creators', icon: Users },
