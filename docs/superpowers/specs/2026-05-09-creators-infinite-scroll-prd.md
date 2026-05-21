@@ -54,7 +54,7 @@ We need production-grade infinite scroll behavior using TanStack Query with pred
 Use cursor pagination for consistency and stability under inserts/updates.
 
 Endpoint:
-- `GET /api/v1/fan/creators?limit=40&cursor=<opaque>&search=<q>&city=<v>&gender=<v>&niche=<v>`
+- `GET /api/v1/fan/creators?limit=40&cursor=<opaque>&search=<q>&city=<v>&gender=<v>&category=<v>`
 
 Response shape:
 ```json
@@ -95,7 +95,7 @@ Use `IntersectionObserver` sentinel at list end:
 
 ### 6.4 Filters + Search Compatibility
 - Query key includes filters/search:
-  - `['creators', 'infinite', { search, city, gender, niche }]`
+  - `['creators', 'infinite', { search, city, gender, category }]`
 - Changing any filter resets pagination and starts from page 1.
 - Debounce search input (250–400ms recommended).
 

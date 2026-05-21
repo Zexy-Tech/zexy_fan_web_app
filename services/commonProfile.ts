@@ -10,7 +10,7 @@ export interface FanCommonProfile {
   username: string | null;
   avatar: string | null;
   role: string;
-  niche?: string | null;
+  category?: string | null;
   has_completed_onboarding?: boolean;
   account_status?: string | null;
   bio?: string | null;

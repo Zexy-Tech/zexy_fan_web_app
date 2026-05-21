@@ -36,7 +36,7 @@ Created a new creator profile page that:
 ### 1. Creator Profile Header
 - Large avatar with gradient
 - Creator name and username
-- Niche badge
+- Category badge
 - Subscriber count
 
 ### 2. Subscription Plans

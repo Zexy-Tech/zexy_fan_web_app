@@ -16,7 +16,7 @@ Creator profiles are now **publicly accessible** without login. Login is only re
 ### ✅ Public Access
 - **No login required** to view creator profiles
 - Anyone can see:
-  - Creator info (name, username, niche, subscribers)
+  - Creator info (name, username, category, subscribers)
   - Subscription plans
   - Public posts (free and locked)
 

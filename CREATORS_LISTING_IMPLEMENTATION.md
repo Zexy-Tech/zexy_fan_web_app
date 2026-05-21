@@ -21,7 +21,7 @@ Implemented a mobile-only creators listing page that displays all available crea
   - Creator avatar (with fallback initial)
   - Creator name
   - Username (@username)
-  - Niche/category badge
+  - Category/category badge
   - Subscriber count (formatted: 125K, 1.2M)
   - "Subscribed" badge if user is subscribed
 - **Interaction**: Hover effects, clickable
@@ -148,7 +148,7 @@ Mobile? → Show customized profile
 
 ### Potential Features
 - Search bar (filter by name/username)
-- Filter by niche (tabs or dropdown)
+- Filter by category (tabs or dropdown)
 - Sort options (subscribers, newest, alphabetical)
 - Infinite scroll / pagination
 - Creator categories/sections

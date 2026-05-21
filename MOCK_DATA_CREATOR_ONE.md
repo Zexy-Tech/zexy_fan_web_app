@@ -12,7 +12,7 @@
   "username": "creator_one",
   "name": "Sarah Johnson",
   "avatar": null,
-  "niche": "Fitness",
+  "category": "Fitness",
   "subscriber_count": 1250,
   "is_subscribed": false
 }
