@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { Creator } from '@/services/feed';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, CheckCircle2 } from 'lucide-react';
+import { Users, CheckCircle2, Radio } from 'lucide-react';
 import { cn, getMediaUrl } from '@/lib/utils';
 
 interface CreatorCardProps {
@@ -19,9 +19,6 @@ interface CreatorCardProps {
 
 /**
  * Format subscriber count for display
- * 
- * @param count - Subscriber count
- * @returns Formatted string (e.g., "125K", "1.2M")
  */
 function formatSubscriberCount(count: number): string {
   if (count >= 1000000) {
@@ -34,15 +31,28 @@ function formatSubscriberCount(count: number): string {
 }
 
 /**
+ * Format category slug to display name
+ */
+function formatCategory(slug: string | null): string | null {
+  if (!slug) return null;
+  return slug
+    .split('_')
+    .join(' ')
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
  * Creator card component
- * 
- * @param creator - Creator data
- * @param className - Additional CSS classes
  */
 export function CreatorCard({ creator, className }: CreatorCardProps) {
+  const categoryDisplay = formatCategory(creator.category);
+
   return (
     <Card className={cn(
-      'overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer',
+      'overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer relative',
       className
     )}>
       <CardContent className="p-0">
@@ -66,15 +76,21 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
             </div>
           )}
           
-          {/* Subscribed Badge */}
-          {creator.is_subscribed && (
-            <div className="absolute top-2 right-2">
-              <Badge className="bg-green-500 hover:bg-green-600 text-white">
+          {/* Status Badges Overlay */}
+          <div className="absolute top-2 right-2 flex flex-col gap-1.5 items-end">
+            {creator.is_live && (
+              <Badge className="bg-red-500 hover:bg-red-600 text-white animate-pulse border-none">
+                <Radio className="w-3 h-3 mr-1" />
+                LIVE
+              </Badge>
+            )}
+            {creator.is_subscribed && (
+              <Badge className="bg-green-500 hover:bg-green-600 text-white border-none">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
                 Subscribed
               </Badge>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Info Section */}
@@ -89,16 +105,16 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
             @{creator.username}
           </p>
           
-          {/* Niche Badge */}
-          {creator.category && (
-            <Badge variant="secondary" className="text-xs">
-              {creator.category}
+          {/* Category Badge */}
+          {categoryDisplay && (
+            <Badge variant="secondary" className="text-[10px] uppercase tracking-wider font-bold">
+              {categoryDisplay}
             </Badge>
           )}
           
           {/* Subscriber Count */}
-          <div className="flex items-center gap-1 text-sm text-muted-foreground pt-1">
-            <Users className="w-4 h-4" />
+          <div className="flex items-center gap-1 text-xs text-muted-foreground pt-1">
+            <Users className="w-3.5 h-3.5" />
             <span>{formatSubscriberCount(creator.subscriber_count)} subscribers</span>
           </div>
         </div>

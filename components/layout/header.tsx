@@ -41,7 +41,15 @@ export function Header() {
   const isCategoriesListHeader = pathname === '/categories';
   const isCategoryDetailHeader = Boolean(categorySlug);
   const isCategoriesHeader = isCategoriesListHeader || isCategoryDetailHeader;
-  const categoryDetailName = categorySlug ? categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1) : null;
+  const categoryDetailName = categorySlug
+    ? categorySlug
+        .split('_')
+        .join(' ')
+        .split(' ')
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    : null;
   const isSubscriptionsStyleHeader =
     isMyCreatorsHeader ||
     isMembershipHeader ||

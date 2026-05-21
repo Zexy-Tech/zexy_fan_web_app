@@ -1,36 +1,14 @@
-'use client';
-
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Creator, CreatorFilters } from '@/services/feed';
 import { Check, ChevronDown, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { City } from 'country-state-city';
+import { useCategories } from '@/hooks/useCategories';
 
 type GenderValue = 'ALL' | 'M' | 'F' | 'O';
 type FilterType = 'city' | 'gender' | 'category' | null;
-
-const COMBINED_CATEGORY_OPTIONS = [
-  'fitness',
-  'music',
-  'comedy',
-  'education',
-  'lifestyle',
-  'gaming',
-  'fashion',
-  'food',
-  'travel',
-  'art',
-  'tech',
-  'sports',
-  'other',
-  'Yoga Line',
-  'New Launch',
-  'Supplements',
-  'Running Gear',
-  'Wellness',
-];
 
 interface CreatorSearchFiltersProps {
   creators: Creator[] | undefined;
@@ -45,6 +23,8 @@ function normalize(value: string | null | undefined): string {
 function toTitleCase(value: string): string {
   return value
     .toLowerCase()
+    .split('_')
+    .join(' ')
     .split(' ')
     .filter(Boolean)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -71,6 +51,8 @@ export function CreatorSearchFilters({
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [openFilter, setOpenFilter] = useState<FilterType>(null);
 
+  const { data: categories } = useCategories();
+
   const cityOptions = useMemo(() => {
     const indiaCities = (City.getCitiesOfCountry('IN') || [])
       .map((city) => city.name.trim())
@@ -93,15 +75,16 @@ export function CreatorSearchFilters({
   }, [cityOptions, citySearchQuery]);
 
   const categoryOptions = useMemo(() => {
-    const values = (creators || [])
+    const apiSlugs = (categories || []).map(c => c.slug);
+    const creatorValues = (creators || [])
       .map((creator) => creator.category)
       .filter((category): category is string => Boolean(category && category.trim()))
       .map((category) => category.trim());
 
-    return Array.from(new Set([...COMBINED_CATEGORY_OPTIONS, ...values])).sort((a, b) =>
+    return Array.from(new Set([...apiSlugs, ...creatorValues])).sort((a, b) =>
       a.localeCompare(b)
     );
-  }, [creators]);
+  }, [creators, categories]);
 
   const filteredCategoryOptions = useMemo(() => {
     const categoryQuery = normalize(categorySearchQuery);
