@@ -68,6 +68,35 @@
   }
 }
 
+/* Priority 5: Dynamic Typography Scaling */
+:root {
+  /* Standard (Default) */
+  --fs-xs: 12px;
+  --lh-xs: 16px;
+  --fs-sm: 14px;
+  --lh-sm: 20px;
+  --fs-lg: 18px;
+  --lh-lg: 28px;
+}
+
+[data-font-size="compact"] {
+  --fs-xs: 10px;
+  --lh-xs: 14px;
+  --fs-sm: 12px;
+  --lh-sm: 18px;
+  --fs-lg: 16px;
+  --lh-lg: 24px;
+}
+
+[data-font-size="large"] {
+  --fs-xs: 14px;
+  --lh-xs: 20px;
+  --fs-sm: 16px;
+  --lh-sm: 24px;
+  --fs-lg: 20px;
+  --lh-lg: 32px;
+}
+
 /* Priority 3: Remove All UI Animations & Transitions */
 *,
 *::before,

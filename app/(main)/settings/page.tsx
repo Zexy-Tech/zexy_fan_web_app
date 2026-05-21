@@ -2,13 +2,15 @@
 
 import { useState, useRef } from 'react';
 import { useSetupPIN } from '@/hooks/useAuth';
+import { useTypography } from '@/hooks/useTypography';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Loader2, ShieldCheck, ChevronRight, KeyRound, ArrowLeft } from 'lucide-react';
+import { Loader2, ShieldCheck, ChevronRight, KeyRound, ArrowLeft, Type } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function SettingsPage() {
+  const { fontSize, setFontSize } = useTypography();
   const [isChangingPIN, setIsChangingPIN] = useState(false);
   const [step, setStep] = useState<'new' | 'confirm'>('new');
   const [newPIN, setNewPIN] = useState(['', '', '', '']);
@@ -135,6 +137,38 @@ export default function SettingsPage() {
       <h1 className="text-lg font-bold">Settings</h1>
 
       <div className="space-y-4">
+        <section>
+          <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3 px-1">Display</h2>
+          <div className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Type className="w-5 h-5 text-blue-500" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium">Font Size</p>
+                <p className="text-xs text-zinc-500">Adjust the app text size</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-2">
+              {(['compact', 'standard', 'large'] as const).map((size) => (
+                <button
+                  key={size}
+                  onClick={() => setFontSize(size)}
+                  className={cn(
+                    "py-2 px-3 rounded-lg text-xs font-semibold capitalize transition-all border",
+                    fontSize === size 
+                      ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20" 
+                      : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700"
+                  )}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section>
           <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3 px-1">Security</h2>
           <div className="space-y-2">
