@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { commonProfileService } from '@/services/commonProfile';
@@ -8,6 +9,7 @@ import { RoleSwitchConfirmationModal } from '@/components/profile/role-switch-co
 import { useAuthContext } from '@/hooks/useAuth';
 
 export default function SwitchToCreatorPage() {
+  const router = useRouter();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { logout } = useAuthContext();
@@ -18,7 +20,8 @@ export default function SwitchToCreatorPage() {
       await commonProfileService.switchToCreator();
       toast.success('Successfully switched to creator!');
       // Backend invalidates sessions, clear local state and go to success page
-      logout('/switch-success');
+      logout();
+      router.push('/switch-success');
     } catch (error: unknown) {
       const message = error instanceof Error ? (error as { response?: { data?: { error?: { message?: string } } } }).response?.data?.error?.message || error.message : 'Failed to switch to creator';
       toast.error(message);

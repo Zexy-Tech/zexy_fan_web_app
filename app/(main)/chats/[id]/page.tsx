@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, MoreVertical, Send, Smile, Trash2, Loader2, MessageCircle, Heart, Bookmark, Share2 } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Send, Smile, Trash2, Loader2, MessageCircle, Heart, Bookmark, Share2, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TipModal } from '@/components/tip-modal';
-import { useMessageThread, useSendMessage, useMarkAsRead } from '@/hooks/useMessages';
+import { useMessageThread, useSendMessage, useMarkAsRead, useClearChat, useDeleteMessage, useSendMediaMessage } from '@/hooks/useMessages';
+import EmojiPicker from 'emoji-picker-react';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useCreatorByIdentifier } from '@/hooks/useFeed';
 import { getMediaUrl, cn } from '@/lib/utils';
@@ -119,9 +120,14 @@ export default function ChatThreadPage() {
   const { data: creator, isLoading: creatorLoading } = useCreatorByIdentifier(String(id));
   const sendMessageMutation = useSendMessage();
   const markAsReadMutation = useMarkAsRead();
+  const clearChatMutation = useClearChat();
+  const deleteMessageMutation = useDeleteMessage();
+  const sendMediaMutation = useSendMediaMessage();
 
   const [draft, setDraft] = useState('');
+  const [hoveredMessageId, setHoveredMessageId] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
   const [tipAmount, setTipAmount] = useState(49);
   const [lockTipAmount, setLockTipAmount] = useState(false);
@@ -131,6 +137,7 @@ export default function ChatThreadPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const menuContainerRef = useRef<HTMLDivElement | null>(null);
   const messageInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   /** When true, tip modal owns focus — do not steal it back into the composer. */
   const tipBlocksInputFocusRef = useRef(false);
 
@@ -209,12 +216,42 @@ export default function ChatThreadPage() {
   };
 
   const handleAddEmoji = () => {
-    setDraft((prev) => `${prev}😊`);
-    focusMessageInput();
+    setShowEmoji((prev) => !prev);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const uploaded = await messageService.uploadMedia(file);
+      let type = 'image';
+      if (file.type.startsWith('video/')) type = 'video';
+      if (file.type.startsWith('audio/')) type = 'audio';
+      
+      sendMediaMutation.mutate({
+        creatorId: id,
+        message_type: type,
+        media_url: uploaded.url,
+        media_mime_type: uploaded.mime_type,
+        media_size_bytes: uploaded.size_bytes,
+        body: ''
+      });
+    } catch (error) {
+      console.error("Upload failed", error);
+    }
   };
 
   const handleDeleteChat = () => {
     setMenuOpen(false);
+    clearChatMutation.mutate({ creatorId: id }, {
+      onSuccess: () => {
+        router.push('/chats');
+      }
+    });
+  };
+
+  const handleDeleteMessage = (msgId: number) => {
+    deleteMessageMutation.mutate({ messageId: msgId });
   };
 
   const handleSendTip = (amount: number) => {
@@ -334,7 +371,21 @@ export default function ChatThreadPage() {
           const hasMedia = isImage || isVideo || isAudio;
 
           return (
-            <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+            <div 
+              key={msg.id} 
+              className={`flex group ${isMe ? 'justify-end' : 'justify-start'}`}
+              onMouseEnter={() => setHoveredMessageId(msg.id)}
+              onMouseLeave={() => setHoveredMessageId(null)}
+            >
+              {isMe && hoveredMessageId === msg.id && (
+                <button
+                  onClick={() => handleDeleteMessage(msg.id)}
+                  className="mr-2 self-center text-zinc-500 hover:text-red-400 transition-colors"
+                  aria-label="Delete message"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
               <div
                 className={cn(
                   'max-w-[85%] rounded-2xl px-1 py-1 overflow-hidden transition-all',
@@ -409,7 +460,11 @@ export default function ChatThreadPage() {
         </button>
       </div>
 
-
+        {showEmoji && (
+          <div className="absolute bottom-16 left-2 z-50">
+            <EmojiPicker onEmojiClick={(e) => setDraft(prev => prev + e.emoji)} theme={"dark" as any} />
+          </div>
+        )}
         <div className="relative flex items-center gap-2">
           <Button
             variant="ghost"
@@ -419,6 +474,16 @@ export default function ChatThreadPage() {
             className="text-zinc-300 hover:bg-zinc-800 hover:text-white"
           >
             <Smile className="h-5 w-5" />
+          </Button>
+          <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileUpload} accept="image/*,video/*,audio/*" />
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Attachment"
+            onClick={() => fileInputRef.current?.click()}
+            className="text-zinc-300 hover:bg-zinc-800 hover:text-white"
+          >
+            <Paperclip className="h-5 w-5" />
           </Button>
           <Input
             ref={messageInputRef}

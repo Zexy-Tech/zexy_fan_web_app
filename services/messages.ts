@@ -131,6 +131,43 @@ export const messageService = {
     await apiClient.post(`/api/v1/common/messages/${messageId}/read`);
   },
 
+  /**
+   * Delete specific message
+   */
+  deleteMessage: async (messageId: number): Promise<void> => {
+    await apiClient.delete(`/api/v1/fan/messages/${messageId}`);
+  },
+
+  /**
+   * Clear chat history with a creator
+   */
+  clearChat: async (creatorId: number): Promise<void> => {
+    await apiClient.delete(`/api/v1/fan/messages/chat/${creatorId}`);
+  },
+
+  /**
+   * Upload media for a message
+   */
+  uploadMedia: async (file: File): Promise<{ url: string; mime_type: string; size_bytes: number }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post('/api/v1/fan/messages/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+
+  /**
+   * Send media message
+   */
+  sendMediaMessage: async (creatorId: number, params: { message_type: string; media_url: string; media_mime_type: string; media_size_bytes: number; body?: string }): Promise<Message> => {
+    const response = await apiClient.post('/api/v1/fan/messages/send/media', {
+      receiver_uid: creatorId,
+      ...params,
+    });
+    return response.data.data;
+  },
+
   /** Signed URL for rendering protected media in a message bubble. */
   getSignedMediaUrl: async (messageId: number): Promise<{ url: string }> => {
     const response = await apiClient.get(`/api/v1/common/messages/${messageId}/signed-media-url`);

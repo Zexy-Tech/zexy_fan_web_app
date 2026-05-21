@@ -25,6 +25,27 @@ export function useMessageThread(creatorId: number) {
     queryKey: ['messages', 'thread', creatorId],
     queryFn: () => messageService.getThread(creatorId),
     enabled: !!creatorId,
+    refetchInterval: 5000,
+  });
+}
+
+export function useDeleteMessage() {
+  return useMutation({
+    mutationFn: ({ messageId }: { messageId: number }) => messageService.deleteMessage(messageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['messages', 'thread'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    },
+  });
+}
+
+export function useClearChat() {
+  return useMutation({
+    mutationFn: ({ creatorId }: { creatorId: number }) => messageService.clearChat(creatorId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['messages', 'thread', variables.creatorId] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    },
   });
 }
 
@@ -32,6 +53,17 @@ export function useSendMessage() {
   return useMutation({
     mutationFn: ({ creatorId, body }: { creatorId: number; body: string }) =>
       messageService.sendMessage(creatorId, body),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['messages', 'thread', variables.creatorId] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    },
+  });
+}
+
+export function useSendMediaMessage() {
+  return useMutation({
+    mutationFn: ({ creatorId, ...params }: { creatorId: number; message_type: string; media_url: string; media_mime_type: string; media_size_bytes: number; body?: string }) =>
+      messageService.sendMediaMessage(creatorId, params),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['messages', 'thread', variables.creatorId] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });

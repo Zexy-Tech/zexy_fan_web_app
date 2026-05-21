@@ -59,7 +59,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-import { LiveNowSidebar } from './layout/live-now-sidebar';
+
 
 interface LinkMeCreatorProfileProps {
   username: string;
