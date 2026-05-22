@@ -52,7 +52,8 @@ apiClient.interceptors.response.use(
   (response) => {
     // Handle standard Zexy API wrapper { success: true, data: {}, error: null }
     if (response.data && response.data.success === false) {
-        const errorMsg = response.data.error?.message || 'API Error';
+        // Handle both new flat format (data.message) and legacy nested format (data.error.message)
+        const errorMsg = response.data.message || response.data.error?.message || 'API Error';
         const error = new Error(errorMsg) as Error & { response?: unknown; data?: unknown };
         error.response = response;
         error.data = response.data;
@@ -98,7 +99,9 @@ apiClient.interceptors.response.use(
             session_token: sessionToken,
           });
 
-          const { access_token, refresh_token: newRefreshToken } = response.data.data;
+          // Support both wrapped { success: true, data: {} } and flat response
+          const tokenData = response.data.data || response.data;
+          const { access_token, refresh_token: newRefreshToken } = tokenData;
 
           localStorage.setItem('auth_token', access_token);
           localStorage.setItem('refresh_token', newRefreshToken);
