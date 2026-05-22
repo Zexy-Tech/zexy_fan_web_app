@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useSetupPIN } from '@/hooks/useAuth';
 import { useTypography } from '@/hooks/useTypography';
 import { useSecurity } from '@/hooks/useSecurity';
+import * as Sentry from '@sentry/nextjs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -217,6 +218,49 @@ export default function SettingsPage() {
         <section>
           <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3 px-1">Support</h2>
           <div className="space-y-2">
+            <button 
+              onClick={() => {
+                toast.info('Simulating API error...');
+                fetch('/api/debug/crash-test-500').catch(err => {
+                  Sentry.captureException(err, {
+                    tags: { context: 'fan_settings_debug' },
+                  });
+                  toast.error('API Error Sent to Sentry');
+                });
+              }}
+              className="w-full flex items-center justify-between p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500/10 rounded-lg">
+                  <Loader2 className="w-5 h-5 text-orange-500" />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium">Simulate API Error</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-zinc-600" />
+            </button>
+
+            <button 
+              onClick={() => {
+                toast.info('Forcing app crash...');
+                setTimeout(() => {
+                  throw new Error('FAN WEB HARD CRASH: Testing Sentry Session Replay');
+                }, 500);
+              }}
+              className="w-full flex items-center justify-between p-4 bg-red-500/05 border border-red-900/20 rounded-xl hover:bg-red-500/10 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-500/10 rounded-lg">
+                  <ShieldCheck className="w-5 h-5 text-red-500" />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium text-red-500">Force App Crash</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-zinc-600" />
+            </button>
+
             <button className="w-full flex items-center justify-between p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800/50 transition-colors">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/10 rounded-lg">
