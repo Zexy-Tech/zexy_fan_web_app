@@ -219,14 +219,25 @@ export default function SettingsPage() {
           <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3 px-1">Support</h2>
           <div className="space-y-2">
             <button 
-              onClick={() => {
+              onClick={async () => {
                 toast.info('Simulating API error...');
-                fetch('/api/debug/crash-test-500').catch(err => {
+                try {
+                  const res = await fetch('http://localhost:8000/api/v1/debug/force-crash-test-500');
+                  const data = await res.json();
+                  if (!res.ok) {
+                    // Display the new flat error message format directly
+                    toast.error(data.message || 'API Error');
+                    Sentry.captureException(new Error(data.message || 'API Error'), {
+                      tags: { context: 'fan_settings_debug' },
+                      extra: { data }
+                    });
+                  }
+                } catch (err) {
                   Sentry.captureException(err, {
                     tags: { context: 'fan_settings_debug' },
                   });
-                  toast.error('API Error Sent to Sentry');
-                });
+                  toast.error('Network Error: Make sure API is running on port 8000');
+                }
               }}
               className="w-full flex items-center justify-between p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800/50 transition-colors"
             >
