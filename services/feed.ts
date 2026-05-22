@@ -132,7 +132,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date().toISOString(),
+    created_on: new Date().toISOString(), type: "image", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
   {
     id: 4,
@@ -152,7 +152,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date(Date.now() - 86400000).toISOString(),
+    created_on: new Date(Date.now() - 86400000).toISOString(), type: "video", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
   {
     id: 5,
@@ -172,7 +172,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date(Date.now() - 172800000).toISOString(),
+    created_on: new Date(Date.now() - 172800000).toISOString(), type: "video", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
   {
     id: 6,
@@ -192,7 +192,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date(Date.now() - 259200000).toISOString(),
+    created_on: new Date(Date.now() - 259200000).toISOString(), type: "image", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
 
   // Creator 2 (Arjun Kumar - Fitness Coach)
@@ -214,7 +214,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date(Date.now() - 3600000).toISOString(),
+    created_on: new Date(Date.now() - 3600000).toISOString(), type: "video", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
   {
     id: 7,
@@ -234,7 +234,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date(Date.now() - 86400000).toISOString(),
+    created_on: new Date(Date.now() - 86400000).toISOString(), type: "video", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
   {
     id: 8,
@@ -254,7 +254,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date(Date.now() - 172800000).toISOString(),
+    created_on: new Date(Date.now() - 172800000).toISOString(), type: "video", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
 
   // Creator 3 (Neha Patel - Singer & Musician)
@@ -276,7 +276,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date(Date.now() - 7200000).toISOString(),
+    created_on: new Date(Date.now() - 7200000).toISOString(), type: "audio", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
   {
     id: 9,
@@ -296,7 +296,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date(Date.now() - 86400000).toISOString(),
+    created_on: new Date(Date.now() - 86400000).toISOString(), type: "video", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
   {
     id: 10,
@@ -316,7 +316,7 @@ const MOCK_CONTENT: Content[] = [
     tags: [],
     is_liked: false,
     is_saved: false,
-    created_on: new Date(Date.now() - 172800000).toISOString(),
+    created_on: new Date(Date.now() - 172800000).toISOString(), type: "video", thumbnail_url: null, likes_count: 10, saves_count: 2,
   },
 ];
 

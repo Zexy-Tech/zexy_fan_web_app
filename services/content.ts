@@ -36,6 +36,9 @@ const MOCK_CONTENT_DETAIL: ContentDetail = {
   is_saved: false,
   created_on: new Date(Date.now() - 3600000).toISOString(),
   duration_seconds: 1200,
+  thumbnail_url: null,
+  likes_count: 15,
+  saves_count: 3,
 };
 
 // ============================================================================
