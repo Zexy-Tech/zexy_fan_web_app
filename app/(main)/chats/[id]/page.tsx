@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TipModal } from '@/components/tip-modal';
 import { useMessageThread, useSendMessage, useMarkAsRead, useClearChat, useDeleteMessage } from '@/hooks/useMessages';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useCreatorByIdentifier } from '@/hooks/useFeed';
 import { getMediaUrl, cn } from '@/lib/utils';
@@ -45,7 +45,7 @@ function MediaBubble({ msg, onImageClick }: { msg: Message; onImageClick: (url: 
             setSignedUrl(url);
             setLoading(false);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Failed to fetch signed URL:', err);
         if (active) setLoading(false);
       }
@@ -439,9 +439,9 @@ export default function ChatThreadPage() {
 
           {showEmoji && (
           <div className="absolute bottom-16 left-2 z-50">
-            <EmojiPicker onEmojiClick={(e) => setDraft(prev => prev + e.emoji)} theme={"dark" as any} />
+            <EmojiPicker onEmojiClick={(e) => setDraft(prev => prev + e.emoji)} theme={Theme.DARK} />
           </div>
-        )}
+          )}
         <div className="relative flex items-center gap-2">
           <Button
             variant="ghost"

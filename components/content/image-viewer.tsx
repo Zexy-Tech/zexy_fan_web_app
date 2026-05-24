@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, ZoomIn, ZoomOut } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 interface ImageViewerProps {

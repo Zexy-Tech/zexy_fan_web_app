@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Heart, Bookmark, MessageCircle, Share2 } from 'lucide-react';
 import { formatCurrency, formatDate, cn, getMediaUrl } from '@/lib/utils';
 import Link from 'next/link';
+import Image from 'next/image';
 import { VideoPlayer } from '@/components/content/video-player';
 
 export default function ContentDetailPage() {
@@ -47,15 +48,15 @@ export default function ContentDetailPage() {
       <Card className="overflow-hidden">
         <CardHeader>
           <div className="flex items-center gap-3 mb-4">
-            <div className="size-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+            <div className="size-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold overflow-hidden relative">
               {content.creator_avatar ? (
-                <img 
+                <Image 
                   src={getMediaUrl(content.creator_avatar) || ''} 
                   alt={content.creator_name || ''} 
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
-              ) : (
-                content.creator_name?.[0] || 'C'
+              ) : (                content.creator_name?.[0] || 'C'
               )}
             </div>
             <div className="flex-1">
@@ -91,10 +92,12 @@ export default function ContentDetailPage() {
                     className="w-full h-full"
                   />
                 ) : (
-                  <img
+                  <Image
                     src={getMediaUrl(content.url) || ''}
                     alt={content.title}
-                    className="w-full h-full object-contain"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-contain"
                   />
                 )}
               </div>

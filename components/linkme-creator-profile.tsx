@@ -403,10 +403,9 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (creator?.id) {
-                      push(`/chats/${creator.id}`);
+                      router.push(`/chats/${creator.id}`);
                     }
-                  }}
-                  className="rounded-full bg-white/10 border border-white/10 px-8 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-white/20 active:scale-95"
+                  }}                  className="rounded-full bg-white/10 border border-white/10 px-8 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-white/20 active:scale-95"
                 >
                   Message
                 </button>
@@ -432,9 +431,8 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                       isZexy
                         ? (e) => {
                             e.stopPropagation();
-                            push('/creators');
-                          }
-                        : button
+                            router.push('/creators');
+                          }                        : button
                           ? (e) => {
                               e.stopPropagation();
                               handleButtonClick(button);

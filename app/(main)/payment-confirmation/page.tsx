@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 function PaymentConfirmationContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const { push, back } = useRouter();
   const verifyPayment = useVerifyPayment();
   
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
@@ -42,9 +42,10 @@ function PaymentConfirmationContent() {
         });
         setStatus('success');
         toast.success('Payment verified successfully!');
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorDetail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
         setStatus('error');
-        setErrorMsg(err.response?.data?.detail || 'Failed to verify payment with our servers.');
+        setErrorMsg(errorDetail || 'Failed to verify payment with our servers.');
       }
     }
 
@@ -73,7 +74,7 @@ function PaymentConfirmationContent() {
               <CheckCircle2 className="size-16 text-emerald-500 mx-auto" />
               <p className="text-lg font-bold">Payment Successful!</p>
               <p className="text-muted-foreground">Your transaction has been verified. You can now access the content.</p>
-              <Button onClick={() => router.push('/creators')} className="mt-4 w-full">
+              <Button onClick={() => push('/creators')} className="mt-4 w-full">
                 Continue Browsing
               </Button>
             </div>
@@ -84,7 +85,7 @@ function PaymentConfirmationContent() {
               <XCircle className="size-16 text-destructive mx-auto" />
               <p className="text-lg font-bold">Payment Failed</p>
               <p className="text-destructive">{errorMsg}</p>
-              <Button onClick={() => router.back()} variant="outline" className="mt-4 w-full">
+              <Button onClick={() => back()} variant="outline" className="mt-4 w-full">
                 Try Again
               </Button>
             </div>

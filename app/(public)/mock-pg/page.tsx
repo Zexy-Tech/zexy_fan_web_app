@@ -4,10 +4,10 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Smartphone, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Image from 'next/image';
 
-export default function MockPhonePePage() {
+function MockPhonePeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -100,5 +100,17 @@ export default function MockPhonePePage() {
         </CardFooter>
       </Card>
     </div>
+  );
+}
+
+export default function MockPhonePePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+        <Loader2 className="size-12 animate-spin text-[#5f259f]" />
+      </div>
+    }>
+      <MockPhonePeContent />
+    </Suspense>
   );
 }

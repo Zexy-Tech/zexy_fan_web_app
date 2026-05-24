@@ -8,10 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { getSignalingSocket } from '@/services/signaling';
 import { getRTCConfiguration } from '@/lib/webrtc';
 import { useAuthContext } from '@/hooks/useAuth';
+import { Socket } from 'socket.io-client';
 
 export default function MockLiveRoomPage() {
   const params = useParams();
-  const router = useRouter();
+  const { back } = useRouter();
   const { user } = useAuthContext();
   const roomId = params.roomId as string;
   
@@ -27,7 +28,7 @@ export default function MockLiveRoomPage() {
 
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const socketRef = useRef<any>(null);
+  const socketRef = useRef<Socket | null>(null);
   const hasOfferRef = useRef(false);
 
   // WebRTC & Signaling Logic
@@ -36,7 +37,7 @@ export default function MockLiveRoomPage() {
 
     const socket = getSignalingSocket();
     socketRef.current = socket;
-    let pendingIceCandidates: any[] = [];
+    const pendingIceCandidates: RTCIceCandidateInit[] = [];
 
     const configuration = getRTCConfiguration();
 
@@ -56,6 +57,7 @@ export default function MockLiveRoomPage() {
     const flushIce = async (pc: RTCPeerConnection) => {
       while (pendingIceCandidates.length > 0) {
           const cand = pendingIceCandidates.shift();
+          if (!cand) continue;
           try {
             await pc.addIceCandidate(new RTCIceCandidate(cand));
           } catch (e) {
@@ -64,7 +66,7 @@ export default function MockLiveRoomPage() {
       }
     };
 
-    socket.on("offer", async (payload: any) => {
+    socket.on("offer", async (payload: { offer: RTCSessionDescriptionInit; broadcasterId: string }) => {
       console.log("[Signaling] Received Offer from Broadcaster");
       hasOfferRef.current = true;
       
@@ -126,7 +128,7 @@ export default function MockLiveRoomPage() {
       }
     });
 
-    socket.on("ice-candidate", async (payload: any) => {
+    socket.on("ice-candidate", async (payload: { candidate: RTCIceCandidateInit }) => {
       const candidate = payload.candidate || payload;
       if (peerConnectionRef.current) {
         try {
@@ -143,7 +145,7 @@ export default function MockLiveRoomPage() {
     });
 
     // Chat handling
-    socket.on("chat", (data: any) => {
+    socket.on("chat", (data: { roomId: string; id: number; sender: string; message: string }) => {
       if (data.roomId === roomId) {
         setMessages(prev => [...prev, { id: data.id, user: data.sender, text: data.message }]);
       }
@@ -222,8 +224,10 @@ export default function MockLiveRoomPage() {
         </div>
 
         <button 
-          onClick={() => router.back()}
+          type="button"
+          onClick={() => back()}
           className="absolute top-4 right-4 size-10 bg-black/50 rounded-full flex items-center justify-center text-white backdrop-blur-md hover:bg-black/70"
+          aria-label="Exit live room"
         >
           <X className="size-6" />
         </button>

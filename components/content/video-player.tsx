@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, Settings, RotateCcw, RotateCw, Loader2 } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, RotateCw, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 

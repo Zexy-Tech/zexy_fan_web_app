@@ -24,7 +24,6 @@ Sentry.init({
       // Additional Replay configuration goes in here, for example:
       maskAllText: true,
       maskAllInputs: true,
-      maskAllVectors: true,
       blockAllMedia: true,
     }),
   ],
