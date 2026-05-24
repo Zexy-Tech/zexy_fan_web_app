@@ -34,10 +34,6 @@ import {
   Youtube,
   Loader2,
   ExternalLink,
-  Users,
-  CreditCard,
-  MessageCircle,
-  User,
   Image as LucideImage,
   Package,
   Video,
@@ -407,7 +403,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (creator?.id) {
-                      router.push(`/chats/${creator.id}`);
+                      push(`/chats/${creator.id}`);
                     }
                   }}
                   className="rounded-full bg-white/10 border border-white/10 px-8 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-white/20 active:scale-95"
@@ -436,7 +432,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                       isZexy
                         ? (e) => {
                             e.stopPropagation();
-                            router.push('/creators');
+                            push('/creators');
                           }
                         : button
                           ? (e) => {

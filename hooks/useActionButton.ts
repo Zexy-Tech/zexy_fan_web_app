@@ -24,7 +24,7 @@ export interface UseActionButtonOptions {
  */
 export function useActionButton(options?: UseActionButtonOptions) {
   const { isAuthenticated } = useAuthContext();
-  const router = useRouter();
+  const { push } = useRouter();
   const creatorId = options?.creatorId;
 
   const handleButtonClick = (button: ActionButton) => {
@@ -33,7 +33,7 @@ export function useActionButton(options?: UseActionButtonOptions) {
         creatorId != null ? `/messages/${creatorId}` : button.action.startsWith('/')
           ? button.action
           : '/messages';
-      router.push(`/login?next=${encodeURIComponent(chatPath)}`);
+      push(`/login?next=${encodeURIComponent(chatPath)}`);
       return;
     }
 
@@ -46,11 +46,11 @@ export function useActionButton(options?: UseActionButtonOptions) {
 
       case 'chat': {
         if (creatorId != null) {
-          router.push(`/messages/${creatorId}`);
+          push(`/messages/${creatorId}`);
         } else if (button.action && button.action !== 'chat') {
-          router.push(button.action.startsWith('/') ? button.action : `/${button.action}`);
+          push(button.action.startsWith('/') ? button.action : `/${button.action}`);
         } else {
-          router.push('/messages');
+          push('/messages');
         }
         break;
       }

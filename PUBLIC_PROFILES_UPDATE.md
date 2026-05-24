@@ -172,7 +172,7 @@ const handleUnlockClick = () => {
       </CardHeader>
       <CardContent>
         <p>You need to login to access premium content...</p>
-        <Button onClick={() => router.push('/login')}>
+        <Button onClick={() => push('/login')}>
           Login Now
         </Button>
       </CardContent>

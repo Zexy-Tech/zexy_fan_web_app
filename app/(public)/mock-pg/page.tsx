@@ -1,13 +1,10 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = { title: "Zexy", description: "Production-grade creator monetization platform" };
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Smartphone, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 
 export default function MockPhonePePage() {

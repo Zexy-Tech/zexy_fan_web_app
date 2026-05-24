@@ -1,6 +1,3 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = { title: "Zexy", description: "Production-grade creator monetization platform" };
 'use client';
 
 import { useState, useRef, Suspense } from 'react';
@@ -21,7 +18,7 @@ function safeInternalPath(raw: string | null): string | null {
 }
 
 function LoginPageContent() {
-  const { push } = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<'phone' | 'otp' | 'pin'>('phone');
   const [mobile, setMobile] = useState('');
@@ -75,10 +72,10 @@ function LoginPageContent() {
       toast.success('Login successful!');
       
       if (response.is_new_user) {
-        push('/pin-setup');
+        router.push('/pin-setup');
       } else {
         const next = safeInternalPath(searchParams.get('next'));
-        push(next ?? '/feed');
+        router.push(next ?? '/feed');
       }
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ error?: { message?: string } }>;
@@ -101,7 +98,7 @@ function LoginPageContent() {
       await loginWithPIN.mutateAsync({ mobile, pin: pinCode, role: 'fan' });
       toast.success('Login successful!');
       const next = safeInternalPath(searchParams.get('next'));
-      push(next ?? '/feed');
+      router.push(next ?? '/feed');
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ error?: { message?: string } }>;
       toast.error(axiosError.response?.data?.error?.message || 'Invalid PIN');
@@ -253,7 +250,7 @@ function LoginPageContent() {
                     {loginWithPIN.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-5 w-4 animate-spin" />
-                        Logging in…
+                        Logging in...
                       </>
                     ) : (
                       'Login'
@@ -262,7 +259,7 @@ function LoginPageContent() {
                   
                   <div className="flex flex-col gap-2 pt-2">
                     <p className="text-center text-sm text-zinc-500">
-                      Forgot PIN? <button type="button" className="text-purple-400 font-medium hover:underline" onClick={() => push(`/pin-reset?mobile=${mobile}`)}>Reset your PIN</button>
+                      Forgot PIN? <button type="button" className="text-purple-400 font-medium hover:underline" onClick={() => router.push(`/pin-reset?mobile=${mobile}`)}>Reset your PIN</button>
                     </p>
                   </div>
                 </div>
@@ -314,7 +311,7 @@ function LoginPageContent() {
                     {verifyOTP.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-5 w-4 animate-spin" />
-                        Verifying…
+                        Verifying...
                       </>
                     ) : (
                       'Verify & Continue'

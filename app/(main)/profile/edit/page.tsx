@@ -1,10 +1,8 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = { title: "Zexy", description: "Production-grade creator monetization platform" };
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { isAxiosError } from 'axios';
 import { Loader2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -41,7 +39,7 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 export default function EditProfilePage() {
-  const router = useRouter();
+  const { push } = useRouter();
   const { data: profile, isLoading, isError, error, refetch } = useFanCommonProfile();
   const updateProfile = useUpdateFanCommonProfile();
 
@@ -136,7 +134,7 @@ export default function EditProfilePage() {
         city: city.trim() || null,
       });
       toast.success('Profile updated.');
-      router.push('/profile');
+      push('/profile');
     } catch (err) {
       const msg = isAxiosError(err)
         ? (err.response?.data as { message?: string } | undefined)?.message ||
@@ -180,10 +178,11 @@ export default function EditProfilePage() {
                 >
                   <span className="absolute inset-0 overflow-hidden rounded-full">
                     {displayAvatarSrc ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={displayAvatarSrc}
-                        alt=""
+                        alt="Profile photo"
+                        fill
+                        sizes="112px"
                         className="h-full w-full object-cover"
                       />
                     ) : (

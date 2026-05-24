@@ -1,6 +1,3 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = { title: "Zexy", description: "Production-grade creator monetization platform" };
 'use client';
 
 import Link from 'next/link';
@@ -22,7 +19,6 @@ export default function CategoryCreatorsPage() {
   const {
     data,
     isLoading,
-    error,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage

@@ -28,7 +28,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch();
   const { user, token, refreshToken, sessionToken, isLoading } = useAppSelector((state) => state.auth);
-  const router = useRouter();
+  const { push } = useRouter();
 
   useEffect(() => {
     // Restore session from localStorage on mount
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     dispatch(clearAuth());
     queryClient.clear();
     if (redirectPath) {
-      router.push(redirectPath);
+      push(redirectPath);
     }
   };
 

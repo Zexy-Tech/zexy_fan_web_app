@@ -1,6 +1,3 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = { title: "Zexy", description: "Production-grade creator monetization platform" };
 'use client';
 
 import { useState, useRef } from 'react';
@@ -86,15 +83,17 @@ export default function SettingsPage() {
 
   if (isChangingPIN) {
     return (
-      <div className="space-y-6 px-4 py-6">
+      <div className="space-y-6 px-4 py-6 bg-zinc-950 min-h-screen text-white">
         <div className="flex items-center gap-3">
           <button 
+            type="button"
             onClick={() => { setIsChangingPIN(false); setStep('new'); }}
             className="p-2 -ml-2 text-zinc-400 hover:text-white transition-colors"
+            aria-label="Back to settings"
           >
             <ArrowLeft className="size-5" />
           </button>
-          <h1 className="text-lg font-bold">{step === 'new' ? 'Set New PIN' : 'Confirm New PIN'}</h1>
+          <h1 className="text-lg font-semibold">{step === 'new' ? 'Set New PIN' : 'Confirm New PIN'}</h1>
         </div>
 
         <Card className="border-zinc-800 bg-zinc-900/50 backdrop-blur-xl">
@@ -102,20 +101,20 @@ export default function SettingsPage() {
             <div className="flex justify-between gap-3 w-full max-w-[280px]">
               {(step === 'new' ? newPIN : confirmPIN).map((digit, index) => (
                 <input
-                  key={index}
+                  key={`pin-input-${index}`}
                   ref={(el) => { inputRefs.current[index] = el; }}
                   type="password"
                   inputMode="numeric"
                   value={digit}
                   onChange={(e) => handleDigitChange(e.target.value, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
+                  aria-label={`Digit ${index + 1}`}
                   className={cn(
                     "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-lg font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
                     digit && "border-purple-500 bg-zinc-800/80"
                   )}
                   disabled={setupPIN.isPending}
                   maxLength={1}
-                  autoFocus={index === 0}
                 />
               ))}
             </div>
@@ -127,6 +126,7 @@ export default function SettingsPage() {
             </p>
 
             <Button 
+              type="button"
               onClick={step === 'new' ? () => newPIN.join('').length === 4 && setStep('confirm') : handleFinish}
               className="mt-8 w-full max-w-[280px] h-12 bg-purple-600 hover:bg-purple-700 font-bold rounded-xl"
               disabled={setupPIN.isPending || (step === 'new' ? newPIN.join('').length < 4 : confirmPIN.join('').length < 4)}
@@ -140,8 +140,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 px-4 py-6">
-      <h1 className="text-lg font-bold">Settings</h1>
+    <div className="space-y-6 px-4 py-6 bg-zinc-950 min-h-screen text-white">
+      <h1 className="text-lg font-semibold">Settings</h1>
 
       <div className="space-y-4">
         <section>
@@ -162,6 +162,7 @@ export default function SettingsPage() {
                 {(['compact', 'standard', 'large'] as const).map((size) => (
                   <button
                     key={size}
+                    type="button"
                     onClick={() => setFontSize(size)}
                     className={cn(
                       "py-2 px-3 rounded-lg text-xs font-semibold capitalize transition-all border",
@@ -192,6 +193,7 @@ export default function SettingsPage() {
                   setWatermarkEnabled(checked);
                   toast.success(`Watermark ${checked ? 'enabled' : 'disabled'}`);
                 }}
+                aria-label="Toggle content watermark"
               />
             </div>
           </div>
@@ -201,8 +203,10 @@ export default function SettingsPage() {
           <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3 px-1">Security</h2>
           <div className="space-y-2">
             <button 
+              type="button"
               onClick={() => setIsChangingPIN(true)}
               className="w-full flex items-center justify-between p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800/50 transition-colors"
+              aria-label="Change login PIN"
             >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-500/10 rounded-lg">
@@ -213,7 +217,7 @@ export default function SettingsPage() {
                   <p className="text-xs text-zinc-500">Update your 4-digit security PIN</p>
                 </div>
               </div>
-              <ChevronRight className="size-5 text-zinc-600" />
+              <ChevronRight className="size-5 text-zinc-600" aria-hidden />
             </button>
           </div>
         </section>
@@ -222,8 +226,9 @@ export default function SettingsPage() {
           <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3 px-1">Support</h2>
           <div className="space-y-2">
             <button 
+              type="button"
               onClick={async () => {
-                toast.info('Simulating API error...');
+                toast.info('Simulating API error…');
                 try {
                   const res = await fetch('http://localhost:8000/api/v1/debug/force-crash-test-500');
                   const data = await res.json();
@@ -243,6 +248,7 @@ export default function SettingsPage() {
                 }
               }}
               className="w-full flex items-center justify-between p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800/50 transition-colors"
+              aria-label="Simulate API Error"
             >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-orange-500/10 rounded-lg">
@@ -252,17 +258,19 @@ export default function SettingsPage() {
                   <p className="font-medium">Simulate API Error</p>
                 </div>
               </div>
-              <ChevronRight className="size-5 text-zinc-600" />
+              <ChevronRight className="size-5 text-zinc-600" aria-hidden />
             </button>
 
             <button 
+              type="button"
               onClick={() => {
-                toast.info('Forcing app crash...');
+                toast.info('Forcing app crash…');
                 setTimeout(() => {
                   throw new Error('FAN WEB HARD CRASH: Testing Sentry Session Replay');
                 }, 500);
               }}
               className="w-full flex items-center justify-between p-4 bg-red-500/05 border border-red-900/20 rounded-xl hover:bg-red-500/10 transition-colors"
+              aria-label="Force App Crash"
             >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-red-500/10 rounded-lg">
@@ -272,10 +280,14 @@ export default function SettingsPage() {
                   <p className="font-medium text-red-500">Force App Crash</p>
                 </div>
               </div>
-              <ChevronRight className="size-5 text-zinc-600" />
+              <ChevronRight className="size-5 text-zinc-600" aria-hidden />
             </button>
 
-            <button className="w-full flex items-center justify-between p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800/50 transition-colors">
+            <button 
+              type="button"
+              className="w-full flex items-center justify-between p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800/50 transition-colors"
+              aria-label="Privacy Policy"
+            >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/10 rounded-lg">
                   <ShieldCheck className="size-5 text-blue-500" />
@@ -284,7 +296,7 @@ export default function SettingsPage() {
                   <p className="font-medium">Privacy Policy</p>
                 </div>
               </div>
-              <ChevronRight className="size-5 text-zinc-600" />
+              <ChevronRight className="size-5 text-zinc-600" aria-hidden />
             </button>
           </div>
         </section>

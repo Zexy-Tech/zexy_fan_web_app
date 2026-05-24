@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, Loader2, Music } from 'lucide-react';
+import { Play, Pause, Loader2, Music } from 'lucide-react';
 import { cn, formatDuration } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 

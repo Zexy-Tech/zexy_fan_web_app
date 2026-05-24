@@ -1,15 +1,12 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = { title: "Zexy", description: "Production-grade creator monetization platform" };
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, MoreVertical, Send, Smile, Trash2, Loader2, MessageCircle, Heart, Bookmark, Share2, Image as ImageIcon, Video, Mic, Plus } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Send, Smile, Trash2, Loader2, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TipModal } from '@/components/tip-modal';
-import { useMessageThread, useSendMessage, useMarkAsRead, useClearChat, useDeleteMessage, useSendMediaMessage } from '@/hooks/useMessages';
+import { useMessageThread, useSendMessage, useMarkAsRead, useClearChat, useDeleteMessage } from '@/hooks/useMessages';
 import EmojiPicker from 'emoji-picker-react';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useCreatorByIdentifier } from '@/hooks/useFeed';
@@ -114,7 +111,7 @@ function MediaBubble({ msg, onImageClick }: { msg: Message; onImageClick: (url: 
 }
 
 export default function ChatThreadPage() {
-  const router = useRouter();
+  const { push } = useRouter();
   const params = useParams();
   const id = Number(params.id);
   const { user: me } = useAuthContext();
@@ -125,7 +122,6 @@ export default function ChatThreadPage() {
   const markAsReadMutation = useMarkAsRead();
   const clearChatMutation = useClearChat();
   const deleteMessageMutation = useDeleteMessage();
-  const sendMediaMutation = useSendMediaMessage();
 
   const [draft, setDraft] = useState('');
   const [hoveredMessageId, setHoveredMessageId] = useState<number | null>(null);
@@ -140,7 +136,6 @@ export default function ChatThreadPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const menuContainerRef = useRef<HTMLDivElement | null>(null);
   const messageInputRef = useRef<HTMLInputElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   /** When true, tip modal owns focus — do not steal it back into the composer. */
   const tipBlocksInputFocusRef = useRef(false);
 
@@ -189,7 +184,7 @@ export default function ChatThreadPage() {
             markAsReadMutation.mutate(lastMsg.id);
         }
     }
-  }, [messages, me?.id]);
+  }, [messages, me?.id, markAsReadMutation]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -222,33 +217,11 @@ export default function ChatThreadPage() {
     setShowEmoji((prev) => !prev);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const uploaded = await messageService.uploadMedia(file);
-      let type = 'image';
-      if (file.type.startsWith('video/')) type = 'video';
-      if (file.type.startsWith('audio/')) type = 'audio';
-      
-      sendMediaMutation.mutate({
-        creatorId: id,
-        message_type: type,
-        media_url: uploaded.url,
-        media_mime_type: uploaded.mime_type,
-        media_size_bytes: uploaded.size_bytes,
-        body: ''
-      });
-    } catch (error) {
-      console.error("Upload failed", error);
-    }
-  };
-
   const handleDeleteChat = () => {
     setMenuOpen(false);
     clearChatMutation.mutate({ creatorId: id }, {
       onSuccess: () => {
-        router.push('/chats');
+        push('/chats');
       }
     });
   };
@@ -257,7 +230,7 @@ export default function ChatThreadPage() {
     deleteMessageMutation.mutate({ messageId: msgId });
   };
 
-  const handleSendTip = (amount: number) => {
+  const handleSendTip = () => {
     setTipOpen(false);
     setLockTipAmount(false);
     focusMessageInput();
@@ -304,7 +277,7 @@ export default function ChatThreadPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push('/chats')}
+            onClick={() => push('/chats')}
             aria-label="Back"
             className="shrink-0 text-white hover:bg-zinc-800"
           >
@@ -313,7 +286,7 @@ export default function ChatThreadPage() {
 
           <button
             type="button"
-            onClick={() => partner.username && router.push(`/creator/${encodeURIComponent(partner.username)}`)}
+            onClick={() => partner.username && push(`/creator/${encodeURIComponent(partner.username)}`)}
             className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left transition-colors hover:bg-zinc-900/90 active:bg-zinc-800 sm:-ml-1 sm:px-1"
             aria-label={`Open ${partnerDisplayName}'s profile`}
           >
@@ -382,6 +355,7 @@ export default function ChatThreadPage() {
             >
               {isMe && hoveredMessageId === msg.id && (
                 <button
+                  type="button"
                   onClick={() => handleDeleteMessage(msg.id)}
                   className="mr-2 self-center text-zinc-500 hover:text-red-400 transition-colors"
                   aria-label="Delete message"
