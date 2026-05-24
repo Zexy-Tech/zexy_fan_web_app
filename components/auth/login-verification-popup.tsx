@@ -173,7 +173,7 @@ export function LoginVerificationPopup({
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-bold tracking-tight">{step === 'phone' ? title : 'Verify OTP'}</h3>
               <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
 

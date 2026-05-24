@@ -132,7 +132,7 @@ export function SignupModal({ open, onClose }: SignupModalProps) {
                 {step === 'phone' ? 'Welcome to Zexy' : 'Verify OTP'}
               </h3>
               <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Close signup modal">
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
 

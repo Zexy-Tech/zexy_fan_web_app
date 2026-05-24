@@ -9,7 +9,7 @@ export default function NotFound() {
       <Card className="max-w-md w-full">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <FileQuestion className="h-6 w-6 text-muted-foreground" />
+            <FileQuestion className="size-6 text-muted-foreground" />
             <CardTitle>Page Not Found</CardTitle>
           </div>
         </CardHeader>

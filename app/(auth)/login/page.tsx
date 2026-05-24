@@ -155,7 +155,7 @@ function LoginPageContent() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4">
       <div className="w-full max-w-[400px] space-y-8">
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20">
+          <div className="size-16 bg-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20">
             <span className="text-lg font-bold italic">Z</span>
           </div>
           <h1 className="text-lg font-bold tracking-tight">
@@ -336,7 +336,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-[#09090b]">
-          <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+          <Loader2 className="size-10 animate-spin text-purple-500" />
         </div>
       }
     >

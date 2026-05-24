@@ -53,7 +53,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
   if (creatorLoading || configLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -172,7 +172,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
           {/* Loading state for content */}
           {contentLoading && (
             <div className="px-4 py-6 flex justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
             </div>
           )}
         </div>

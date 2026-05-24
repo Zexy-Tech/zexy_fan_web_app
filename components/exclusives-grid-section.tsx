@@ -40,7 +40,7 @@ export function ExclusivesGridSection({ content }: ExclusivesGridSectionProps) {
     <div className="px-4 py-6 space-y-4">
       {/* Section Header */}
       <div className="flex items-center gap-2">
-        <Lock className="h-5 w-5" style={{ color: 'var(--profile-primary)' }} />
+        <Lock className="size-5" style={{ color: 'var(--profile-primary)' }} />
         <h2 className="text-lg font-bold">Exclusives</h2>
       </div>
       
@@ -65,8 +65,8 @@ export function ExclusivesGridSection({ content }: ExclusivesGridSectionProps) {
         </div>
       ) : (
         <div className="py-10 flex flex-col items-center justify-center text-center space-y-3 bg-muted/30 rounded-xl border border-border/50 border-dashed">
-          <div className="h-14 w-14 rounded-full bg-muted/50 flex items-center justify-center">
-            <ImageOff className="h-7 w-7 text-muted-foreground" />
+          <div className="size-14 rounded-full bg-muted/50 flex items-center justify-center">
+            <ImageOff className="size-7 text-muted-foreground" />
           </div>
           <div className="space-y-1">
             <p className="font-semibold text-sm">No exclusive content yet</p>

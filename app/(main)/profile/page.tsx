@@ -19,7 +19,7 @@ function RoleBadge({ role }: { role: string | null | undefined }) {
   const Icon = role?.toLowerCase() === 'creator' ? Sparkles : User;
   return (
     <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/45 bg-transparent px-2.5 py-0.5 text-xs font-medium capitalize text-white">
-      <Icon className="h-3 w-3 shrink-0 text-white" aria-hidden />
+      <Icon className="size-3 shrink-0 text-white" aria-hidden />
       {formatRole(role)}
     </span>
   );
@@ -38,7 +38,7 @@ export default function ProfilePage() {
       <div className="pb-1">
         {isLoading ? (
           <div className="flex items-center justify-center gap-3 py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-white/70" aria-hidden />
+            <Loader2 className="size-8 animate-spin text-white/70" aria-hidden />
             <span className="text-sm text-zinc-400">Loading profile…</span>
           </div>
         ) : isError ? (
@@ -52,7 +52,7 @@ export default function ProfilePage() {
           </div>
         ) : profile ? (
           <div className="flex items-center gap-4">
-            <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
+            <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
               {profile.avatar ? (
                 <Image
                   src={getMediaUrl(profile.avatar) || ''}
@@ -94,8 +94,8 @@ export default function ProfilePage() {
         href="/membership"
         className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-white/10"
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
-          <Crown className="h-5 w-5 text-white" aria-hidden />
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
+          <Crown className="size-5 text-white" aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-semibold leading-tight text-white">My subscription</p>
@@ -107,8 +107,8 @@ export default function ProfilePage() {
         href="/profile/saved"
         className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-white/10"
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
-          <Bookmark className="h-5 w-5 text-white" aria-hidden />
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
+          <Bookmark className="size-5 text-white" aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-semibold leading-tight text-white">Saved</p>
@@ -120,8 +120,8 @@ export default function ProfilePage() {
         href="/settings"
         className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-white/10"
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
-          <Settings className="h-5 w-5 text-white" aria-hidden />
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
+          <Settings className="size-5 text-white" aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-semibold leading-tight text-white">Settings</p>
@@ -136,8 +136,8 @@ export default function ProfilePage() {
           href="/profile/edit"
           className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-white/10"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
-            <PenLine className="h-5 w-5 text-white" aria-hidden />
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
+            <PenLine className="size-5 text-white" aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
             <p className="font-semibold leading-tight text-white">Edit profile</p>
@@ -148,8 +148,8 @@ export default function ProfilePage() {
 
       {profile?.role?.toLowerCase() === 'creator' ? (
         <div className="-mx-1 flex cursor-not-allowed items-center gap-3 rounded-md px-1 py-3 opacity-60">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
-            <Sparkles className="h-5 w-5 text-white" aria-hidden />
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
+            <Sparkles className="size-5 text-white" aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
             <p className="font-semibold leading-tight text-white">Switch to Creator</p>
@@ -161,8 +161,8 @@ export default function ProfilePage() {
           href="/profile/switch-to-creator"
           className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-white/10"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
-            <Sparkles className="h-5 w-5 text-white" aria-hidden />
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
+            <Sparkles className="size-5 text-white" aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
             <p className="font-semibold leading-tight text-white">Switch to Creator</p>
@@ -175,8 +175,8 @@ export default function ProfilePage() {
         href="/profile/delete-account"
         className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-white/10"
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
-          <Trash2 className="h-5 w-5 text-white" aria-hidden />
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white">
+          <Trash2 className="size-5 text-white" aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-semibold leading-tight text-white">Delete account</p>

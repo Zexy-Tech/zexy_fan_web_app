@@ -95,14 +95,14 @@ export function PaymentModal({ contentId, amount, title, onClose }: PaymentModal
 
           {status === 'processing' && (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <Loader2 className="size-12 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Processing payment...</p>
             </div>
           )}
 
           {status === 'success' && (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
-              <CheckCircle2 className="h-12 w-12 text-green-500" />
+              <CheckCircle2 className="size-12 text-green-500" />
               <p className="text-sm font-semibold">Payment successful!</p>
               <p className="text-sm text-muted-foreground">Redirecting...</p>
             </div>
@@ -110,7 +110,7 @@ export function PaymentModal({ contentId, amount, title, onClose }: PaymentModal
 
           {status === 'error' && (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
-              <XCircle className="h-12 w-12 text-destructive" />
+              <XCircle className="size-12 text-destructive" />
               <p className="text-sm font-semibold text-destructive">Payment failed</p>
               <p className="text-sm text-muted-foreground">Please try again</p>
             </div>

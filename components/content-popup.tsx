@@ -230,7 +230,7 @@ export function ContentPopup({
               aria-label="Close"
               onClick={onClose}
             >
-              <X className="h-6 w-6" />
+              <X className="size-6" />
             </Button>
           </header>
 
@@ -260,7 +260,7 @@ export function ContentPopup({
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50">
-                    <Music className="h-20 w-20 text-zinc-700 sm:h-24 sm:w-24" strokeWidth={1} />
+                    <Music className="size-20 text-zinc-700 sm:h-24 sm:w-24" strokeWidth={1} />
                   </div>
                 )}
 
@@ -278,7 +278,7 @@ export function ContentPopup({
                 aria-hidden
               >
                 <Heart
-                  className="animate-content-popup-heart-burst h-24 w-24 fill-red-500 text-red-500 drop-shadow-lg"
+                  className="animate-content-popup-heart-burst size-24 fill-red-500 text-red-500 drop-shadow-lg"
                   strokeWidth={0}
                 />
               </div>
@@ -292,13 +292,13 @@ export function ContentPopup({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 rounded-full text-white hover:bg-white/10"
+                className="size-11 rounded-full text-white hover:bg-white/10"
                 aria-label={liked ? 'Unlike' : 'Like'}
                 aria-pressed={liked}
                 onClick={toggleLiked}
               >
                 <Heart
-                  className={cn('h-7 w-7', liked ? 'fill-red-500 text-red-500' : 'fill-transparent')}
+                  className={cn('size-7', liked ? 'fill-red-500 text-red-500' : 'fill-transparent')}
                   strokeWidth={liked ? 0 : 1.75}
                 />
               </Button>
@@ -306,13 +306,13 @@ export function ContentPopup({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 rounded-full text-white hover:bg-white/10"
+                className="size-11 rounded-full text-white hover:bg-white/10"
                 aria-label={saved ? 'Remove from saved' : 'Save'}
                 aria-pressed={saved}
                 onClick={toggleSaved}
               >
                 <Bookmark
-                  className={cn('h-7 w-7', saved && 'fill-white text-white')}
+                  className={cn('size-7', saved && 'fill-white text-white')}
                   strokeWidth={saved ? 0 : 1.75}
                 />
               </Button>

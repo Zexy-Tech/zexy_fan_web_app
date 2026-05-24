@@ -76,7 +76,7 @@ export default function CategoriesPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -104,11 +104,11 @@ export default function CategoriesPage() {
           >
             <div
               className={cn(
-                'flex h-14 w-14 shrink-0 items-center justify-center rounded-lg',
+                'flex size-14 shrink-0 items-center justify-center rounded-lg',
                 iconStyle
               )}
             >
-              <Icon className="h-7 w-7" aria-hidden />
+              <Icon className="size-7" aria-hidden />
             </div>
 
             <div className="min-w-0 flex-1">
@@ -116,7 +116,7 @@ export default function CategoriesPage() {
               <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">{description}</p>
             </div>
 
-            <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
+            <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
           </Link>
         );
       })}

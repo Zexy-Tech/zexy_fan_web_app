@@ -63,14 +63,14 @@ function PaymentConfirmationContent() {
         <CardContent className="py-8">
           {status === 'verifying' && (
             <div className="text-center space-y-4">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+              <Loader2 className="size-12 animate-spin text-primary mx-auto" />
               <p className="text-muted-foreground">Verifying your payment, please wait...</p>
             </div>
           )}
 
           {status === 'success' && (
             <div className="text-center space-y-4">
-              <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto" />
+              <CheckCircle2 className="size-16 text-emerald-500 mx-auto" />
               <p className="text-lg font-bold">Payment Successful!</p>
               <p className="text-muted-foreground">Your transaction has been verified. You can now access the content.</p>
               <Button onClick={() => router.push('/creators')} className="mt-4 w-full">
@@ -81,7 +81,7 @@ function PaymentConfirmationContent() {
 
           {status === 'error' && (
             <div className="text-center space-y-4">
-              <XCircle className="h-16 w-16 text-destructive mx-auto" />
+              <XCircle className="size-16 text-destructive mx-auto" />
               <p className="text-lg font-bold">Payment Failed</p>
               <p className="text-destructive">{errorMsg}</p>
               <Button onClick={() => router.back()} variant="outline" className="mt-4 w-full">
@@ -99,7 +99,7 @@ export default function PaymentConfirmationPage() {
   return (
     <Suspense fallback={
       <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     }>
       <PaymentConfirmationContent />

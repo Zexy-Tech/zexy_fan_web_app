@@ -51,7 +51,7 @@ export function TipModal({
             className="absolute right-2 top-2 text-zinc-300 hover:bg-zinc-800 hover:text-white"
             onClick={onClose}
           >
-            <X className="h-5 w-5" />
+            <X className="size-5" />
           </Button>
         </CardHeader>
 
@@ -112,7 +112,7 @@ export function TipModal({
             onClick={() => (onSend ? onSend(amount) : onClose())}
             disabled={!lockAmount && (!amount || amount < 1)}
           >
-            <Rocket className="h-4 w-4 shrink-0" aria-hidden />
+            <Rocket className="size-4 shrink-0" aria-hidden />
             Send Tip
           </Button>
         </CardContent>

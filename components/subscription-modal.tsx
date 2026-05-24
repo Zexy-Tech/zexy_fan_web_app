@@ -121,7 +121,7 @@ export function SubscriptionModal({
           <>
             <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 ring-2 ring-background">
+                <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 ring-2 ring-background">
                   {avatarSrc ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
@@ -141,7 +141,7 @@ export function SubscriptionModal({
                 onClick={onClose}
                 aria-label="Close"
               >
-                <X className="h-5 w-5" />
+                <X className="size-5" />
               </Button>
             </div>
             <div className="relative aspect-[16/10] w-full overflow-hidden">
@@ -159,8 +159,8 @@ export function SubscriptionModal({
           </>
         ) : (
           <CardHeader className="text-center pb-2">
-            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
-              <Crown className="h-6 w-6 text-white" />
+            <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
+              <Crown className="size-6 text-white" />
             </div>
             <CardTitle>Subscribe to {creatorName}</CardTitle>
             <CardDescription>Choose a plan to get exclusive access</CardDescription>
@@ -202,7 +202,7 @@ export function SubscriptionModal({
                       <div className="ml-4 flex-shrink-0 text-right">
                         <p className="text-lg font-bold">{formatCurrency(plan.price)}</p>
                         {selectedPlan.id === plan.id && (
-                          <Check className="ml-auto mt-1 h-4 w-4 text-primary" />
+                          <Check className="ml-auto mt-1 size-4 text-primary" />
                         )}
                       </div>
                     </div>
@@ -221,7 +221,7 @@ export function SubscriptionModal({
                     'Early access to new content',
                   ].map((benefit) => (
                     <div key={benefit} className="flex items-center gap-2 text-sm">
-                      <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <Check className="size-3.5 shrink-0 text-primary" />
                       <span>{benefit}</span>
                     </div>
                   ))}
@@ -232,14 +232,14 @@ export function SubscriptionModal({
 
           {status === 'processing' && (
             <div className="flex flex-col items-center justify-center py-10 space-y-4">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <Loader2 className="size-12 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Processing your subscription…</p>
             </div>
           )}
 
           {status === 'success' && (
             <div className="flex flex-col items-center justify-center py-10 space-y-4">
-              <CheckCircle2 className="h-12 w-12 text-green-500" />
+              <CheckCircle2 className="size-12 text-green-500" />
               <p className="font-semibold">You&apos;re subscribed!</p>
               <p className="text-sm text-muted-foreground">Enjoy exclusive access to {creatorName}&apos;s content.</p>
             </div>
@@ -247,7 +247,7 @@ export function SubscriptionModal({
 
           {status === 'error' && (
             <div className="flex flex-col items-center justify-center py-10 space-y-4">
-              <XCircle className="h-12 w-12 text-destructive" />
+              <XCircle className="size-12 text-destructive" />
               <p className="font-semibold text-destructive">Something went wrong</p>
               <p className="text-sm text-muted-foreground">Please try again.</p>
             </div>

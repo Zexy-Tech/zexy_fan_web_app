@@ -22,7 +22,7 @@ export default function Error({
       <Card className="max-w-md w-full">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-6 w-6 text-destructive" />
+            <AlertCircle className="size-6 text-destructive" />
             <CardTitle>Something went wrong!</CardTitle>
           </div>
         </CardHeader>

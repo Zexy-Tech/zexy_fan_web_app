@@ -62,7 +62,7 @@ export default function MessageThreadPage() {
           className="p-2 -ml-2 rounded-full hover:bg-accent transition-colors"
           aria-label="Back to messages"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="size-5" />
         </Link>
         <div className="min-w-0 flex-1">
           <p className="font-semibold truncate">{displayName}</p>
@@ -75,7 +75,7 @@ export default function MessageThreadPage() {
       <div className="flex-1 overflow-y-auto px-4 py-4 pb-28 space-y-3">
         {isLoading && (
           <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="size-8 animate-spin text-primary" />
           </div>
         )}
         {error && (
@@ -152,9 +152,9 @@ export default function MessageThreadPage() {
           />
           <Button type="submit" size="icon" disabled={sendMessage.isPending || !text.trim()}>
             {sendMessage.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="size-4" />
             )}
           </Button>
         </form>

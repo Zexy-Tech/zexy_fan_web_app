@@ -59,7 +59,7 @@ function SavedMediaGrid({
   if (isLoading) {
     return (
       <div className="flex h-40 w-full items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -87,18 +87,18 @@ function SavedMediaGrid({
 
           {isAudio && !item.thumbSrc ? (
             <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
-              <Music className="h-8 w-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
+              <Music className="size-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
             </div>
           ) : isVideo && !item.thumbSrc ? (
             <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
-              <Video className="h-8 w-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
+              <Video className="size-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
             </div>
           ) : item.thumbSrc ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={item.thumbSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
-              <LucideImage className="h-8 w-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
+              <LucideImage className="size-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
             </div>
           )}
 
@@ -211,7 +211,7 @@ export function SavedContentView() {
     <div className="-mt-2 space-y-4">
       <div className="relative">
         <Search
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
           aria-hidden
         />
         <Input
@@ -240,7 +240,7 @@ export function SavedContentView() {
                     : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'
                 )}
               >
-                <TabIcon className="h-4 w-4 shrink-0" aria-hidden />
+                <TabIcon className="size-4 shrink-0" aria-hidden />
                 <span className="truncate">{label}</span>
               </button>
             );

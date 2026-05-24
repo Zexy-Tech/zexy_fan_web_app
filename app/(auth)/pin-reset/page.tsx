@@ -106,8 +106,8 @@ function PinResetPageContent() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4">
       <div className="w-full max-w-[400px] space-y-8">
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20">
-            <KeyRound className="w-10 h-10 text-white" />
+          <div className="size-16 bg-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20">
+            <KeyRound className="size-10 text-white" />
           </div>
           <h1 className="text-lg font-bold tracking-tight">
             {step === 'phone' ? 'Reset PIN' : step === 'otp' ? 'Verify Reset Code' : step === 'new_pin' ? 'New PIN' : 'Confirm New PIN'}
@@ -150,14 +150,14 @@ function PinResetPageContent() {
                   className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all" 
                   disabled={initiateReset.isPending || mobile.length < 10}
                 >
-                  {initiateReset.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Send Reset Code'}
+                  {initiateReset.isPending ? <Loader2 className="size-5 animate-spin" /> : 'Send Reset Code'}
                 </Button>
                 <button 
                   type="button" 
                   onClick={() => router.back()}
                   className="w-full flex items-center justify-center gap-2 text-sm text-zinc-500 hover:text-white transition-colors"
                 >
-                  <ArrowLeft className="w-4 h-4" /> Back to Login
+                  <ArrowLeft className="size-4" /> Back to Login
                 </button>
               </form>
             ) : (
@@ -229,7 +229,7 @@ function PinResetPageContent() {
                       (step === 'confirm' && confirmPin.join('').length < 4)
                     }
                   >
-                    {confirmReset.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Continue'}
+                    {confirmReset.isPending ? <Loader2 className="size-5 animate-spin" /> : 'Continue'}
                   </Button>
                   
                   <button 

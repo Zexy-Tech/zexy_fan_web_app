@@ -74,16 +74,16 @@ export function AudioPlayer({ src, className }: AudioPlayerProps) {
       <Button
         variant="ghost"
         size="icon"
-        className="h-10 w-10 rounded-full bg-pink-500 hover:bg-pink-600 text-white shrink-0 shadow-lg shadow-pink-500/20"
+        className="size-10 rounded-full bg-pink-500 hover:bg-pink-600 text-white shrink-0 shadow-lg shadow-pink-500/20"
         onClick={togglePlay}
         disabled={isLoading}
       >
         {isLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <Loader2 className="size-5 animate-spin" />
         ) : isPlaying ? (
-          <Pause className="h-5 w-5 fill-current" />
+          <Pause className="size-5 fill-current" />
         ) : (
-          <Play className="h-5 w-5 fill-current translate-x-0.5" />
+          <Play className="size-5 fill-current translate-x-0.5" />
         )}
       </Button>
 
@@ -104,7 +104,7 @@ export function AudioPlayer({ src, className }: AudioPlayerProps) {
       </div>
 
       <div className="p-2 bg-pink-500/10 rounded-lg">
-        <Music className="h-4 w-4 text-pink-500" />
+        <Music className="size-4 text-pink-500" />
       </div>
     </div>
   );

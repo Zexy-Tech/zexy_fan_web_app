@@ -131,7 +131,7 @@ export function CreatorSearchFilters({
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -143,17 +143,17 @@ export function CreatorSearchFilters({
       <div className="grid grid-cols-3 gap-2">
         <Button variant="outline" className="justify-between" onClick={() => setOpenFilter('city')}>
           <span className="truncate text-xs sm:text-sm">City ({selectedCity === 'all' ? 'All' : selectedCity})</span>
-          <ChevronDown className="h-4 w-4 shrink-0" />
+          <ChevronDown className="size-4 shrink-0" />
         </Button>
         <Button variant="outline" className="justify-between" onClick={() => setOpenFilter('gender')}>
           <span className="truncate text-xs sm:text-sm">Gender ({formatGenderLabel(selectedGender)})</span>
-          <ChevronDown className="h-4 w-4 shrink-0" />
+          <ChevronDown className="size-4 shrink-0" />
         </Button>
         <Button variant="outline" className="justify-between" onClick={() => setOpenFilter('category')}>
           <span className="truncate text-xs sm:text-sm">
             Category ({selectedCategory === 'all' ? 'All' : toTitleCase(selectedCategory)})
           </span>
-          <ChevronDown className="h-4 w-4 shrink-0" />
+          <ChevronDown className="size-4 shrink-0" />
         </Button>
       </div>
 
@@ -174,7 +174,7 @@ export function CreatorSearchFilters({
             <div className="flex items-center justify-between border-b px-4 py-3">
               <h3 className="font-semibold capitalize">{openFilter}</h3>
               <Button variant="ghost" size="icon" onClick={() => setOpenFilter(null)} aria-label="Close filter">
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
 
@@ -183,7 +183,7 @@ export function CreatorSearchFilters({
                 <>
                   <div className="sticky top-0 z-10 bg-background p-2">
                     <div className="relative">
-                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         value={citySearchQuery}
                         onChange={(e) => setCitySearchQuery(e.target.value)}
@@ -205,7 +205,7 @@ export function CreatorSearchFilters({
                       }}
                     >
                       <span>{city === 'all' ? 'All' : city}</span>
-                      {selectedCity === city && <Check className="h-4 w-4 text-primary" />}
+                      {selectedCity === city && <Check className="size-4 text-primary" />}
                     </button>
                   ))}
                 </>
@@ -226,7 +226,7 @@ export function CreatorSearchFilters({
                       }}
                     >
                       <span>{formatGenderLabel(gender)}</span>
-                      {selectedGender === gender && <Check className="h-4 w-4 text-primary" />}
+                      {selectedGender === gender && <Check className="size-4 text-primary" />}
                     </button>
                   ))}
                 </>
@@ -236,7 +236,7 @@ export function CreatorSearchFilters({
                 <>
                   <div className="sticky top-0 z-10 bg-background p-2">
                     <div className="relative">
-                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         value={categorySearchQuery}
                         onChange={(e) => setCategorySearchQuery(e.target.value)}
@@ -258,7 +258,7 @@ export function CreatorSearchFilters({
                       }}
                     >
                       <span>{category === 'all' ? 'All' : toTitleCase(category)}</span>
-                      {selectedCategory === category && <Check className="h-4 w-4 text-primary" />}
+                      {selectedCategory === category && <Check className="size-4 text-primary" />}
                     </button>
                   ))}
                 </>

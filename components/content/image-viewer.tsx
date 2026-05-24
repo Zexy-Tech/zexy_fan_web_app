@@ -40,14 +40,14 @@ export function ImageViewer({ src, alt, open, onClose }: ImageViewerProps) {
         
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={handleZoomOut}>
-            <ZoomOut className="h-5 w-5" />
+            <ZoomOut className="size-5" />
           </Button>
           <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={handleZoomIn}>
-            <ZoomIn className="h-5 w-5" />
+            <ZoomIn className="size-5" />
           </Button>
           <div className="w-px h-6 bg-white/10 mx-1" />
-          <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 h-10 w-10" onClick={onClose}>
-            <X className="h-6 w-6" />
+          <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 size-10" onClick={onClose}>
+            <X className="size-6" />
           </Button>
         </div>
       </div>

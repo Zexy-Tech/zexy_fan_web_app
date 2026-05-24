@@ -21,7 +21,7 @@ export default function PublicError({
       <Card className="max-w-md w-full">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-6 w-6 text-destructive" />
+            <AlertCircle className="size-6 text-destructive" />
             <CardTitle>Error Loading Profile</CardTitle>
           </div>
         </CardHeader>

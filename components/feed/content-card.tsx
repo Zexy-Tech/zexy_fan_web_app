@@ -18,7 +18,7 @@ export function ContentCard({ content }: ContentCardProps) {
       <Card className="overflow-hidden">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+            <div className="relative size-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold overflow-hidden">
               {content.creator_avatar ? (
                 <Image
                   src={getMediaUrl(content.creator_avatar) || ''}
@@ -53,7 +53,7 @@ export function ContentCard({ content }: ContentCardProps) {
           <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
             {content.is_locked ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
-                <Lock className="h-12 w-12 text-white mb-2" />
+                <Lock className="size-12 text-white mb-2" />
                 <p className="text-white/80 text-sm">Join to view</p>
               </div>
             ) : (
@@ -69,9 +69,9 @@ export function ContentCard({ content }: ContentCardProps) {
                 ) : null}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/10">
                   {content.media?.[0]?.media_type === 'video' ? (
-                    <Play className="h-16 w-16 text-white/80 drop-shadow-lg" />
+                    <Play className="size-16 text-white/80 drop-shadow-lg" />
                   ) : !content.thumbnail_url && !content.url ? (
-                    <ImageIcon className="h-16 w-16 text-white/80" />
+                    <ImageIcon className="size-16 text-white/80" />
                   ) : null}
                 </div>
               </div>
@@ -82,11 +82,11 @@ export function ContentCard({ content }: ContentCardProps) {
         <CardFooter className="pt-0 flex flex-col gap-3">
           <div className="flex items-center gap-4 w-full px-1">
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Heart className="h-4 w-4" />
+              <Heart className="size-4" />
               <span className="text-xs font-medium">{content.likes_count || 0}</span>
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Bookmark className="h-4 w-4" />
+              <Bookmark className="size-4" />
               <span className="text-xs font-medium">{content.saves_count || 0}</span>
             </div>
           </div>
@@ -94,7 +94,7 @@ export function ContentCard({ content }: ContentCardProps) {
           {content.is_locked ? (
             <Link href={`/creator/${content.creator_username}`} className="w-full">
               <Button className="w-full">
-                <Lock className="mr-2 h-4 w-4" />
+                <Lock className="mr-2 size-4" />
                 Join to Unlock
               </Button>
             </Link>

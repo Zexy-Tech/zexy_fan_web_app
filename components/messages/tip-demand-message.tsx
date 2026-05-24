@@ -48,8 +48,8 @@ export function TipDemandMessage({
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="h-9 w-9 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0">
-              <Coins className="h-4 w-4 text-amber-400" aria-hidden />
+            <div className="size-9 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0">
+              <Coins className="size-4 text-amber-400" aria-hidden />
             </div>
             <div className="min-w-0">
               <p className="font-semibold text-foreground leading-tight">
@@ -70,7 +70,7 @@ export function TipDemandMessage({
           </div>
           {paid ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold uppercase tracking-wide px-2 py-1 shrink-0">
-              <CheckCircle2 className="h-3 w-3" />
+              <CheckCircle2 className="size-3" />
               Paid
             </span>
           ) : (
@@ -99,7 +99,7 @@ export function TipDemandMessage({
           >
             {payTip.isPending ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="size-4 animate-spin mr-2" />
                 Processing…
               </>
             ) : (

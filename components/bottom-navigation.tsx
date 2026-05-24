@@ -63,7 +63,7 @@ export function BottomNavigation({ items }: BottomNavigationProps) {
               className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors"
             >
               <div
-                className="h-6 w-6"
+                className="size-6"
                 style={{
                   color: isActive ? 'var(--profile-primary)' : undefined,
                 }}

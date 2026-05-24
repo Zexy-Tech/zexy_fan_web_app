@@ -94,7 +94,7 @@ export function ActionButtonsSection({
                 : undefined,
             }}
           >
-            <Icon className="mr-2 h-5 w-5" />
+            <Icon className="mr-2 size-5" />
             {button.label}
           </Button>
         );

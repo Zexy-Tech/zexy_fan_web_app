@@ -14,16 +14,16 @@ export function Footer() {
         <div className="container mx-auto px-4 py-8">
           <div className="mx-auto flex max-w-md flex-col items-center">
             <div className="relative mb-4 flex h-11 w-16 items-center justify-center">
-              <div className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-gradient-to-br from-zinc-700 to-zinc-900">
-                <UserRound className="h-5 w-5 text-zinc-200" />
+              <div className="absolute left-0 flex size-10 items-center justify-center rounded-full border border-white/20 bg-gradient-to-br from-zinc-700 to-zinc-900">
+                <UserRound className="size-5 text-zinc-200" />
               </div>
-              <div className="absolute left-6 flex h-10 w-10 items-center justify-center rounded-full border border-pink-300/50 bg-pink-500 p-1.5 shadow-md shadow-pink-500/20">
+              <div className="absolute left-6 flex size-10 items-center justify-center rounded-full border border-pink-300/50 bg-pink-500 p-1.5 shadow-md shadow-pink-500/20">
                 <Image
                   src="/zexy_z_letter_logo_nobg.png"
                   alt="Zexy"
                   width={22}
                   height={22}
-                  className="h-5 w-5 object-contain"
+                  className="size-5 object-contain"
                 />
               </div>
             </div>

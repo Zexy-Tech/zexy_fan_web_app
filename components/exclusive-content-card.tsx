@@ -70,13 +70,13 @@ export function ExclusiveContentCard({
             sizes="(max-width: 640px) 50vw, 300px"
           />
         )}
-        <Icon className={cn("h-12 w-12 text-white/50", thumbUrl && "text-white/80 drop-shadow-lg")} />
+        <Icon className={cn("size-12 text-white/50", thumbUrl && "text-white/80 drop-shadow-lg")} />
       </div>
       
       {/* Locked Overlay */}
       {content.isLocked && (
         <div className="absolute inset-0 backdrop-blur-sm bg-black/30 flex flex-col items-center justify-center gap-3 p-4">
-          <Lock className="h-8 w-8 text-white" />
+          <Lock className="size-8 text-white" />
           <p className="text-white font-semibold text-center text-sm">
             {content.title}
           </p>

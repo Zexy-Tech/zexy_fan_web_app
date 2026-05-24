@@ -59,13 +59,13 @@ export function SubscriptionCardSection({
           <div className="h-2" style={{ background: 'linear-gradient(to right, var(--profile-gradient-start), var(--profile-gradient-end))' }} />
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Crown className="h-6 w-6 text-muted-foreground" />
+              <Crown className="size-6 text-muted-foreground" />
               <CardTitle className="text-lg text-muted-foreground">Subscription</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="py-6 flex flex-col items-center justify-center text-center space-y-3">
-              <Clock className="h-10 w-10 text-muted-foreground" />
+              <Clock className="size-10 text-muted-foreground" />
               <div className="space-y-1">
                 <p className="font-semibold">Coming Soon</p>
                 <p className="text-sm text-muted-foreground">
@@ -90,7 +90,7 @@ export function SubscriptionCardSection({
       <div className="px-4 py-6 space-y-3">
         {/* Section header */}
         <div className="flex items-center gap-2 mb-1">
-          <Crown className="h-5 w-5" style={{ color: 'var(--profile-primary)' }} />
+          <Crown className="size-5" style={{ color: 'var(--profile-primary)' }} />
           <h2 className="text-lg font-bold">Subscription</h2>
         </div>
 
@@ -142,7 +142,7 @@ export function SubscriptionCardSection({
                     'Exclusive community access',
                   ].map((benefit) => (
                     <li key={benefit} className="flex items-start gap-2 text-sm">
-                      <Check className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--profile-primary)' }} />
+                      <Check className="size-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--profile-primary)' }} />
                       <span>{benefit}</span>
                     </li>
                   ))}

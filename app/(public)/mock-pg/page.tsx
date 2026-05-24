@@ -56,8 +56,8 @@ export default function MockPhonePePage() {
           {status === 'idle' && (
             <div className="space-y-4">
                <div className="p-4 bg-zinc-100 rounded-lg flex items-center gap-4">
-                  <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center border border-zinc-200">
-                    <Smartphone className="h-5 w-5 text-[#5f259f]" />
+                  <div className="size-10 bg-white rounded-full flex items-center justify-center border border-zinc-200">
+                    <Smartphone className="size-5 text-[#5f259f]" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold">UPI / GPay / PhonePe</p>
@@ -66,7 +66,7 @@ export default function MockPhonePePage() {
                </div>
                
                <div className="flex items-center gap-2 text-[10px] text-zinc-400 justify-center">
-                  <ShieldCheck className="h-3 w-3" />
+                  <ShieldCheck className="size-3" />
                   SECURE PAYMENTS BY PHONEPE
                </div>
             </div>
@@ -74,14 +74,14 @@ export default function MockPhonePePage() {
 
           {status === 'processing' && (
             <div className="py-8 text-center space-y-4">
-              <Loader2 className="h-12 w-12 animate-spin text-[#5f259f] mx-auto" />
+              <Loader2 className="size-12 animate-spin text-[#5f259f] mx-auto" />
               <p className="font-medium text-zinc-600">Processing your payment...</p>
             </div>
           )}
 
           {status === 'success' && (
             <div className="py-8 text-center space-y-4">
-              <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto animate-bounce" />
+              <CheckCircle2 className="size-16 text-emerald-500 mx-auto animate-bounce" />
               <p className="font-bold text-lg text-emerald-700">Payment Successful!</p>
               <p className="text-sm text-zinc-500">Redirecting you back to Zexy...</p>
             </div>

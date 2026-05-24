@@ -38,9 +38,9 @@ export function QAItemComponent({ item }: QAItemProps) {
         </div>
         <div className="flex-shrink-0 pt-1">
           {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-muted-foreground" />
+            <ChevronUp className="size-5 text-muted-foreground" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+            <ChevronDown className="size-5 text-muted-foreground" />
           )}
         </div>
       </button>

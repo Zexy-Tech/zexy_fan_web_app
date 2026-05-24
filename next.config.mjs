@@ -11,7 +11,7 @@ const nextConfig = {
   // Re-enable after upgrading to a Next release that fixes this (see vercel/next.js #67730 / #75360).
   reactStrictMode: false,
   images: {
-    domains: ['api.zexy.live', 'localhost', '10.171.120.19'],
+    domains: ['api.zexy.live', 'localhost', '10.171.120.19', '10.238.135.134'],
   },
 };
 

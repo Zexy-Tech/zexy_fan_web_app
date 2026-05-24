@@ -69,7 +69,7 @@ export function CreatorsGrid({ creators, isLoading, error, refetch }: CreatorsGr
       <div className="flex items-center justify-center min-h-[400px]">
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center space-y-4">
-            <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
+            <AlertCircle className="size-12 text-destructive mx-auto" />
             <div>
               <h3 className="font-semibold text-lg mb-2">Failed to load creators</h3>
               <p className="text-sm text-muted-foreground">

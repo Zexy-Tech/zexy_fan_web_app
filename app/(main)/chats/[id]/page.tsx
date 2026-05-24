@@ -58,7 +58,7 @@ function MediaBubble({ msg, onImageClick }: { msg: Message; onImageClick: (url: 
   if (loading) {
     return (
       <div className="flex h-32 w-full items-center justify-center bg-zinc-900 rounded-xl">
-        <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+        <Loader2 className="size-5 animate-spin text-zinc-500" />
       </div>
     );
   }
@@ -280,7 +280,7 @@ export default function ChatThreadPage() {
   if (messagesLoading || creatorLoading) {
     return (
       <div className="fixed inset-0 z-[80] h-dvh bg-black flex items-center justify-center text-white">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -305,7 +305,7 @@ export default function ChatThreadPage() {
             aria-label="Back"
             className="shrink-0 text-white hover:bg-zinc-800"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="size-5" />
           </Button>
 
           <button
@@ -314,7 +314,7 @@ export default function ChatThreadPage() {
             className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left transition-colors hover:bg-zinc-900/90 active:bg-zinc-800 sm:-ml-1 sm:px-1"
             aria-label={`Open ${partnerDisplayName}'s profile`}
           >
-            <div className="h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center font-semibold overflow-hidden border border-white/5">
+            <div className="size-9 shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center font-semibold overflow-hidden border border-white/5">
               {creator?.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img 
@@ -341,7 +341,7 @@ export default function ChatThreadPage() {
               onClick={() => setMenuOpen((v) => !v)}
               className="text-white hover:bg-zinc-800"
             >
-              <MoreVertical className="h-5 w-5" />
+              <MoreVertical className="size-5" />
             </Button>
 
             {menuOpen && (
@@ -351,7 +351,7 @@ export default function ChatThreadPage() {
                   className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-sm text-red-400 hover:bg-zinc-800"
                   onClick={handleDeleteChat}
                 >
-                  <Trash2 className="h-4 w-4 shrink-0" />
+                  <Trash2 className="size-4 shrink-0" />
                   Delete Chat
                 </button>
               </div>
@@ -383,7 +383,7 @@ export default function ChatThreadPage() {
                   className="mr-2 self-center text-zinc-500 hover:text-red-400 transition-colors"
                   aria-label="Delete message"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="size-4" />
                 </button>
               )}
               <div
@@ -401,7 +401,7 @@ export default function ChatThreadPage() {
                 <div className="px-3 py-2">
                     {isTipDemand && (
                         <div className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-200">
-                            <Smile className="h-3 w-3" />
+                            <Smile className="size-3" />
                             Tip Request
                         </div>
                     )}
@@ -415,7 +415,7 @@ export default function ChatThreadPage() {
                     {isMe && msg.read_at && (
                         <div className="flex items-center gap-1">
                             <span className="text-[9px] font-bold text-pink-500 uppercase">Read</span>
-                            <div className="w-1 h-1 rounded-full bg-pink-500" />
+                            <div className="size-1 rounded-full bg-pink-500" />
                         </div>
                     )}
                     </div>
@@ -425,7 +425,7 @@ export default function ChatThreadPage() {
           );
         }) : (
             <div className="flex-1 flex flex-col items-center justify-center py-20 opacity-40">
-                <MessageCircle className="h-12 w-12 mb-4" />
+                <MessageCircle className="size-12 mb-4" />
                 <p className="text-sm">Start a conversation with {partnerDisplayName}</p>
             </div>
         )}
@@ -453,7 +453,7 @@ export default function ChatThreadPage() {
         <button
           type="button"
           onClick={openFreeTipPopup}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pink-600 text-sm font-bold text-white shadow-md hover:bg-pink-500"
+          className="grid size-10 shrink-0 place-items-center rounded-full bg-pink-600 text-sm font-bold text-white shadow-md hover:bg-pink-500"
           aria-label="Send tip"
         >
           ₹
@@ -473,7 +473,7 @@ export default function ChatThreadPage() {
             onClick={handleAddEmoji}
             className="text-zinc-300 hover:bg-zinc-800 hover:text-white"
           >
-            <Smile className="h-5 w-5" />
+            <Smile className="size-5" />
           </Button>
           {/* Media sending disabled for fans in this version */}
           <Input
@@ -499,7 +499,7 @@ export default function ChatThreadPage() {
             disabled={!draft.trim() || sendMessageMutation.isPending}
             className="bg-pink-600 text-white hover:bg-pink-500 disabled:opacity-40"
           >
-            {sendMessageMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            {sendMessageMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
           </Button>
         </div>
       </div>

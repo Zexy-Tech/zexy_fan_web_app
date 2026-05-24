@@ -26,7 +26,7 @@ export default function SubscriptionDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden />
+        <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden />
       </div>
     );
   }
@@ -63,7 +63,7 @@ export default function SubscriptionDetailPage() {
     <div className="-mt-2 space-y-0">
       <div className="flex flex-col gap-2">
         <div className="flex gap-3">
-          <div className="flex h-14 w-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
+          <div className="flex size-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarUrl} alt="" className="h-full w-full object-cover" />

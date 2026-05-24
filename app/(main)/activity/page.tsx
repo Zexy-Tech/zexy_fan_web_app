@@ -26,7 +26,7 @@ export default function ActivityPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+        <Loader2 className="size-8 animate-spin text-purple-500" />
       </div>
     );
   }
@@ -56,7 +56,7 @@ export default function ActivityPage() {
               <Card key={item.id} className="bg-zinc-900/50 border-zinc-800 hover:bg-zinc-900 transition-colors">
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className={cn("p-2 rounded-xl bg-zinc-800/50", config.color)}>
-                    <Icon className="h-5 w-5" />
+                    <Icon className="size-5" />
                   </div>
                   
                   <div className="flex-1 min-w-0">

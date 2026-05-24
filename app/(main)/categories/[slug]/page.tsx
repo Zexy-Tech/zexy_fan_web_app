@@ -39,7 +39,7 @@ export default function CategoryCreatorsPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -80,7 +80,7 @@ export default function CategoryCreatorsPage() {
       {hasNextPage && (
         <div ref={ref} className="py-8 flex justify-center">
           {isFetchingNextPage ? (
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className="size-6 animate-spin text-muted-foreground" />
           ) : (
             <span className="text-sm text-muted-foreground">Load more...</span>
           )}

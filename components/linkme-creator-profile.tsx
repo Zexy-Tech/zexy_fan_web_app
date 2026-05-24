@@ -10,7 +10,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useCreatorByUsername, useCreatorContentByUsername, useCreatorProductsByUsername } from '@/hooks/useFeed';
@@ -35,8 +34,6 @@ import {
   Youtube,
   Loader2,
   ExternalLink,
-  Menu,
-  X,
   Users,
   CreditCard,
   MessageCircle,
@@ -94,7 +91,7 @@ function inferSocialKind(url: string): SocialKind | null {
 }
 
 function SocialIcon({ kind, className }: { kind: SocialKind; className?: string }) {
-  const cls = cn('h-4 w-4', className);
+  const cls = cn('size-4', className);
   switch (kind) {
     case 'instagram': return <Instagram className={cn(cls, "text-[#E1306C]")} />;
     case 'facebook': return <Facebook className={cn(cls, "text-[#1877F2]")} />;
@@ -186,13 +183,6 @@ const CONTENT_TABS: { id: ContentTabId; label: string; icon: LucideIcon }[] = [
   { id: 'products', label: 'Products', icon: Package },
 ];
 
-const drawerNavItems = [
-  { href: '/creators', label: 'Creators', icon: Users },
-  { href: '/subscriptions', label: 'My Creators', icon: CreditCard },
-  { href: '/chats', label: 'Chats', icon: MessageCircle },
-  { href: '/profile', label: 'Profile', icon: User },
-];
-
 export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
   const { data: creator, isLoading: creatorLoading, error: creatorError } = useCreatorByUsername(username);
   const { data: config, isLoading: configLoading } = useCreatorProfileConfig(username);
@@ -275,16 +265,16 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
 
   if (creatorLoading || configLoading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="min-h-[70vh] flex items-center justify-center bg-zinc-950 text-white">
+        <Loader2 className="size-8 animate-spin" />
       </div>
     );
   }
 
   if (creatorError || !creator) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center p-4 bg-black text-white">
-        <Card className="max-w-md w-full bg-zinc-950 text-white border-white/10">
+      <div className="min-h-[70vh] flex items-center justify-center p-4 bg-zinc-950 text-white">
+        <Card className="max-w-md w-full bg-zinc-900 text-white border-white/10">
           <CardContent className="pt-6 text-center">
             <p className="text-zinc-400">Creator not found</p>
           </CardContent>
@@ -301,7 +291,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
   const showStickyProfileBar = scrollY >= fadeDistance;
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-zinc-950 text-white">
       {/* Profile bar overlay (hidden until hero fully disappears) */}
       <div
         className={[
@@ -309,13 +299,18 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
           showStickyProfileBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none',
         ].join(' ')}
       >
-        <div className="bg-black/85 backdrop-blur border-b border-white/10">
+        <div className="bg-zinc-950/85 backdrop-blur border-b border-white/10">
           <div className="mx-auto flex max-w-md items-center justify-between px-4 py-3">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="h-8 w-8 overflow-hidden rounded-full bg-white/10">
+              <div className="size-8 overflow-hidden rounded-full bg-white/10 relative">
                 {coverUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={coverUrl} alt={displayName} className="h-full w-full object-cover" />
+                  <Image
+                    src={coverUrl}
+                    alt={displayName}
+                    fill
+                    sizes="32px"
+                    className="object-cover"
+                  />
                 ) : null}
               </div>
 
@@ -324,7 +319,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                 <div className="truncate text-xs text-zinc-400">@{handle}</div>
               </div>
             </div>
-            <div className="h-9 w-9" />
+            <div className="size-9" />
           </div>
         </div>
       </div>
@@ -336,6 +331,13 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
           height: 'min(64vh, 520px)',
         }}
         onClick={handleCoverClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            handleCoverClick();
+          }
+        }}
+        role="button"
+        tabIndex={0}
       >
         {/* Only the IMAGE layer fades/collapses on scroll */}
         <div
@@ -347,18 +349,20 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
           }}
         >
           {coverUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={coverUrl}
               alt={displayName}
+              fill
+              sizes="100vw"
               className="absolute inset-0 h-full w-full object-cover"
+              priority
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-black" />
+            <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-950" />
           )}
 
           {/* Dark gradient for text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-black/10 to-black/10" />
         </div>
 
         {/* Center content */}
@@ -375,7 +379,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                   router.push(`/live/${config.active_room_id}`);
                 }}
               >
-                <Radio className="h-4 w-4" />
+                <Radio className="size-4" />
                 <span className="font-bold tracking-wider">LIVE NOW</span>
               </Badge>
             )}
@@ -422,7 +426,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                   <button
                     key={(button?.id || kind) + idx}
                     type="button"
-                    aria-label={label}
+                    aria-label={label || (isZexy ? 'Zexy' : kind)}
                     className={[
                       'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] border border-white/10 text-white transition-all',
                       'hover:bg-white/15 active:scale-95',
@@ -457,9 +461,9 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
       {/* Below-the-fold content */}
       <div className="mx-auto max-w-md px-4 pb-10">
         {/* Spacer so content doesn't get covered when bar appears */}
-        <div className={showStickyProfileBar ? 'pt-14' : 'pt-0'} />
+        {/* <div className={showStickyProfileBar ? 'pt-14' : 'pt-0'} /> */}
         {/* Exclusive (big) + Public grid */}
-        <div className="pt-6 space-y-4">
+        <div className="space-y-4">
           <CreatorMediaBlocks
             isAuthenticated={isAuthenticated}
             isMember={isMember}
@@ -596,7 +600,7 @@ function ExclusiveMediaGrid({
         >
           {overlays}
           <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
-            <Video className={cn("text-zinc-700", isExclusive ? "h-16 w-16" : "h-10 w-10")} strokeWidth={1.5} />
+            <Video className={cn("text-zinc-700", isExclusive ? "size-16" : "size-10")} strokeWidth={1.5} />
           </div>
         </button>
       );
@@ -611,15 +615,17 @@ function ExclusiveMediaGrid({
           className={cn(tileClass, 'p-0')}
         >
           {overlays}
-          <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
+          <div className="flex size-full items-center justify-center bg-zinc-900/50">
             {item.thumbSrc ? (
-              <img 
+              <Image 
                 src={item.thumbSrc} 
-                alt="" 
+                alt={item.title} 
+                fill
+                sizes="320px"
                 className={cn("h-full w-full object-cover", item.isLocked && "blur-sm opacity-60")} 
               />
             ) : (
-              <Music className={cn("text-zinc-700", isExclusive ? "h-16 w-16" : "h-10 w-10")} strokeWidth={1.5} />
+              <Music className={cn("text-zinc-700", isExclusive ? "size-16" : "size-10")} strokeWidth={1.5} />
             )}
           </div>
         </button>
@@ -635,15 +641,17 @@ function ExclusiveMediaGrid({
       >
         {overlays}
         {item.thumbSrc ? (
-          <img 
+          <Image 
             src={item.thumbSrc} 
-            alt="" 
+            alt={item.title} 
+            fill
+            sizes={isExclusive ? "640px" : "320px"}
             className={cn("h-full w-full object-cover", item.isLocked && "blur-sm opacity-60")} 
             loading="lazy" 
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
-            <LucideImage className={cn("text-zinc-700", isExclusive ? "h-16 w-16" : "h-10 w-10")} strokeWidth={1.5} />
+          <div className="flex size-full items-center justify-center bg-zinc-900/50">
+            <LucideImage className={cn("text-zinc-700", isExclusive ? "size-16" : "size-10")} strokeWidth={1.5} />
           </div>
         )}
       </button>
@@ -691,53 +699,65 @@ function CreatorMediaBlocks({
   } | null>(null);
 
   const imageItems = useMemo<MediaGridItem[]>(() => {
-    return content
-      .filter((c) => c.type === 'image' || (!c.type && c.media.some((m) => m.media_type === 'image')))
-      .map((c) => ({
-        id: String(c.id),
-        contentId: c.id,
-        thumbSrc: getMediaUrl(c.thumbnail_url || c.url || c.media.find((m) => m.media_type === 'image')?.url) || '',
-        title: c.title,
-        description: c.description,
-        tags: c.tags ?? [],
-        isLiked: c.is_liked,
-        isSaved: c.is_saved,
-        isLocked: c.is_locked,
-      }));
+    if (!content) return [];
+    return content.reduce((acc, c) => {
+      if (c.type === 'image' || (!c.type && c.media.some((m) => m.media_type === 'image'))) {
+        acc.push({
+          id: String(c.id),
+          contentId: c.id,
+          thumbSrc: getMediaUrl(c.thumbnail_url || c.url || c.media.find((m) => m.media_type === 'image')?.url) || '',
+          title: c.title,
+          description: c.description,
+          tags: c.tags ?? [],
+          isLiked: c.is_liked,
+          isSaved: c.is_saved,
+          isLocked: c.is_locked,
+        });
+      }
+      return acc;
+    }, [] as MediaGridItem[]);
   }, [content]);
 
   const videoItems = useMemo<MediaGridItem[]>(() => {
-    return content
-      .filter((c) => c.type === 'video' || (!c.type && c.media.some((m) => m.media_type === 'video')))
-      .map((c) => ({
-        id: String(c.id),
-        contentId: c.id,
-        thumbSrc: getMediaUrl(c.thumbnail_url || c.media.find((m) => m.media_type === 'image')?.url) || '',
-        title: c.title,
-        description: c.description,
-        tags: c.tags ?? [],
-        isLiked: c.is_liked,
-        isSaved: c.is_saved,
-        isLocked: c.is_locked,
-        videoSrc: getMediaUrl(c.url || c.media.find((m) => m.media_type === 'video')?.url) || '',
-      }));
+    if (!content) return [];
+    return content.reduce((acc, c) => {
+      if (c.type === 'video' || (!c.type && c.media.some((m) => m.media_type === 'video'))) {
+        acc.push({
+          id: String(c.id),
+          contentId: c.id,
+          thumbSrc: getMediaUrl(c.thumbnail_url || c.media.find((m) => m.media_type === 'image')?.url) || '',
+          title: c.title,
+          description: c.description,
+          tags: c.tags ?? [],
+          isLiked: c.is_liked,
+          isSaved: c.is_saved,
+          isLocked: c.is_locked,
+          videoSrc: getMediaUrl(c.url || c.media.find((m) => m.media_type === 'video')?.url) || '',
+        });
+      }
+      return acc;
+    }, [] as MediaGridItem[]);
   }, [content]);
 
   const audioItems = useMemo<MediaGridItem[]>(() => {
-    return content
-      .filter((c) => c.media.some((m) => m.media_type === 'audio'))
-      .map((c) => ({
-        id: String(c.id),
-        contentId: c.id,
-        thumbSrc: getMediaUrl(c.thumbnail_url) || '',
-        title: c.title,
-        description: c.description,
-        tags: c.tags ?? [],
-        isLiked: c.is_liked,
-        isSaved: c.is_saved,
-        isLocked: c.is_locked,
-        audioSrc: getMediaUrl(c.media.find((m) => m.media_type === 'audio')?.url) || '',
-      }));
+    if (!content) return [];
+    return content.reduce((acc, c) => {
+      if (c.media.some((m) => m.media_type === 'audio')) {
+        acc.push({
+          id: String(c.id),
+          contentId: c.id,
+          thumbSrc: getMediaUrl(c.thumbnail_url) || '',
+          title: c.title,
+          description: c.description,
+          tags: c.tags ?? [],
+          isLiked: c.is_liked,
+          isSaved: c.is_saved,
+          isLocked: c.is_locked,
+          audioSrc: getMediaUrl(c.media.find((m) => m.media_type === 'audio')?.url) || '',
+        });
+      }
+      return acc;
+    }, [] as MediaGridItem[]);
   }, [content]);
 
   const requestAccessThen = (needsAccess: boolean, openContent: () => void) => {
@@ -767,7 +787,7 @@ function CreatorMediaBlocks({
   if (isLoading) {
     return (
       <Card className="-mx-4 w-[calc(100%+2rem)] overflow-hidden rounded-2xl border-white/10 bg-white/[0.03] p-12 shadow-none sm:mx-0 sm:w-full flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+        <Loader2 className="size-6 animate-spin text-zinc-500" />
       </Card>
     );
   }
@@ -789,7 +809,7 @@ function CreatorMediaBlocks({
                   : 'border-b-2 border-transparent text-zinc-500 hover:text-zinc-300'
               )}
             >
-              <TabIcon className="h-4 w-4 shrink-0" aria-hidden />
+              <TabIcon className="size-4 shrink-0" aria-hidden />
               <span className="truncate">{label}</span>
             </button>
           );

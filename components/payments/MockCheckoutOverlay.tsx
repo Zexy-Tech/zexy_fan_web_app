@@ -22,7 +22,7 @@ export const MockCheckoutOverlay: React.FC<MockCheckoutOverlayProps> = ({
         {/* Header */}
         <div className="bg-zinc-800/50 px-6 py-4 border-b border-zinc-800">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+            <span className="size-2 bg-yellow-500 rounded-full animate-pulse" />
             Payment Simulation
           </h2>
           <p className="text-zinc-400 text-sm mt-1">

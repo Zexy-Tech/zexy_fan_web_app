@@ -14,7 +14,7 @@ export default function LiveListingPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -30,8 +30,8 @@ export default function LiveListingPage() {
   if (!lives || lives.length === 0) {
     return (
       <div className="py-20 text-center space-y-4">
-        <div className="bg-zinc-900 w-20 h-20 rounded-full flex items-center justify-center mx-auto">
-          <Radio className="h-10 w-10 text-zinc-600" />
+        <div className="bg-zinc-900 size-20 rounded-full flex items-center justify-center mx-auto">
+          <Radio className="size-10 text-zinc-600" />
         </div>
         <h2 className="text-lg font-semibold">No one is live right now</h2>
         <p className="text-muted-foreground max-w-xs mx-auto">
@@ -48,7 +48,7 @@ export default function LiveListingPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold flex items-center gap-2">
-          <Radio className="h-6 w-6 text-red-500 animate-pulse" />
+          <Radio className="size-6 text-red-500 animate-pulse" />
           Live Now
         </h1>
         <Badge variant="outline" className="text-muted-foreground">
@@ -81,20 +81,20 @@ export default function LiveListingPage() {
                       LIVE
                     </Badge>
                     <Badge className="bg-black/60 text-white border-none backdrop-blur-sm px-2 py-0.5 text-[10px] flex items-center gap-1">
-                      <Users className="h-3 w-3" />
+                      <Users className="size-3" />
                       {live.viewer_count}
                     </Badge>
                   </div>
 
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="bg-red-500 text-white p-3 rounded-full shadow-xl">
-                      <PlayCircle className="h-8 w-8" />
+                      <PlayCircle className="size-8" />
                     </div>
                   </div>
                 </div>
 
                 <div className="p-4 flex items-center gap-3">
-                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-red-500/20 bg-zinc-800 flex items-center justify-center">
+                  <div className="relative size-10 shrink-0 overflow-hidden rounded-full ring-2 ring-red-500/20 bg-zinc-800 flex items-center justify-center">
                     {live.creator_avatar ? (
                       <Image
                         src={getMediaUrl(live.creator_avatar) || ''}

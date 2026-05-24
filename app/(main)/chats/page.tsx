@@ -31,7 +31,7 @@ export default function ChatsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -41,7 +41,7 @@ export default function ChatsPage() {
       <div className="space-y-6">
         <Card>
           <CardContent className="pt-6 text-center">
-            <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <MessageCircle className="size-12 mx-auto mb-4 text-muted-foreground" />
             <p className="text-muted-foreground">No conversations yet</p>
           </CardContent>
         </Card>
@@ -58,7 +58,7 @@ export default function ChatsPage() {
           className="block cursor-pointer px-4 py-3 transition-colors hover:bg-accent/40"
         >
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden border border-white/5 shadow-sm">
+            <div className="size-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden border border-white/5 shadow-sm">
               {chat.other_user_avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img 
@@ -82,7 +82,7 @@ export default function ChatsPage() {
                   {chat.last_message}
                 </p>
                 {chat.unread_count > 0 && (
-                  <span className="ml-2 flex-shrink-0 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-2 w-2 flex items-center justify-center" />
+                  <span className="ml-2 flex-shrink-0 bg-primary text-primary-foreground text-[10px] font-bold rounded-full size-2 flex items-center justify-center" />
                 )}
               </div>
             </div>

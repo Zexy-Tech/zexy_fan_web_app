@@ -68,7 +68,7 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="size-24 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-lg font-bold text-primary">
                   {creator.name?.charAt(0) || creator.username?.charAt(0) || '?'}
                 </span>
@@ -80,13 +80,13 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
           <div className="absolute top-2 right-2 flex flex-col gap-1.5 items-end">
             {creator.is_live && (
               <Badge className="bg-red-500 hover:bg-red-600 text-white animate-pulse border-none">
-                <Radio className="w-3 h-3 mr-1" />
+                <Radio className="size-3 mr-1" />
                 LIVE
               </Badge>
             )}
             {creator.is_subscribed && (
               <Badge className="bg-green-500 hover:bg-green-600 text-white border-none">
-                <CheckCircle2 className="w-3 h-3 mr-1" />
+                <CheckCircle2 className="size-3 mr-1" />
                 Subscribed
               </Badge>
             )}
@@ -114,7 +114,7 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
           
           {/* Subscriber Count */}
           <div className="flex items-center gap-1 text-xs text-muted-foreground pt-1">
-            <Users className="w-3.5 h-3.5" />
+            <Users className="size-3.5" />
             <span>{formatSubscriberCount(creator.subscriber_count)} subscribers</span>
           </div>
         </div>

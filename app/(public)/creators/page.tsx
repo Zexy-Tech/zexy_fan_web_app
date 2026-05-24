@@ -15,9 +15,13 @@ import { Loader2 } from 'lucide-react';
 import { Creator, CreatorFilters } from '@/services/feed';
 
 export default function CreatorsPage() {
-  const [isChecking, setIsChecking] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   const [filters, setFilters] = useState<CreatorFilters>({});
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const {
     data,
@@ -41,10 +45,6 @@ export default function CreatorsPage() {
 
     return Array.from(dedupe.values());
   }, [data]);
-  
-  useEffect(() => {
-    setIsChecking(false);
-  }, []);
 
   useEffect(() => {
     const node = loadMoreRef.current;
@@ -69,10 +69,10 @@ export default function CreatorsPage() {
   }, []);
   
   // Show loading while checking device
-  if (isChecking) {
+  if (!isMounted) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -103,8 +103,8 @@ export default function CreatorsPage() {
           <div className="py-6 text-center text-sm text-muted-foreground">
             {isFetchingNextPage && (
               <div className="flex items-center justify-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Loading more creators...</span>
+                <Loader2 className="size-4 animate-spin" />
+                <span>Loading more creators…</span>
               </div>
             )}
             {!isFetchingNextPage && hasNextPage && <span>Scroll to load more</span>}

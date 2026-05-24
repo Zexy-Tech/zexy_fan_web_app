@@ -53,7 +53,7 @@ export function CreatorIntroSection({
       {config.showAvatar && (
         <div className="flex justify-center">
           <div
-            className={`relative h-24 w-24 flex items-center justify-center text-white text-lg font-semibold overflow-hidden ${avatarStyleClasses[config.avatarStyle]}`}
+            className={`relative size-24 flex items-center justify-center text-white text-lg font-semibold overflow-hidden ${avatarStyleClasses[config.avatarStyle]}`}
             style={{
               background: 'linear-gradient(to bottom right, var(--profile-gradient-start), var(--profile-gradient-end))',
             }}
@@ -83,7 +83,7 @@ export function CreatorIntroSection({
             className="bg-red-500 hover:bg-red-600 text-white cursor-pointer px-3 py-1 flex items-center gap-1.5 animate-pulse"
             onClick={onLiveClick}
           >
-            <Radio className="h-4 w-4" />
+            <Radio className="size-4" />
             LIVE NOW
           </Badge>
         )}

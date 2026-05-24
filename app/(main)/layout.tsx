@@ -19,7 +19,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full size-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -27,7 +27,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full size-12 border-b-2 border-primary" />
       </div>
     );
   }

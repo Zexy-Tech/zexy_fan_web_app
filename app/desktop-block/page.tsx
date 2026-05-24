@@ -13,8 +13,8 @@ export default function DesktopBlockPage() {
     <div className="min-h-screen bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center p-4">
       <Card className="max-w-md w-full">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-            <Smartphone className="h-8 w-8 text-white" />
+          <div className="mx-auto mb-4 size-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+            <Smartphone className="size-8 text-white" />
           </div>
           <CardTitle className="text-lg">Mobile Only</CardTitle>
         </CardHeader>

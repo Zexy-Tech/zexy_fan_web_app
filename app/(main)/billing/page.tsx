@@ -11,10 +11,12 @@ import { toast } from 'sonner';
 
 export default function BillingPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState<number | null>(null);
 
   useEffect(() => {
+    setIsMounted(true);
     loadTransactions();
   }, []);
 
@@ -41,10 +43,10 @@ export default function BillingPage() {
     }
   };
 
-  if (isLoading) {
+  if (!isMounted || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+        <Loader2 className="size-3 animate-spin text-purple-500" />
       </div>
     );
   }
@@ -53,10 +55,10 @@ export default function BillingPage() {
     <div className="max-w-3xl mx-auto p-4 space-y-6">
       <div className="flex items-center gap-3">
         <div className="p-3 rounded-2xl bg-purple-600/20 text-purple-500">
-           <Receipt className="h-6 w-6" />
+           <Receipt className="size-6" />
         </div>
         <div>
-          <h1 className="text-lg font-bold">Billing & Invoices</h1>
+          <h1 className="text-lg font-semibold">Billing & Invoices</h1>
           <p className="text-zinc-400 text-sm">Manage your payments and download receipts</p>
         </div>
       </div>
@@ -65,7 +67,7 @@ export default function BillingPage() {
         {transactions.length === 0 ? (
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardContent className="py-12 text-center">
-              <CreditCard className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
+              <CreditCard className="size-12 text-zinc-700 mx-auto mb-4" />
               <p className="text-zinc-500">No payment history found</p>
             </CardContent>
           </Card>
@@ -101,9 +103,9 @@ export default function BillingPage() {
                       disabled={isDownloading === tx.id}
                     >
                       {isDownloading === tx.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <Loader2 className="size-3 animate-spin" />
                       ) : (
-                        <Download className="h-3 w-3" />
+                        <Download className="size-3" />
                       )}
                       Invoice
                     </Button>

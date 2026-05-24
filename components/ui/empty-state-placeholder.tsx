@@ -16,8 +16,8 @@ export function EmptyStatePlaceholder({
     <div className="flex min-h-[220px] items-center justify-center">
       <Card className="w-full max-w-md">
         <CardContent className="pt-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <Icon className="h-6 w-6 text-muted-foreground" />
+          <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-muted">
+            <Icon className="size-6 text-muted-foreground" />
           </div>
           <p className="font-medium text-foreground">{title}</p>
           {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}

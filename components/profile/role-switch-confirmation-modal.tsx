@@ -28,8 +28,8 @@ export function RoleSwitchConfirmationModal({
         <Card className="border-white/10 bg-zinc-950 text-white shadow-2xl">
           <CardContent className="p-6">
             <div className="flex flex-col items-center text-center space-y-4">
-              <div className="h-12 w-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                <AlertCircle className="h-6 w-6 text-amber-500" />
+              <div className="size-12 rounded-full bg-amber-500/10 flex items-center justify-center">
+                <AlertCircle className="size-6 text-amber-500" />
               </div>
               
               <div className="space-y-2">
@@ -56,7 +56,7 @@ export function RoleSwitchConfirmationModal({
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 size-4 animate-spin" />
                       Switching...
                     </>
                   ) : (

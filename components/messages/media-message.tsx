@@ -80,7 +80,7 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
       >
         {loading ? (
           <div className="flex items-center gap-2 py-6 px-10 opacity-90">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
             <span className="text-xs">Loading…</span>
           </div>
         ) : failed ? (
@@ -115,11 +115,11 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
                 >
                   <button
                     type="button"
-                    className="absolute -top-3 -right-3 h-10 w-10 rounded-full bg-background/90 border border-border shadow flex items-center justify-center"
+                    className="absolute -top-3 -right-3 size-10 rounded-full bg-background/90 border border-border shadow flex items-center justify-center"
                     onClick={() => setViewerOpen(false)}
                     aria-label="Close image viewer"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="size-5" />
                   </button>
                   <Image
                     src={urlToUse}
@@ -164,8 +164,8 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
                 ) : null}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/60" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-14 w-14 rounded-full bg-black/60 border border-white/20 flex items-center justify-center">
-                    <Play className="h-7 w-7 text-white" />
+                  <div className="size-14 rounded-full bg-black/60 border border-white/20 flex items-center justify-center">
+                    <Play className="size-7 text-white" />
                   </div>
                 </div>
               </div>
@@ -183,11 +183,11 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
                 >
                   <button
                     type="button"
-                    className="absolute -top-3 -right-3 h-10 w-10 rounded-full bg-background/90 border border-border shadow flex items-center justify-center"
+                    className="absolute -top-3 -right-3 size-10 rounded-full bg-background/90 border border-border shadow flex items-center justify-center"
                     onClick={() => setVideoOpen(false)}
                     aria-label="Close video player"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="size-5" />
                   </button>
                   <video
                     src={urlToUse}
@@ -213,8 +213,8 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
               disabled={!urlToUse}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className={cn('h-10 w-10 rounded-full flex items-center justify-center', mine ? 'bg-white/15' : 'bg-muted')}>
-                  <Volume2 className={cn('h-5 w-5', mine ? 'text-white' : 'text-foreground')} />
+                <div className={cn('size-10 rounded-full flex items-center justify-center', mine ? 'bg-white/15' : 'bg-muted')}>
+                  <Volume2 className={cn('size-5', mine ? 'text-white' : 'text-foreground')} />
                 </div>
                 <div className="min-w-0 text-left">
                   <p className={cn('text-sm font-semibold leading-tight', mine ? 'text-white' : 'text-foreground')}>
@@ -240,11 +240,11 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
                 >
                   <button
                     type="button"
-                    className="absolute -top-3 -right-3 h-10 w-10 rounded-full bg-background border border-border shadow flex items-center justify-center"
+                    className="absolute -top-3 -right-3 size-10 rounded-full bg-background border border-border shadow flex items-center justify-center"
                     onClick={() => setAudioOpen(false)}
                     aria-label="Close audio player"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="size-5" />
                   </button>
                   <p className="font-semibold mb-2">Audio message</p>
                   <audio src={urlToUse} controls autoPlay className="w-full" />

@@ -92,7 +92,7 @@ export function Header() {
                 onClick={() => router.back()}
                 className="shrink-0"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="size-5" />
               </Button>
 
               <div className="pointer-events-none absolute left-1/2 -translate-x-1/2">
@@ -106,7 +106,7 @@ export function Header() {
                 onClick={() => setIsDrawerOpen(true)}
                 className="shrink-0"
               >
-                <Menu className="h-5 w-5" />
+                <Menu className="size-5" />
               </Button>
             </>
           ) : (
@@ -118,7 +118,7 @@ export function Header() {
                   width={28}
                   height={28}
                   priority
-                  className="h-7 w-7 object-contain"
+                  className="size-7 object-contain"
                 />
               </Link>
 
@@ -132,7 +132,7 @@ export function Header() {
                 aria-label="Open menu"
                 onClick={() => setIsDrawerOpen(true)}
               >
-                <Menu className="h-5 w-5" />
+                <Menu className="size-5" />
               </Button>
             </>
           )}
@@ -161,7 +161,7 @@ export function Header() {
               alt="Zexy logo"
               width={24}
               height={24}
-              className="h-6 w-6 object-contain"
+              className="size-6 object-contain"
             />
             <span className="text-sm font-semibold tracking-[0.15em]">ZEXY</span>
           </div>
@@ -171,7 +171,7 @@ export function Header() {
             aria-label="Close menu"
             onClick={() => setIsDrawerOpen(false)}
           >
-            <X className="h-5 w-5" />
+            <X className="size-5" />
           </Button>
           </div>
 
@@ -196,7 +196,7 @@ export function Header() {
                   isActive ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="size-4" />
                 <span>{item.label}</span>
               </Link>
             );
@@ -214,7 +214,7 @@ export function Header() {
               }}
               disabled={logout.isPending}
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="size-4" />
               Logout
             </Button>
           </div>

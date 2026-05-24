@@ -156,10 +156,10 @@ export function VideoPlayer({
       {/* Center States */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         {isLoading ? (
-          <Loader2 className="w-12 h-12 text-white animate-spin" />
+          <Loader2 className="size-12 text-white animate-spin" />
         ) : !isPlaying && showControls ? (
-          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white ring-4 ring-white/10">
-            <Play className="w-8 h-8 fill-current translate-x-0.5" />
+          <div className="size-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white ring-4 ring-white/10">
+            <Play className="size-8 fill-current translate-x-0.5" />
           </div>
         ) : null}
       </div>
@@ -190,13 +190,13 @@ export function VideoPlayer({
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/20 h-9 w-9"
+              className="text-white hover:bg-white/20 size-9"
               onClick={togglePlay}
             >
               {isPlaying ? (
-                <Pause className="w-5 h-5 fill-current" />
+                <Pause className="size-5 fill-current" />
               ) : (
-                <Play className="w-5 h-5 fill-current" />
+                <Play className="size-5 fill-current" />
               )}
             </Button>
 
@@ -204,13 +204,13 @@ export function VideoPlayer({
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20 h-9 w-9"
+                className="text-white hover:bg-white/20 size-9"
                 onClick={toggleMute}
               >
                 {isMuted || volume === 0 ? (
-                  <VolumeX className="w-5 h-5" />
+                  <VolumeX className="size-5" />
                 ) : (
-                  <Volume2 className="w-5 h-5" />
+                  <Volume2 className="size-5" />
                 )}
               </Button>
               <div className="w-0 overflow-hidden group-hover/volume:w-20 transition-all duration-300">
@@ -237,28 +237,28 @@ export function VideoPlayer({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/20 h-9 w-9"
+                  className="text-white hover:bg-white/20 size-9"
                   onClick={() => skip(-10)}
                 >
-                  <RotateCcw className="h-5 w-5" />
+                  <RotateCcw className="size-5" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/20 h-9 w-9"
+                  className="text-white hover:bg-white/20 size-9"
                   onClick={() => skip(10)}
                 >
-                  <RotateCw className="h-5 w-5" />
+                  <RotateCw className="size-5" />
                 </Button>
               </>
             )}
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/20 h-9 w-9"
+              className="text-white hover:bg-white/20 size-9"
               onClick={toggleFullscreen}
             >
-              <Maximize className="h-5 w-5" />
+              <Maximize className="size-5" />
             </Button>
           </div>
         </div>

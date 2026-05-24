@@ -35,7 +35,7 @@ function MembershipRow({
       className="-mx-4 block border-b border-border px-4 py-4 transition-colors last:border-b-0 hover:bg-accent/40 sm:-mx-0 sm:px-0"
     >
       <div className="flex gap-3">
-        <div className="flex h-14 w-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
+        <div className="flex size-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
@@ -92,7 +92,7 @@ export default function MembershipPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden />
+        <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden />
       </div>
     );
   }

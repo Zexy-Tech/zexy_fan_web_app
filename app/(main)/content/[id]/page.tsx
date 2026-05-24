@@ -20,7 +20,7 @@ export default function ContentDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -39,7 +39,7 @@ export default function ContentDetailPage() {
     <div className="space-y-6">
       <Link href="/creators">
         <Button variant="ghost" size="sm">
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="mr-2 size-4" />
           Back to Creators
         </Button>
       </Link>
@@ -47,7 +47,7 @@ export default function ContentDetailPage() {
       <Card className="overflow-hidden">
         <CardHeader>
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+            <div className="size-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold overflow-hidden">
               {content.creator_avatar ? (
                 <img 
                   src={getMediaUrl(content.creator_avatar) || ''} 
@@ -77,7 +77,7 @@ export default function ContentDetailPage() {
             {content.is_locked ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md">
                 <div className="p-4 bg-white/10 rounded-full mb-4">
-                   <Bookmark className="h-10 w-10 text-white animate-pulse" />
+                   <Bookmark className="size-10 text-white animate-pulse" />
                 </div>
                 <p className="text-white text-lg font-semibold mb-1">Content Locked</p>
                 <p className="text-white/60 text-sm max-w-[200px] text-center">Please join this creator to unlock this premium content.</p>
@@ -110,7 +110,7 @@ export default function ContentDetailPage() {
               onClick={() => likeMutation.mutate({ contentId: content.id, liked: !content.is_liked })}
               disabled={likeMutation.isPending}
             >
-              <Heart className={cn("h-5 w-5", content.is_liked && "fill-current")} />
+              <Heart className={cn("size-5", content.is_liked && "fill-current")} />
               <span className="font-semibold">{content.likes_count || 0}</span>
             </Button>
 
@@ -121,19 +121,19 @@ export default function ContentDetailPage() {
               onClick={() => saveMutation.mutate({ contentId: content.id, saved: !content.is_saved })}
               disabled={saveMutation.isPending}
             >
-              <Bookmark className={cn("h-5 w-5", content.is_saved && "fill-current")} />
+              <Bookmark className={cn("size-5", content.is_saved && "fill-current")} />
               <span className="font-semibold">{content.saves_count || 0}</span>
             </Button>
 
             <Button variant="ghost" size="sm" className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5" />
+              <MessageCircle className="size-5" />
               <span className="font-semibold">0</span>
             </Button>
 
             <div className="flex-1" />
 
             <Button variant="ghost" size="icon" className="hover:bg-accent/50">
-              <Share2 className="h-5 w-5" />
+              <Share2 className="size-5" />
             </Button>
           </div>
 

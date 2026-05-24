@@ -22,7 +22,7 @@ function HollowBadge({
       className="inline-flex items-center gap-1 rounded-full border border-border bg-transparent px-2 py-0.5 text-[11px] text-muted-foreground"
       title={label}
     >
-      <Icon className="h-3 w-3 shrink-0" aria-hidden />
+      <Icon className="size-3 shrink-0" aria-hidden />
       <span className="tabular-nums font-medium">{count}</span>
     </span>
   );
@@ -35,7 +35,7 @@ function SubscribedCreatorRow({ sub }: { sub: ActiveSubscription }) {
     <div className="-mx-4 border-b border-border px-4 py-4 last:border-b-0 sm:-mx-0 sm:px-0">
       <div className="flex gap-3">
         <Link href={`/creator/${sub.creator_username}`} className="flex min-w-0 flex-1 gap-3">
-          <div className="flex h-14 w-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
+          <div className="flex size-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
@@ -58,10 +58,10 @@ function SubscribedCreatorRow({ sub }: { sub: ActiveSubscription }) {
 
         <Link
           href="/chats"
-          className="flex h-10 w-10 shrink-0 items-center justify-center self-start rounded-full border border-border bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="flex size-10 shrink-0 items-center justify-center self-start rounded-full border border-border bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           aria-label={`Chat with ${sub.creator_name}`}
         >
-          <MessageCircle className="h-5 w-5" strokeWidth={1.75} />
+          <MessageCircle className="size-5" strokeWidth={1.75} />
         </Link>
       </div>
     </div>
@@ -84,7 +84,7 @@ export default function MyCreatorsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden />
+        <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden />
       </div>
     );
   }
@@ -101,7 +101,7 @@ export default function MyCreatorsPage() {
     <div className="-mt-2 space-y-4">
       <div className="relative">
         <Search
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
           aria-hidden
         />
         <Input

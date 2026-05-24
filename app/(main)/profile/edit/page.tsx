@@ -150,7 +150,7 @@ export default function EditProfilePage() {
     <div className="-mt-2 space-y-6">
       {isLoading ? (
         <div className="flex items-center justify-center gap-3 py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden />
+          <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden />
           <span className="text-sm text-muted-foreground">Loading…</span>
         </div>
       ) : isError ? (
@@ -170,7 +170,7 @@ export default function EditProfilePage() {
                 <button
                   type="button"
                   onClick={() => setAvatarMenuOpen((v) => !v)}
-                  className="relative h-28 w-28 shrink-0 rounded-full bg-muted ring-offset-background transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="relative size-28 shrink-0 rounded-full bg-muted ring-offset-background transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   aria-haspopup="menu"
                   aria-expanded={avatarMenuOpen}
                   aria-label="Change profile photo"
@@ -190,10 +190,10 @@ export default function EditProfilePage() {
                     )}
                   </span>
                   <span
-                    className="pointer-events-none absolute bottom-0 right-0 z-10 flex h-9 w-9 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-md"
+                    className="pointer-events-none absolute bottom-0 right-0 z-10 flex size-9 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-md"
                     aria-hidden
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="size-4" />
                   </span>
                 </button>
                 {avatarMenuOpen ? (
@@ -353,7 +353,7 @@ export default function EditProfilePage() {
               >
                 {updateProfile.isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                    <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
                     Saving…
                   </>
                 ) : (

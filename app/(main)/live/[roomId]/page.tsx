@@ -196,12 +196,12 @@ export default function MockLiveRoomPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-black flex items-center justify-center">
             {broadcasterExists ? (
               <div className="text-center space-y-4">
-                <Loader2 className="h-12 w-12 text-red-500 mx-auto animate-spin" />
+                <Loader2 className="size-12 text-red-500 mx-auto animate-spin" />
                 <p className="text-lg font-medium text-zinc-400">Tuning in...</p>
               </div>
             ) : (
               <div className="text-center space-y-4">
-                <Radio className="h-20 w-20 text-zinc-700 mx-auto" />
+                <Radio className="size-20 text-zinc-700 mx-auto" />
                 <p className="text-lg font-medium text-zinc-400">Off Air</p>
                 <p className="text-sm text-zinc-500 italic">Waiting for signal...</p>
               </div>
@@ -212,30 +212,30 @@ export default function MockLiveRoomPage() {
         {/* Overlays */}
         <div className="absolute top-4 left-4 flex gap-2">
           <Badge className={`${connected ? 'bg-red-500' : 'bg-zinc-600'} text-white border-none px-2 py-1 flex items-center gap-1`}>
-            <Radio className={`h-3 w-3 ${connected ? 'animate-pulse' : ''}`} />
+            <Radio className={`size-3 ${connected ? 'animate-pulse' : ''}`} />
             {connected ? 'LIVE' : 'WAITING'}
           </Badge>
           <Badge variant="secondary" className="bg-black/50 text-white border-none backdrop-blur-md flex items-center gap-1">
-            <Users className="h-3 w-3" />
+            <Users className="size-3" />
             {viewers}
           </Badge>
         </div>
 
         <button 
           onClick={() => router.back()}
-          className="absolute top-4 right-4 h-10 w-10 bg-black/50 rounded-full flex items-center justify-center text-white backdrop-blur-md hover:bg-black/70"
+          className="absolute top-4 right-4 size-10 bg-black/50 rounded-full flex items-center justify-center text-white backdrop-blur-md hover:bg-black/70"
         >
-          <X className="h-6 w-6" />
+          <X className="size-6" />
         </button>
 
         <div className="absolute bottom-6 left-4 right-4 md:hidden">
             <div className="flex gap-2">
                  <Button className="flex-1 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 rounded-full">
-                    <Heart className="h-5 w-5 mr-2" />
+                    <Heart className="size-5 mr-2" />
                     Like
                  </Button>
                  <Button className="flex-1 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 rounded-full">
-                    <MessageSquare className="h-5 w-5 mr-2" />
+                    <MessageSquare className="size-5 mr-2" />
                     Tip
                  </Button>
             </div>
@@ -266,7 +266,7 @@ export default function MockLiveRoomPage() {
             onChange={(e) => setNewMessage(e.target.value)}
           />
           <Button type="submit" size="icon" className="shrink-0 rounded-full">
-            <Send className="h-4 w-4" />
+            <Send className="size-4" />
           </Button>
         </form>
       </div>
