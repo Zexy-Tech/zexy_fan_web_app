@@ -6,9 +6,10 @@ import { useSendOTP, useVerifyOTP, useLoginWithPIN } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Instagram, Twitter, Facebook } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AxiosError } from 'axios';
+import Image from 'next/image';
 
 function safeInternalPath(raw: string | null): string | null {
   if (!raw || !raw.startsWith('/')) return null;
@@ -151,19 +152,30 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4 font-inter">
       <div className="w-full max-w-[400px] space-y-10">
-        <div className="flex flex-col items-center text-center space-y-3">
-          <div className="size-20 bg-[#8c3df1] rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(140,61,241,0.3)]">
-            <span className="text-2xl font-bold text-white">z</span>
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="size-24 bg-[#8c3df1] rounded-[2rem] flex items-center justify-center mb-2 shadow-[0_0_40px_rgba(140,61,241,0.5)] relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <Image 
+              src="/zexy_z_letter_logo_nobg.png" 
+              alt="Zexy logo" 
+              width={64} 
+              height={64} 
+              priority
+              className="object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.6)] scale-90 group-hover:scale-105 transition-transform duration-500"
+            />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Welcome to Zexy</h1>
-          <p className="text-zinc-400 text-sm">
-            Enter your mobile number to get started
-          </p>
+          <div className="space-y-1">
+            <h1 className="text-4xl font-black tracking-[-0.05em] uppercase italic bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Zexy</h1>
+            <p className="text-zinc-400 text-xs font-bold uppercase tracking-[0.4em] opacity-80">
+              {step === 'phone' ? 'Premium Creator Hub' : step === 'pin' ? 'Security Check' : 'Verification'}
+            </p>
+          </div>
         </div>
 
-        <Card className="border-zinc-800/50 bg-[#121214] shadow-2xl">
+        <Card className="border-zinc-800/50 bg-[#121214]/80 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden relative group">
+          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#8c3df1] to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
           <CardContent className="p-8">
             {step === 'phone' ? (
               <form onSubmit={handleSendOTP} className="space-y-8">
@@ -178,7 +190,7 @@ function LoginPageContent() {
                     <div className="flex-1 relative group">
                       <input
                         type="tel"
-                        placeholder="777777777777777777777"
+                        placeholder="9876543210"
                         value={mobile}
                         onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
                         disabled={sendOTP.isPending}
@@ -192,7 +204,7 @@ function LoginPageContent() {
                   <Button 
                     type="submit" 
                     className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl transition-all active:scale-[0.98] text-base" 
-                    disabled={sendOTP.isPending || mobile.length < 10}
+                    disabled={sendOTP.isPending || !validateMobile(mobile)}
                   >
                     {sendOTP.isPending ? (
                       <Loader2 className="size-5 animate-spin" />
@@ -329,6 +341,50 @@ function LoginPageContent() {
             )}
           </CardContent>
         </Card>
+
+        {/* Social Media Links */}
+        <div className="flex flex-col items-center gap-6 pt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+          <div className="flex items-center gap-4 w-full">
+            <div className="h-px flex-1 bg-zinc-800/50" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">Connect with us</span>
+            <div className="h-px flex-1 bg-zinc-800/50" />
+          </div>
+          
+          <div className="flex items-center gap-6">
+            <a 
+              href="https://instagram.com/zexy.live" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5 group"
+            >
+              <Instagram className="size-5 group-hover:scale-110 transition-transform" />
+            </a>
+            <a 
+              href="https://twitter.com/zexylive" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5 group"
+            >
+              <Twitter className="size-5 group-hover:scale-110 transition-transform" />
+            </a>
+            <a 
+              href="https://facebook.com/zexylive" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5 group"
+            >
+              <Facebook className="size-5 group-hover:scale-110 transition-transform" />
+            </a>
+          </div>
+
+          <div className="flex items-center gap-4 text-[10px] font-bold tracking-widest text-zinc-500 uppercase opacity-60">
+             <a href="https://zexy.live/privacy-policy" className="hover:text-zinc-300 transition-colors">Privacy</a>
+             <div className="size-1 rounded-full bg-zinc-800" />
+             <a href="https://zexy.live/terms-of-service" className="hover:text-zinc-300 transition-colors">Terms</a>
+             <div className="size-1 rounded-full bg-zinc-800" />
+             <span className="cursor-default">© 2026 ZEXY</span>
+          </div>
+        </div>
       </div>
     </div>
   );
