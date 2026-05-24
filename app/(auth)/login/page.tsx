@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useSendOTP, useVerifyOTP, useLoginWithPIN } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,8 +18,7 @@ function safeInternalPath(raw: string | null): string | null {
 }
 
 function LoginPageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { push } = useRouter();
   const [step, setStep] = useState<'phone' | 'otp' | 'pin'>('phone');
   const [mobile, setMobile] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -27,9 +26,9 @@ function LoginPageContent() {
   const [pin, setPin] = useState(['', '', '', '']);
   const pinInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const sendOTP = useSendOTP();
-  const verifyOTP = useVerifyOTP();
-  const loginWithPIN = useLoginWithPIN();
+  const { mutateAsync: sendOTPMutate, isPending: sendOTPPending } = useSendOTP();
+  const { mutateAsync: verifyOTPMutate, isPending: verifyOTPPending } = useVerifyOTP();
+  const { mutateAsync: loginWithPINMutate, isPending: loginWithPINPending } = useLoginWithPIN();
 
   const validateMobile = (phone: string) => {
     return /^[6-9]\d{9}$/.test(phone);
@@ -44,7 +43,7 @@ function LoginPageContent() {
     }
 
     try {
-      const response = await sendOTP.mutateAsync({ mobile, role: 'fan' });
+      const response = await sendOTPMutate({ mobile, role: 'fan' });
       if (response.auth_method === 'pin') {
         setStep('pin');
         toast.success('Please enter your PIN');
@@ -58,24 +57,25 @@ function LoginPageContent() {
     }
   };
 
-  const handleVerifyOTP = async (e?: React.FormEvent) => {
+  const handleVerifyOTP = async (e?: React.FormEvent, manualCode?: string) => {
     e?.preventDefault();
-    const otpCode = otp.join('');
+    const otpCode = manualCode || otp.join('');
 
     if (otpCode.length !== 4) {
-      toast.error('Please enter a valid 4-digit OTP');
+      if (!manualCode) toast.error('Please enter a valid 4-digit OTP');
       return;
     }
 
     try {
-      const response = await verifyOTP.mutateAsync({ mobile, otp: otpCode, role: 'fan' });
+      const response = await verifyOTPMutate({ mobile, otp: otpCode, role: 'fan' });
       toast.success('Login successful!');
       
       if (response.is_new_user) {
-        router.push('/pin-setup');
+        push('/pin-setup');
       } else {
-        const next = safeInternalPath(searchParams.get('next'));
-        router.push(next ?? '/feed');
+        const params = new URLSearchParams(window.location.search);
+        const next = safeInternalPath(params.get('next'));
+        push(next ?? '/feed');
       }
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ error?: { message?: string } }>;
@@ -85,20 +85,21 @@ function LoginPageContent() {
     }
   };
 
-  const handleVerifyPIN = async (e?: React.FormEvent) => {
+  const handleVerifyPIN = async (e?: React.FormEvent, manualCode?: string) => {
     e?.preventDefault();
-    const pinCode = pin.join('');
+    const pinCode = manualCode || pin.join('');
 
     if (pinCode.length !== 4) {
-      toast.error('Please enter your 4-digit PIN');
+      if (!manualCode) toast.error('Please enter your 4-digit PIN');
       return;
     }
 
     try {
-      await loginWithPIN.mutateAsync({ mobile, pin: pinCode, role: 'fan' });
+      await loginWithPINMutate({ mobile, pin: pinCode, role: 'fan' });
       toast.success('Login successful!');
-      const next = safeInternalPath(searchParams.get('next'));
-      router.push(next ?? '/feed');
+      const params = new URLSearchParams(window.location.search);
+      const next = safeInternalPath(params.get('next'));
+      push(next ?? '/feed');
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ error?: { message?: string } }>;
       toast.error(axiosError.response?.data?.error?.message || 'Invalid PIN');
@@ -120,9 +121,10 @@ function LoginPageContent() {
     }
 
     if (newOtp.every(d => d !== '') && digit) {
-      setTimeout(() => {
-        if (newOtp.join('').length === 4) handleVerifyOTP();
-      }, 300);
+      const code = newOtp.join('');
+      if (code.length === 4) {
+        setTimeout(() => handleVerifyOTP(undefined, code), 100);
+      }
     }
   };
 
@@ -139,36 +141,37 @@ function LoginPageContent() {
     }
 
     if (newPin.every(d => d !== '') && digit) {
-      setTimeout(() => {
-        if (newPin.join('').length === 4) handleVerifyPIN();
-      }, 300);
+      const code = newPin.join('');
+      if (code.length === 4) {
+        setTimeout(() => handleVerifyPIN(undefined, code), 100);
+      }
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number, isOtp: boolean) => {
     if (e.key === 'Backspace' && (isOtp ? !otp[index] : !pin[index]) && index > 0) {
-      (isOtp ? otpInputRefs : pinInputRefs).current[index - 1]?.focus();
+      const refs = isOtp ? otpInputRefs : pinInputRefs;
+      refs.current[index - 1]?.focus();
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4 font-inter">
       <div className="w-full max-w-[400px] space-y-10">
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="size-24 bg-[#8c3df1] rounded-[2rem] flex items-center justify-center mb-2 shadow-[0_0_40px_rgba(140,61,241,0.5)] relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="flex flex-col items-center text-center gap-4">
+          <div className="size-24 flex items-center justify-center mb-2 relative overflow-hidden group">
             <Image 
               src="/zexy_z_letter_logo_nobg.png" 
               alt="Zexy logo" 
-              width={64} 
-              height={64} 
+              width={80} 
+              height={80} 
               priority
-              className="object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.6)] scale-90 group-hover:scale-105 transition-transform duration-500"
+              className="object-contain drop-shadow-[0_0_15px_rgba(140,61,241,0.3)] group-hover:scale-110 transition-transform duration-500"
             />
           </div>
-          <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-[-0.05em] uppercase italic bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Zexy</h1>
-            <p className="text-zinc-400 text-xs font-bold uppercase tracking-[0.4em] opacity-80">
+          <div className="flex flex-col gap-3">
+            <h1 className="text-3xl font-black tracking-[0.1em] uppercase italic bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">ZEXY</h1>
+            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.5em] pl-[0.5em]">
               {step === 'phone' ? 'Premium Creator Hub' : step === 'pin' ? 'Security Check' : 'Verification'}
             </p>
           </div>
@@ -178,9 +181,9 @@ function LoginPageContent() {
           <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#8c3df1] to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
           <CardContent className="p-8">
             {step === 'phone' ? (
-              <form onSubmit={handleSendOTP} className="space-y-8">
-                <div className="space-y-4">
-                  <label className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">
+              <form onSubmit={handleSendOTP} className="flex flex-col gap-8">
+                <div className="flex flex-col gap-4">
+                  <label htmlFor="mobile-input" className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">
                     Mobile Number
                   </label>
                   <div className="flex gap-3">
@@ -189,13 +192,13 @@ function LoginPageContent() {
                     </div>
                     <div className="flex-1 relative group">
                       <input
+                        id="mobile-input"
                         type="tel"
                         placeholder="9876543210"
                         value={mobile}
                         onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                        disabled={sendOTP.isPending}
+                        disabled={sendOTPPending}
                         className="w-full h-14 bg-[#1c1c1f] border-2 border-[#8c3df1] rounded-xl px-4 text-lg font-medium text-white focus:outline-none focus:ring-2 focus:ring-[#8c3df1]/50 placeholder:text-zinc-700"
-                        autoFocus
                       />
                     </div>
                   </div>
@@ -204,9 +207,9 @@ function LoginPageContent() {
                   <Button 
                     type="submit" 
                     className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl transition-all active:scale-[0.98] text-base" 
-                    disabled={sendOTP.isPending || !validateMobile(mobile)}
+                    disabled={sendOTPPending || !validateMobile(mobile)}
                   >
-                    {sendOTP.isPending ? (
+                    {sendOTPPending ? (
                       <Loader2 className="size-5 animate-spin" />
                     ) : (
                       'Continue'
@@ -215,8 +218,8 @@ function LoginPageContent() {
                 </div>
               </form>
             ) : step === 'pin' ? (
-              <form onSubmit={handleVerifyPIN} className="space-y-8">
-                <div className="space-y-6">
+              <form onSubmit={handleVerifyPIN} className="flex flex-col gap-8">
+                <div className="flex flex-col gap-6">
                   <div className="flex justify-between items-center">
                     <label className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">
                       Your PIN
@@ -233,32 +236,32 @@ function LoginPageContent() {
                   <div className="flex justify-between gap-4">
                     {pin.map((digit, index) => (
                       <input
-                        key={index}
+                        key={`pin-input-${index}`}
                         ref={(el) => { pinInputRefs.current[index] = el; }}
                         type="password"
                         inputMode="numeric"
                         value={digit}
+                        aria-label={`PIN digit ${index + 1}`}
                         onChange={(e) => handlePinChange(e.target.value, index)}
                         onKeyDown={(e) => handleKeyDown(e, index, false)}
                         className={cn(
                           "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none transition-all",
                           digit && "border-[#8c3df1] bg-[#1c1c1f]"
                         )}
-                        disabled={loginWithPIN.isPending}
+                        disabled={loginWithPINPending}
                         maxLength={1}
-                        autoFocus={index === 0}
                       />
                     ))}
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-2">
+                <div className="flex flex-col gap-4 pt-2">
                   <Button 
                     type="submit" 
                     className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl transition-all active:scale-[0.98] text-base" 
-                    disabled={loginWithPIN.isPending || pin.join('').length < 4}
+                    disabled={loginWithPINPending || pin.join('').length < 4}
                   >
-                    {loginWithPIN.isPending ? (
+                    {loginWithPINPending ? (
                       <Loader2 className="size-5 animate-spin" />
                     ) : (
                       'Login'
@@ -269,7 +272,7 @@ function LoginPageContent() {
                     <button 
                       type="button" 
                       className="text-sm text-zinc-500 hover:text-purple-400 transition-colors"
-                      onClick={() => router.push(`/pin-reset?mobile=${mobile}`)}
+                      onClick={() => push(`/pin-reset?mobile=${mobile}`)}
                     >
                       Forgot PIN? <span className="text-purple-400 font-medium underline underline-offset-4">Reset here</span>
                     </button>
@@ -277,8 +280,8 @@ function LoginPageContent() {
                 </div>
               </form>
             ) : (
-              <form onSubmit={handleVerifyOTP} className="space-y-8">
-                <div className="space-y-6">
+              <form onSubmit={handleVerifyOTP} className="flex flex-col gap-8">
+                <div className="flex flex-col gap-6">
                   <div className="flex justify-between items-center">
                     <label className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">
                       Security Code
@@ -295,32 +298,33 @@ function LoginPageContent() {
                   <div className="flex justify-between gap-4">
                     {otp.map((digit, index) => (
                       <input
-                        key={index}
+                        key={`otp-input-${index}`}
                         ref={(el) => { otpInputRefs.current[index] = el; }}
                         type="text"
                         inputMode="numeric"
                         autoComplete="one-time-code"
                         value={digit}
+                        aria-label={`OTP digit ${index + 1}`}
                         onChange={(e) => handleOtpChange(e.target.value, index)}
                         onKeyDown={(e) => handleKeyDown(e, index, true)}
                         className={cn(
                           "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none transition-all",
                           digit && "border-[#8c3df1] bg-[#1c1c1f]"
                         )}
-                        disabled={verifyOTP.isPending}
+                        disabled={verifyOTPPending}
                         maxLength={1}
                       />
                     ))}
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-2">
+                <div className="flex flex-col gap-4 pt-2">
                   <Button 
                     type="submit" 
                     className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl transition-all active:scale-[0.98] text-base" 
-                    disabled={verifyOTP.isPending || otp.join('').length < 4}
+                    disabled={verifyOTPPending || otp.join('').length < 4}
                   >
-                    {verifyOTP.isPending ? (
+                    {verifyOTPPending ? (
                       <Loader2 className="size-5 animate-spin" />
                     ) : (
                       'Verify & Continue'

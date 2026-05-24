@@ -11,10 +11,11 @@ import { toast } from 'sonner';
 function PaymentConfirmationContent() {
   const searchParams = useSearchParams();
   const { push, back } = useRouter();
-  const verifyPayment = useVerifyPayment();
+  const { mutateAsync: verifyPaymentMutate } = useVerifyPayment();
   
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [errorMsg, setErrorMsg] = useState('');
+  const hasVerified = useRef(false);
 
   const orderId = searchParams.get('order_id');
   const paymentId = searchParams.get('payment_id');
@@ -22,6 +23,9 @@ function PaymentConfirmationContent() {
 
   useEffect(() => {
     async function verify() {
+      if (hasVerified.current || status !== 'verifying') return;
+      hasVerified.current = true;
+
       if (!orderId || !paymentId) {
         setStatus('error');
         setErrorMsg('Missing payment information.');
@@ -35,7 +39,7 @@ function PaymentConfirmationContent() {
       }
 
       try {
-        await verifyPayment.mutateAsync({
+        await verifyPaymentMutate({
           gateway_order_id: orderId,
           gateway_payment_id: paymentId,
           gateway_signature: 'sig_mock_' + Date.now(), // Mock signature for now
@@ -50,7 +54,7 @@ function PaymentConfirmationContent() {
     }
 
     verify();
-  }, [orderId, paymentId, gatewayStatus, verifyPayment]);
+  }, [orderId, paymentId, gatewayStatus, verifyPaymentMutate, status]);
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-4">
