@@ -380,6 +380,39 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
               </Badge>
             )}
 
+            {/* Subscribe / Message Button */}
+            <div className="mt-4 flex justify-center">
+              {!isMember ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isAuthenticated) {
+                      setIsLoginOpen(true);
+                    } else {
+                      setIsMembershipOpen(true);
+                    }
+                  }}
+                  className="rounded-full bg-pink-500 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition-all hover:bg-pink-600 active:scale-95"
+                >
+                  Subscribe
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (creator?.id) {
+                      router.push(`/chats/${creator.id}`);
+                    }
+                  }}
+                  className="rounded-full bg-white/10 border border-white/10 px-8 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-white/20 active:scale-95"
+                >
+                  Message
+                </button>
+              )}
+            </div>
+
             {/* Social icons row */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
               {social.map(({ button, kind, label }, idx) => {
