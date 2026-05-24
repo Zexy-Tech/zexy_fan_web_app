@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useVerifyPayment } from '@/hooks/usePayment';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
