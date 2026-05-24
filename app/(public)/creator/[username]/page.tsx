@@ -1,3 +1,6 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Zexy", description: "Production-grade creator monetization platform" };
 /**
  * Public Creator Profile Page
  * 
