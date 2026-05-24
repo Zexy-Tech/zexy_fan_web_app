@@ -10,7 +10,7 @@ export function Footer() {
 
   return (
     <>
-      <footer className="mt-8 border-t border-white/10 bg-black text-white">
+      <footer className="border-t border-white/10 bg-black text-white">
         <div className="container mx-auto px-4 py-8">
           <div className="mx-auto flex max-w-md flex-col items-center">
             <div className="relative mb-4 flex h-11 w-16 items-center justify-center">

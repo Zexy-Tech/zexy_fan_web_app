@@ -453,7 +453,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
       </section>
 
       {/* Below-the-fold content */}
-      <div className="mx-auto max-w-md px-4 pb-10">
+      <div className="mx-auto max-w-md px-4">
         {/* Spacer so content doesn't get covered when bar appears */}
         {/* <div className={showStickyProfileBar ? 'pt-14' : 'pt-0'} /> */}
         {/* Exclusive (big) + Public grid */}
@@ -660,6 +660,17 @@ function ExclusiveMediaGrid({
   );
 }
 
+function EmptyState({ icon: Icon, message }: { icon: LucideIcon; message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in duration-700">
+      <div className="mb-4 rounded-full bg-white/[0.02] p-5 border border-white/5 shadow-inner">
+        <Icon className="size-8 text-zinc-700" strokeWidth={1} />
+      </div>
+      <p className="text-xs font-medium text-zinc-500 uppercase tracking-[0.2em] opacity-80">{message}</p>
+    </div>
+  );
+}
+
 function CreatorMediaBlocks({
   isAuthenticated,
   isMember,
@@ -810,75 +821,91 @@ function CreatorMediaBlocks({
         })}
       </div>
 
-      {activeTab === 'images' ? (
-        <ExclusiveMediaGrid
-          items={imageItems}
-          onTileClick={(item) => openGridItem(item, 'image')}
-        />
-      ) : activeTab === 'videos' ? (
-        <ExclusiveMediaGrid
-          kind="video"
-          items={videoItems}
-          onTileClick={(item) => openGridItem(item, 'video')}
-        />
-      ) : activeTab === 'audios' ? (
-        <ExclusiveMediaGrid
-          kind="audio"
-          items={audioItems}
-          onTileClick={(item) => openGridItem(item, 'audio')}
-        />
-      ) : activeTab === 'products' ? (
-        <div className="grid w-full grid-cols-3 gap-0">
-          {products.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() =>
-                requestAccessThen(false, () =>
-                  setPopup({
-                    contentId: p.id,
-                    src: getMediaUrl(p.image_urls?.[0]) || '',
-                    title: p.name,
-                    description: p.description,
-                    price: p.price,
-                    isProduct: true,
-                    isLiked: p.is_liked,
-                    isSaved: p.is_saved,
-                  })
-                )
-              }
-              className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
-            >
-              {p.image_urls?.[0] && (
-                <Image
-                  src={getMediaUrl(p.image_urls[0]) || ''}
-                  alt={p.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 33vw, 200px"
-                />
-              )}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
-                <p className="line-clamp-2 text-center text-[9px] font-medium leading-tight text-white sm:text-[10px]">
-                  {p.name}
-                </p>
-                <p className="mt-0.5 text-center text-[8px] font-semibold text-zinc-200 sm:text-[9px]">
-                  {formatCurrency(p.price)}
-                </p>
+      <div className="min-h-[200px]">
+        {activeTab === 'images' && (
+          imageItems.length > 0 ? (
+            <ExclusiveMediaGrid
+              items={imageItems}
+              onTileClick={(item) => openGridItem(item, 'image')}
+            />
+          ) : (
+            <EmptyState icon={LucideImage} message="No images yet" />
+          )
+        )}
+
+        {activeTab === 'videos' && (
+          videoItems.length > 0 ? (
+            <ExclusiveMediaGrid
+              kind="video"
+              items={videoItems}
+              onTileClick={(item) => openGridItem(item, 'video')}
+            />
+          ) : (
+            <EmptyState icon={Video} message="No videos yet" />
+          )
+        )}
+
+        {activeTab === 'audios' && (
+          audioItems.length > 0 ? (
+            <ExclusiveMediaGrid
+              kind="audio"
+              items={audioItems}
+              onTileClick={(item) => openGridItem(item, 'audio')}
+            />
+          ) : (
+            <EmptyState icon={Music} message="No audio tracks yet" />
+          )
+        )}
+
+        {activeTab === 'products' && (
+          <div className="grid w-full grid-cols-3 gap-0">
+            {products.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() =>
+                  requestAccessThen(false, () =>
+                    setPopup({
+                      contentId: p.id,
+                      src: getMediaUrl(p.image_urls?.[0]) || '',
+                      title: p.name,
+                      description: p.description,
+                      price: p.price,
+                      isProduct: true,
+                      isLiked: p.is_liked,
+                      isSaved: p.is_saved,
+                    })
+                  )
+                }
+                className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
+              >
+                {p.image_urls?.[0] && (
+                  <Image
+                    src={getMediaUrl(p.image_urls[0]) || ''}
+                    alt={p.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 33vw, 200px"
+                  />
+                )}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
+                  <p className="line-clamp-2 text-center text-[9px] font-medium leading-tight text-white sm:text-[10px]">
+                    {p.name}
+                  </p>
+                  <p className="mt-0.5 text-center text-[8px] font-semibold text-zinc-200 sm:text-[9px]">
+                    {formatCurrency(p.price)}
+                  </p>
+                </div>
+              </button>
+            ))}
+            {products.length === 0 && (
+              <div className="col-span-3">
+                <EmptyState icon={Package} message="No products yet" />
               </div>
-            </button>
-          ))}
-          {products.length === 0 && (
-            <div className="col-span-3 py-12 text-center">
-              <p className="text-sm text-zinc-500">No products yet.</p>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="py-12 text-center">
-          <p className="text-sm text-zinc-500">Nothing here yet.</p>
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
 
       <ContentPopup
         open={popup !== null}
