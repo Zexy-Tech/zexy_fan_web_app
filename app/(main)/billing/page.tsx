@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { paymentService, Transaction } from '@/services/payment';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Download, CreditCard, Receipt } from 'lucide-react';
 import { format } from 'date-fns';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function BillingPage() {
@@ -74,14 +75,19 @@ export default function BillingPage() {
         ) : (
           <div className="grid gap-3">
             {transactions.map((tx) => (
-              <Card key={tx.id} className="bg-zinc-900/50 border-zinc-800">
+              <Card key={tx.id} className="bg-zinc-900/50 border-zinc-800 hover:bg-zinc-900/80 transition-colors group">
                 <CardContent className="p-4 flex items-center gap-4">
-                  <div className="flex-1 min-w-0">
+                  <Link href={`/billing/${tx.id}`} className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-semibold text-sm capitalize">
                         {tx.purpose.replace(/_/g, ' ')}
                       </span>
-                      <span className="text-[10px] uppercase tracking-tighter px-1.5 py-0.5 rounded bg-green-500/10 text-green-500 border border-green-500/20">
+                      <span className={cn(
+                        "text-[10px] uppercase tracking-tighter px-1.5 py-0.5 rounded border",
+                        tx.status === 'success' ? "bg-green-500/10 text-green-500 border-green-500/20" :
+                        tx.status === 'pending' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
+                        "bg-red-500/10 text-red-500 border-red-500/20"
+                      )}>
                         {tx.status}
                       </span>
                     </div>
@@ -89,26 +95,30 @@ export default function BillingPage() {
                       {tx.creator_name ? `To ${tx.creator_name} • ` : ''}
                       {format(new Date(tx.created_at), 'dd MMM yyyy')}
                     </p>
-                  </div>
+                  </Link>
 
                   <div className="text-right">
-                    <p className="font-bold text-white mb-1">
-                       {formatCurrency(tx.gross_amount)}
+                    <p className="font-bold text-white mb-1 tabular-nums">
+                       {formatCurrency(tx.amount || tx.gross_amount || 0)}
                     </p>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-7 text-[10px] gap-1.5 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 p-0 px-2"
-                      onClick={() => handleDownloadInvoice(tx.id)}
-                      disabled={isDownloading === tx.id}
-                    >
-                      {isDownloading === tx.id ? (
-                        <Loader2 className="size-3 animate-spin" />
-                      ) : (
-                        <Download className="size-3" />
-                      )}
-                      Invoice
-                    </Button>
+                    <div className="flex items-center justify-end gap-2">
+                       <Link href={`/billing/${tx.id}`} className="text-[10px] text-zinc-500 hover:text-white transition-colors">Details</Link>
+                       <span className="text-zinc-800">•</span>
+                       <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 text-[10px] gap-1.5 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 p-0 px-2"
+                        onClick={() => handleDownloadInvoice(tx.id)}
+                        disabled={isDownloading === tx.id || tx.status !== 'success'}
+                      >
+                        {isDownloading === tx.id ? (
+                          <Loader2 className="size-3 animate-spin" />
+                        ) : (
+                          <Download className="size-3" />
+                        )}
+                        Invoice
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

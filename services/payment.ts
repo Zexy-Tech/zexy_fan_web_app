@@ -48,7 +48,8 @@ export interface VerifyPaymentResponse {
 
 export interface Transaction {
   id: number;
-  gross_amount: number;
+  amount: number;
+  gross_amount?: number;
   currency: string;
   purpose: string;
   reference_id: number | null;
@@ -119,6 +120,14 @@ export const paymentService = {
     const response = await apiClient.get('/api/v1/fan/payments', {
       params: { skip, limit }
     });
+    return response.data.data;
+  },
+
+  /**
+   * Get transaction details
+   */
+  getDetail: async (transactionId: number): Promise<Transaction> => {
+    const response = await apiClient.get(`/api/v1/fan/payments/${transactionId}`);
     return response.data.data;
   },
 
