@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ENV } from '@/constants/env';
+import * as Sentry from '@sentry/nextjs';
 
 // Create axios instance
 if (typeof window !== 'undefined') {
@@ -147,6 +148,17 @@ apiClient.interceptors.response.use(
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
+    }
+
+    // 3. Log server errors (5xx) to Sentry
+    if (!status || status >= 500) {
+      Sentry.captureException(error, {
+        extra: {
+          url: originalRequest?.url,
+          method: originalRequest?.method,
+          status: status || 'NETWORK_ERROR',
+        }
+      });
     }
 
     return Promise.reject(error);
