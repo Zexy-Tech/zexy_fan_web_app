@@ -11,7 +11,12 @@ const nextConfig = {
   // Re-enable after upgrading to a Next release that fixes this (see vercel/next.js #67730 / #75360).
   reactStrictMode: false,
   images: {
-    domains: ['api.zexy.live', 'localhost', '10.171.120.19', '10.238.135.134', '10.19.227.19', '10.71.163.19'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'api.zexy.live' },
+      { protocol: 'http', hostname: 'localhost' },
+      // Allow any local development IP on port 8000
+      { protocol: 'http', hostname: '**', port: '8000' },
+    ],
   },
 };
 

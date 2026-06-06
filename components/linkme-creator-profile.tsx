@@ -19,7 +19,6 @@ import { useAuthContext } from '@/hooks/useAuth';
 import { cn, formatCurrency, getMediaUrl } from '@/lib/utils';
 import { isCreatorMemberForFan } from '@/lib/creatorMembership';
 import { queryClient } from '@/lib/queryClient';
-import { getDemoCreatorMembershipPlans } from '@/services/subscriptions';
 import { Card, CardContent } from '@/components/ui/card';
 import { useActionButton } from '@/hooks/useActionButton';
 import { SignupModal } from '@/components/auth/signup-modal';
@@ -208,10 +207,8 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
   );
 
   const plansForMembership = useMemo(() => {
-    if (!creator) return [];
-    if (plans?.length) return plans;
-    return getDemoCreatorMembershipPlans(creator.id);
-  }, [creator, plans]);
+    return plans || [];
+  }, [plans]);
 
   const openMembership = () => {
     setIsMembershipOpen(true);

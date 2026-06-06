@@ -19,7 +19,6 @@ import { BottomNavigation } from '@/components/bottom-navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { getDefaultTheme } from '@/lib/validation/profile-config';
-import { getDemoCreatorMembershipPlans } from '@/services/subscriptions';
 import { getMediaUrl } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -44,10 +43,8 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
   const { data: plans } = useCreatorPlans(creator?.id || 0);
 
   const membershipPlans = useMemo(() => {
-    if (!creator) return [];
-    if (plans?.length) return plans;
-    return getDemoCreatorMembershipPlans(creator.id);
-  }, [creator, plans]);
+    return plans || [];
+  }, [plans]);
   
   // Loading state
   if (creatorLoading || configLoading) {
