@@ -34,7 +34,7 @@ function SubscribedCreatorRow({ sub }: { sub: ActiveSubscription }) {
   return (
     <div className="-mx-4 border-b border-border px-4 py-4 last:border-b-0 sm:-mx-0 sm:px-0">
       <div className="flex gap-3">
-        <Link href={`/creator/${sub.creator_username}`} className="flex min-w-0 flex-1 gap-3">
+        <Link href={`/creator/${sub.creator_username || sub.creator_uid}`} className="flex min-w-0 flex-1 gap-3">
           <div className="flex size-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -45,8 +45,8 @@ function SubscribedCreatorRow({ sub }: { sub: ActiveSubscription }) {
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold leading-tight">{sub.creator_name}</p>
-            <p className="truncate text-sm text-muted-foreground">@{sub.creator_username}</p>
+            <p className="truncate font-semibold leading-tight">{sub.creator_name || 'Creator'}</p>
+            <p className="truncate text-sm text-muted-foreground">@{sub.creator_username || sub.creator_uid}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               <HollowBadge icon={ImageIcon} count={sub.image_count ?? 0} label="Images" />
               <HollowBadge icon={Video} count={sub.video_count ?? 0} label="Videos" />
@@ -77,7 +77,8 @@ export default function MyCreatorsPage() {
     if (!q) return rows;
     return rows.filter(
       (sub) =>
-        sub.creator_name.toLowerCase().includes(q) || sub.creator_username.toLowerCase().includes(q)
+        (sub.creator_name?.toLowerCase() || '').includes(q) ||
+        (sub.creator_username?.toLowerCase() || '').includes(q)
     );
   }, [rows, query]);
 

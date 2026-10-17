@@ -181,7 +181,7 @@ export default function ProfilePage() {
         <div className="min-w-0 flex-1">
           <p className="font-semibold leading-tight text-white">Delete account</p>
           <p className="text-sm text-zinc-400">
-            Permanently remove your account and data. This cannot be undone.
+            Permanently delete account in 30 days.
           </p>
         </div>
       </Link>

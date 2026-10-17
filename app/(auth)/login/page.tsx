@@ -1,15 +1,20 @@
 'use client';
 
-import { useState, useRef, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSendOTP, useVerifyOTP, useLoginWithPIN } from '@/hooks/useAuth';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Loader2, LogIn, ArrowRight, Instagram, Twitter, Facebook } from 'lucide-react';
+import { useAuthContext } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { Loader2, Instagram, Twitter, Facebook } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { AxiosError } from 'axios';
-import Image from 'next/image';
+import dynamic from 'next/dynamic';
+import { hasAllMandatoryDetails } from '@/lib/mockAuth';
+
+const SignupModal = dynamic(
+  () => import('@/components/auth/signup-modal').then((mod) => mod.SignupModal),
+  { ssr: false }
+);
 
 function safeInternalPath(raw: string | null): string | null {
   if (!raw || !raw.startsWith('/')) return null;
@@ -18,378 +23,140 @@ function safeInternalPath(raw: string | null): string | null {
 }
 
 function LoginPageContent() {
-  const { push } = useRouter();
-  const [step, setStep] = useState<'phone' | 'otp' | 'pin'>('phone');
-  const [mobile, setMobile] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '']);
-  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [pin, setPin] = useState(['', '', '', '']);
-  const pinInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextUrl = safeInternalPath(searchParams.get('next')) || '/creators';
 
-  const { mutateAsync: sendOTPMutate, isPending: sendOTPPending } = useSendOTP();
-  const { mutateAsync: verifyOTPMutate, isPending: verifyOTPPending } = useVerifyOTP();
-  const { mutateAsync: loginWithPINMutate, isPending: loginWithPINPending } = useLoginWithPIN();
+  const { isAuthenticated, user, isLoading } = useAuthContext();
+  const [isPopupOpen, setIsPopupOpen] = useState(true);
 
-  const validateMobile = (phone: string) => {
-    return /^[6-9]\d{9}$/.test(phone);
-  };
-
-  const handleSendOTP = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-
-    if (!validateMobile(mobile)) {
-      toast.error('Please enter a valid 10-digit mobile number starting with 6-9');
-      return;
+  // If already authenticated and completed onboarding, redirect to target
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user && hasAllMandatoryDetails(user)) {
+      router.push(nextUrl);
     }
-
-    try {
-      const response = await sendOTPMutate({ mobile, role: 'fan' });
-      if (response.auth_method === 'pin') {
-        setStep('pin');
-        toast.success('Please enter your PIN');
-      } else {
-        setStep('otp');
-        toast.success('OTP sent successfully');
-      }
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ error?: { message?: string } }>;
-      toast.error(axiosError.response?.data?.error?.message || 'Failed to process request');
-    }
-  };
-
-  const handleVerifyOTP = async (e?: React.FormEvent, manualCode?: string) => {
-    e?.preventDefault();
-    const otpCode = manualCode || otp.join('');
-
-    if (otpCode.length !== 4) {
-      if (!manualCode) toast.error('Please enter a valid 4-digit OTP');
-      return;
-    }
-
-    try {
-      const response = await verifyOTPMutate({ mobile, otp: otpCode, role: 'fan' });
-      toast.success('Login successful!');
-      
-      if (response.is_new_user) {
-        push('/pin-setup');
-      } else {
-        const params = new URLSearchParams(window.location.search);
-        const next = safeInternalPath(params.get('next'));
-        push(next ?? '/feed');
-      }
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ error?: { message?: string } }>;
-      toast.error(axiosError.response?.data?.error?.message || 'Invalid OTP');
-      setOtp(['', '', '', '']);
-      otpInputRefs.current[0]?.focus();
-    }
-  };
-
-  const handleVerifyPIN = async (e?: React.FormEvent, manualCode?: string) => {
-    e?.preventDefault();
-    const pinCode = manualCode || pin.join('');
-
-    if (pinCode.length !== 4) {
-      if (!manualCode) toast.error('Please enter your 4-digit PIN');
-      return;
-    }
-
-    try {
-      await loginWithPINMutate({ mobile, pin: pinCode, role: 'fan' });
-      toast.success('Login successful!');
-      const params = new URLSearchParams(window.location.search);
-      const next = safeInternalPath(params.get('next'));
-      push(next ?? '/feed');
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ error?: { message?: string } }>;
-      toast.error(axiosError.response?.data?.error?.message || 'Invalid PIN');
-      setPin(['', '', '', '']);
-      pinInputRefs.current[0]?.focus();
-    }
-  };
-
-  const handleOtpChange = (value: string, index: number) => {
-    const digit = value.replace(/\D/g, '').slice(-1);
-    if (!digit && value !== '') return;
-
-    const newOtp = [...otp];
-    newOtp[index] = digit;
-    setOtp(newOtp);
-
-    if (digit && index < 3) {
-      otpInputRefs.current[index + 1]?.focus();
-    }
-
-    if (newOtp.every(d => d !== '') && digit) {
-      const code = newOtp.join('');
-      if (code.length === 4) {
-        setTimeout(() => handleVerifyOTP(undefined, code), 100);
-      }
-    }
-  };
-
-  const handlePinChange = (value: string, index: number) => {
-    const digit = value.replace(/\D/g, '').slice(-1);
-    if (!digit && value !== '') return;
-
-    const newPin = [...pin];
-    newPin[index] = digit;
-    setPin(newPin);
-
-    if (digit && index < 3) {
-      pinInputRefs.current[index + 1]?.focus();
-    }
-
-    if (newPin.every(d => d !== '') && digit) {
-      const code = newPin.join('');
-      if (code.length === 4) {
-        setTimeout(() => handleVerifyPIN(undefined, code), 100);
-      }
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number, isOtp: boolean) => {
-    if (e.key === 'Backspace' && (isOtp ? !otp[index] : !pin[index]) && index > 0) {
-      const refs = isOtp ? otpInputRefs : pinInputRefs;
-      refs.current[index - 1]?.focus();
-    }
-  };
+  }, [isAuthenticated, user, isLoading, router, nextUrl]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4 font-inter">
-      <div className="w-full max-w-[400px] space-y-10">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4 font-inter relative overflow-hidden">
+      {/* Background radial glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="w-full max-w-[420px] space-y-8 relative z-10">
+        {/* Brand Header */}
         <div className="flex flex-col items-center text-center gap-4">
-          <div className="size-24 flex items-center justify-center mb-2 relative overflow-hidden group">
-            <Image 
-              src="/zexy_z_letter_logo_nobg.png" 
-              alt="Zexy logo" 
-              width={80} 
-              height={80} 
+          <div className="size-20 flex items-center justify-center mb-1 relative overflow-hidden group">
+            <Image
+              src="/zexy_z_letter_logo_nobg.png"
+              alt="Zexy logo"
+              width={70}
+              height={70}
               priority
-              className="object-contain drop-shadow-[0_0_15px_rgba(140,61,241,0.3)] group-hover:scale-110 transition-transform duration-500"
+              className="object-contain drop-shadow-[0_0_20px_rgba(140,61,241,0.4)] group-hover:scale-110 transition-transform duration-500"
             />
           </div>
-          <div className="flex flex-col gap-3">
-            <h1 className="text-3xl font-black tracking-[0.1em] uppercase italic bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">ZEXY</h1>
+          <div className="flex flex-col gap-2">
+            <h1 className="text-3xl font-black tracking-[0.15em] uppercase italic bg-gradient-to-b from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
+              ZEXY
+            </h1>
             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.5em] pl-[0.5em]">
-              {step === 'phone' ? 'Premium Creator Hub' : step === 'pin' ? 'Security Check' : 'Verification'}
+              Premium Creator Hub
             </p>
           </div>
         </div>
 
-        <Card className="border-zinc-800/50 bg-[#121214]/80 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden relative group">
-          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#8c3df1] to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
-          <CardContent className="p-8">
-            {step === 'phone' ? (
-              <form onSubmit={handleSendOTP} className="flex flex-col gap-8">
-                <div className="flex flex-col gap-4">
-                  <label htmlFor="mobile-input" className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">
-                    Mobile Number
-                  </label>
-                  <div className="flex gap-3">
-                    <div className="flex items-center justify-center w-20 h-14 bg-[#1c1c1f] border border-zinc-800 rounded-xl text-zinc-300 font-semibold">
-                      +91
-                    </div>
-                    <div className="flex-1 relative group">
-                      <input
-                        id="mobile-input"
-                        type="tel"
-                        placeholder="9876543210"
-                        value={mobile}
-                        onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                        disabled={sendOTPPending}
-                        className="w-full h-14 bg-[#1c1c1f] border-2 border-[#8c3df1] rounded-xl px-4 text-lg font-medium text-white focus:outline-none focus:ring-2 focus:ring-[#8c3df1]/50 placeholder:text-zinc-700"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="pt-2">
-                  <Button 
-                    type="submit" 
-                    className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl transition-all active:scale-[0.98] text-base" 
-                    disabled={sendOTPPending || !validateMobile(mobile)}
-                  >
-                    {sendOTPPending ? (
-                      <Loader2 className="size-5 animate-spin" />
-                    ) : (
-                      'Continue'
-                    )}
-                  </Button>
-                </div>
-              </form>
-            ) : step === 'pin' ? (
-              <form onSubmit={handleVerifyPIN} className="flex flex-col gap-8">
-                <div className="flex flex-col gap-6">
-                  <div className="flex justify-between items-center">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">
-                      Your PIN
-                    </label>
-                    <button 
-                      type="button"
-                      onClick={() => setStep('phone')}
-                      className="text-xs text-purple-400 font-medium hover:underline"
-                    >
-                      Change Number
-                    </button>
-                  </div>
-                  
-                  <div className="flex justify-between gap-4">
-                    {pin.map((digit, index) => (
-                      <input
-                        key={`pin-input-${index}`}
-                        ref={(el) => { pinInputRefs.current[index] = el; }}
-                        type="password"
-                        inputMode="numeric"
-                        value={digit}
-                        aria-label={`PIN digit ${index + 1}`}
-                        onChange={(e) => handlePinChange(e.target.value, index)}
-                        onKeyDown={(e) => handleKeyDown(e, index, false)}
-                        className={cn(
-                          "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none transition-all",
-                          digit && "border-[#8c3df1] bg-[#1c1c1f]"
-                        )}
-                        disabled={loginWithPINPending}
-                        maxLength={1}
-                      />
-                    ))}
-                  </div>
-                </div>
+        {/* Center Card */}
+        <Card className="border-zinc-800/60 bg-[#121214]/80 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#8c3df1] to-transparent opacity-80" />
+          <CardContent className="p-8 text-center space-y-5">
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold text-white tracking-tight">Access Your Account</h2>
+              <p className="text-xs text-zinc-400">
+                Log in or sign up to interact with creators, purchase exclusive content, and join live streams.
+              </p>
+            </div>
 
-                <div className="flex flex-col gap-4 pt-2">
-                  <Button 
-                    type="submit" 
-                    className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl transition-all active:scale-[0.98] text-base" 
-                    disabled={loginWithPINPending || pin.join('').length < 4}
-                  >
-                    {loginWithPINPending ? (
-                      <Loader2 className="size-5 animate-spin" />
-                    ) : (
-                      'Login'
-                    )}
-                  </Button>
-                  
-                  <div className="text-center">
-                    <button 
-                      type="button" 
-                      className="text-sm text-zinc-500 hover:text-purple-400 transition-colors"
-                      onClick={() => push(`/pin-reset?mobile=${mobile}`)}
-                    >
-                      Forgot PIN? <span className="text-purple-400 font-medium underline underline-offset-4">Reset here</span>
-                    </button>
-                  </div>
-                </div>
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyOTP} className="flex flex-col gap-8">
-                <div className="flex flex-col gap-6">
-                  <div className="flex justify-between items-center">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">
-                      Security Code
-                    </label>
-                    <button 
-                      type="button"
-                      onClick={() => setStep('phone')}
-                      className="text-xs text-purple-400 font-medium hover:underline"
-                    >
-                      Change Number
-                    </button>
-                  </div>
-                  
-                  <div className="flex justify-between gap-4">
-                    {otp.map((digit, index) => (
-                      <input
-                        key={`otp-input-${index}`}
-                        ref={(el) => { otpInputRefs.current[index] = el; }}
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete="one-time-code"
-                        value={digit}
-                        aria-label={`OTP digit ${index + 1}`}
-                        onChange={(e) => handleOtpChange(e.target.value, index)}
-                        onKeyDown={(e) => handleKeyDown(e, index, true)}
-                        className={cn(
-                          "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none transition-all",
-                          digit && "border-[#8c3df1] bg-[#1c1c1f]"
-                        )}
-                        disabled={verifyOTPPending}
-                        maxLength={1}
-                      />
-                    ))}
-                  </div>
-                </div>
+            <Button
+              type="button"
+              onClick={() => setIsPopupOpen(true)}
+              className="w-full h-13 py-3.5 bg-gradient-to-r from-[#6b21a8] via-[#7e22ce] to-[#9333ea] hover:opacity-95 text-white font-bold rounded-xl transition-all active:scale-[0.98] text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30"
+            >
+              <LogIn className="size-4" />
+              <span>Log In / Sign Up</span>
+              <ArrowRight className="size-4 ml-1" />
+            </Button>
 
-                <div className="flex flex-col gap-4 pt-2">
-                  <Button 
-                    type="submit" 
-                    className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl transition-all active:scale-[0.98] text-base" 
-                    disabled={verifyOTPPending || otp.join('').length < 4}
-                  >
-                    {verifyOTPPending ? (
-                      <Loader2 className="size-5 animate-spin" />
-                    ) : (
-                      'Verify & Continue'
-                    )}
-                  </Button>
-                  
-                  <div className="text-center">
-                    <button 
-                      type="button" 
-                      className="text-sm text-zinc-500 hover:text-purple-400 transition-colors"
-                      onClick={handleSendOTP}
-                    >
-                      Didn&apos;t receive code? <span className="text-purple-400 font-medium underline underline-offset-4">Resend</span>
-                    </button>
-                  </div>
-                </div>
-              </form>
-            )}
+            <div className="pt-2">
+              <Link
+                href="/creators"
+                className="text-xs text-zinc-500 hover:text-purple-400 transition-colors inline-block"
+              >
+                Browse creators as guest →
+              </Link>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Social Media Links */}
-        <div className="flex flex-col items-center gap-6 pt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+        {/* Social Links */}
+        <div className="flex flex-col items-center gap-5 pt-2">
           <div className="flex items-center gap-4 w-full">
-            <div className="h-px flex-1 bg-zinc-800/50" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">Connect with us</span>
-            <div className="h-px flex-1 bg-zinc-800/50" />
+            <div className="h-px flex-1 bg-zinc-800/60" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">
+              Connect with us
+            </span>
+            <div className="h-px flex-1 bg-zinc-800/60" />
           </div>
-          
-          <div className="flex items-center gap-6">
-            <a 
-              href="https://instagram.com/zexy.live" 
-              target="_blank" 
+
+          <div className="flex items-center gap-5">
+            <a
+              href="https://instagram.com/zexy.live"
+              target="_blank"
               rel="noopener noreferrer"
-              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5 group"
+              aria-label="Instagram"
+              className="size-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5"
             >
-              <Instagram className="size-5 group-hover:scale-110 transition-transform" />
+              <Instagram className="size-4" />
             </a>
-            <a 
-              href="https://twitter.com/zexylive" 
-              target="_blank" 
+            <a
+              href="https://twitter.com/zexylive"
+              target="_blank"
               rel="noopener noreferrer"
-              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5 group"
+              aria-label="Twitter"
+              className="size-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5"
             >
-              <Twitter className="size-5 group-hover:scale-110 transition-transform" />
+              <Twitter className="size-4" />
             </a>
-            <a 
-              href="https://facebook.com/zexylive" 
-              target="_blank" 
+            <a
+              href="https://facebook.com/zexylive"
+              target="_blank"
               rel="noopener noreferrer"
-              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5 group"
+              aria-label="Facebook"
+              className="size-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5"
             >
-              <Facebook className="size-5 group-hover:scale-110 transition-transform" />
+              <Facebook className="size-4" />
             </a>
           </div>
 
           <div className="flex items-center gap-4 text-[10px] font-bold tracking-widest text-zinc-500 uppercase opacity-60">
-             <a href="https://zexy.live/privacy-policy" className="hover:text-zinc-300 transition-colors">Privacy</a>
-             <div className="size-1 rounded-full bg-zinc-800" />
-             <a href="https://zexy.live/terms-of-service" className="hover:text-zinc-300 transition-colors">Terms</a>
-             <div className="size-1 rounded-full bg-zinc-800" />
-             <span className="cursor-default">© 2026 ZEXY</span>
+            <a href="https://zexy.live/privacy-policy" className="hover:text-zinc-300 transition-colors">
+              Privacy
+            </a>
+            <div className="size-1 rounded-full bg-zinc-800" />
+            <a href="https://zexy.live/terms-of-service" className="hover:text-zinc-300 transition-colors">
+              Terms
+            </a>
+            <div className="size-1 rounded-full bg-zinc-800" />
+            <span className="cursor-default">© 2026 ZEXY</span>
           </div>
         </div>
       </div>
+
+      {/* The Single Popup for Signup & Login */}
+      <SignupModal
+        open={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        redirectOnSuccess={nextUrl}
+      />
     </div>
   );
 }
@@ -399,7 +166,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-[#09090b]">
-          <Loader2 className="size-10 animate-spin text-purple-500" />
+          <Loader2 className="size-8 animate-spin text-purple-500" />
         </div>
       }
     >

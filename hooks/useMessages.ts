@@ -1,15 +1,17 @@
+import { useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { messageService } from '@/services/messages';
 import { paymentService } from '@/services/payment';
 import { queryClient } from '@/lib/queryClient';
 import { useAuthContext } from '@/hooks/useAuth';
 import { mapMessageToConversationPreview } from '@/lib/message-conversations';
+import { subscribeToThread, subscribeToConversations } from '@/services/firebase-chat';
 import { ENV } from '@/constants/env';
 
 export function useConversations() {
   const { user } = useAuthContext();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['conversations', user?.id],
     queryFn: async () => {
       const rows = await messageService.getConversations();
@@ -18,15 +20,49 @@ export function useConversations() {
     },
     enabled: !!user,
   });
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const unsub = subscribeToConversations(user.id, (realtimeConvos) => {
+      if (!realtimeConvos) return;
+      queryClient.setQueryData(
+        ['conversations', user.id],
+        realtimeConvos.map((m) => mapMessageToConversationPreview(m, user.id))
+      );
+    });
+
+    return () => {
+      if (unsub) unsub();
+    };
+  }, [user?.id]);
+
+  return query;
 }
 
 export function useMessageThread(creatorId: number) {
-  return useQuery({
+  const { user } = useAuthContext();
+
+  const query = useQuery({
     queryKey: ['messages', 'thread', creatorId],
     queryFn: () => messageService.getThread(creatorId),
     enabled: !!creatorId,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   });
+
+  useEffect(() => {
+    if (!user?.id || !creatorId) return;
+    const unsub = subscribeToThread(user.id, creatorId, (realtimeMessages) => {
+      if (!realtimeMessages) return;
+      const visible = realtimeMessages.filter((m) => !m.is_deleted);
+      queryClient.setQueryData(['messages', 'thread', creatorId], visible);
+    });
+
+    return () => {
+      if (unsub) unsub();
+    };
+  }, [user?.id, creatorId]);
+
+  return query;
 }
 
 export function useDeleteMessage() {

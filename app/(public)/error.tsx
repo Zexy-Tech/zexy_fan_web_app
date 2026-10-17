@@ -29,6 +29,11 @@ export default function PublicError({
           <p className="text-muted-foreground">
             We couldn&apos;t load this creator profile. Please try again.
           </p>
+          {process.env.NODE_ENV !== 'production' && error?.message ? (
+            <p className="text-xs font-mono text-destructive/80 bg-destructive/10 p-2 rounded break-all">
+              {error.message}
+            </p>
+          ) : null}
           <div className="flex gap-2">
             <Button onClick={reset} className="flex-1">
               Try again

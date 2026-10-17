@@ -21,9 +21,20 @@ import { isCreatorMemberForFan } from '@/lib/creatorMembership';
 import { queryClient } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { useActionButton } from '@/hooks/useActionButton';
-import { SignupModal } from '@/components/auth/signup-modal';
-import { MembershipPopup } from '@/components/membership-popup';
-import { ContentPopup } from '@/components/content-popup';
+import dynamic from 'next/dynamic';
+
+const SignupModal = dynamic(
+  () => import('@/components/auth/signup-modal').then((mod) => mod.SignupModal),
+  { ssr: false }
+);
+const MembershipPopup = dynamic(
+  () => import('@/components/membership-popup').then((mod) => mod.MembershipPopup),
+  { ssr: false }
+);
+const ContentPopup = dynamic(
+  () => import('@/components/content-popup').then((mod) => mod.ContentPopup),
+  { ssr: false }
+);
 import type { ActionButton } from '@/types/creator-profile';
 import type { Content, Product } from '@/services/feed';
 import type { LucideIcon } from 'lucide-react';
@@ -130,8 +141,9 @@ type SocialEntry = {
 };
 
 function buildFixedSocialRow(actionButtons: ActionButton[] | undefined): SocialEntry[] {
-  const links =
-    actionButtons?.filter((b) => b.type === 'custom_link' && typeof b.action === 'string') ?? [];
+  const links = Array.isArray(actionButtons)
+    ? actionButtons.filter((b) => b && b.type === 'custom_link' && typeof b.action === 'string')
+    : [];
 
   const platforms: { kind: SocialKind; label: string }[] = [
     { kind: 'instagram', label: 'Instagram' },
@@ -154,7 +166,7 @@ function buildFixedSocialRow(actionButtons: ActionButton[] | undefined): SocialE
 
   const result: SocialEntry[] = platforms
     .map(({ kind, label }) => {
-       const button = links.find((b) => inferSocialKind(b.action) === kind);
+       const button = links.find((b) => b?.action && inferSocialKind(b.action) === kind);
        return { kind, label: button?.label || label, button };
     })
     .filter(entry => !!entry.button);
@@ -239,8 +251,8 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
     };
   }, []);
 
-  const displayName = creator?.name || creator?.username || username;
-  const handle = creator?.username || username;
+  const displayName = creator?.name || creator?.username || (username ? `Creator #${username}` : 'Creator');
+  const handle = creator?.username || (username ? `${username}` : (creator?.id ? `${creator.id}` : ''));
   const bio = config?.intro?.bio?.trim() || '';
 
   const coverUrl = useMemo(() => {
@@ -303,6 +315,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                     fill
                     sizes="32px"
                     className="object-cover"
+                    unoptimized
                   />
                 ) : null}
               </div>
@@ -349,6 +362,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
               sizes="100vw"
               className="absolute inset-0 h-full w-full object-cover"
               priority
+              unoptimized
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-950" />
@@ -504,6 +518,45 @@ type MediaGridItem = {
   audioSrc?: string;
 };
 
+function MediaImageTile({
+  src,
+  alt,
+  sizes,
+  isLocked,
+  fallbackIcon: FallbackIcon,
+  isExclusive,
+}: {
+  src: string;
+  alt: string;
+  sizes: string;
+  isLocked?: boolean;
+  fallbackIcon: LucideIcon;
+  isExclusive?: boolean;
+}) {
+  const [hasError, setHasError] = useState(false);
+
+  if (!src || hasError) {
+    return (
+      <div className="flex size-full items-center justify-center bg-zinc-900/50">
+        <FallbackIcon className={cn("text-zinc-700", isExclusive ? "size-16" : "size-10")} strokeWidth={1.5} />
+      </div>
+    );
+  }
+
+  return (
+    <Image 
+      src={src} 
+      alt={alt} 
+      fill
+      sizes={sizes}
+      className={cn("h-full w-full object-cover", isLocked && "blur-sm opacity-60")} 
+      loading="lazy" 
+      unoptimized
+      onError={() => setHasError(true)}
+    />
+  );
+}
+
 function ExclusiveMediaGrid({
   kind,
   items,
@@ -607,17 +660,14 @@ function ExclusiveMediaGrid({
         >
           {overlays}
           <div className="flex size-full items-center justify-center bg-zinc-900/50">
-            {item.thumbSrc ? (
-              <Image 
-                src={item.thumbSrc} 
-                alt={item.title} 
-                fill
-                sizes="320px"
-                className={cn("h-full w-full object-cover", item.isLocked && "blur-sm opacity-60")} 
-              />
-            ) : (
-              <Music className={cn("text-zinc-700", isExclusive ? "size-16" : "size-10")} strokeWidth={1.5} />
-            )}
+            <MediaImageTile
+              src={item.thumbSrc}
+              alt={item.title}
+              sizes="320px"
+              isLocked={item.isLocked}
+              fallbackIcon={Music}
+              isExclusive={isExclusive}
+            />
           </div>
         </button>
       );
@@ -631,20 +681,14 @@ function ExclusiveMediaGrid({
         className={cn(tileClass, 'p-0')}
       >
         {overlays}
-        {item.thumbSrc ? (
-          <Image 
-            src={item.thumbSrc} 
-            alt={item.title} 
-            fill
-            sizes={isExclusive ? "640px" : "320px"}
-            className={cn("h-full w-full object-cover", item.isLocked && "blur-sm opacity-60")} 
-            loading="lazy" 
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center bg-zinc-900/50">
-            <LucideImage className={cn("text-zinc-700", isExclusive ? "size-16" : "size-10")} strokeWidth={1.5} />
-          </div>
-        )}
+        <MediaImageTile
+          src={item.thumbSrc}
+          alt={item.title}
+          sizes={isExclusive ? "640px" : "320px"}
+          isLocked={item.isLocked}
+          fallbackIcon={LucideImage}
+          isExclusive={isExclusive}
+        />
       </button>
     );
   };
@@ -700,67 +744,80 @@ function CreatorMediaBlocks({
     audioSrc?: string;
   } | null>(null);
 
+  const safeContent = useMemo(() => (Array.isArray(content) ? content : []), [content]);
+  const safeProducts = useMemo(() => (Array.isArray(products) ? products : []), [products]);
+
   const imageItems = useMemo<MediaGridItem[]>(() => {
-    if (!content) return [];
-    return content.reduce((acc, c) => {
-      if (c.type === 'image' || (!c.type && c.media.some((m) => m.media_type === 'image'))) {
+    return safeContent.reduce((acc, c) => {
+      if (!c) return acc;
+      const media = Array.isArray(c.media) ? c.media : [];
+      const hasImageMedia = media.some((m) => m?.media_type === 'image');
+      if (c.type === 'image' || (!c.type && hasImageMedia)) {
+        const imageMediaUrl = media.find((m) => m?.media_type === 'image')?.url;
         acc.push({
           id: String(c.id),
           contentId: c.id,
-          thumbSrc: getMediaUrl(c.thumbnail_url || c.url || c.media.find((m) => m.media_type === 'image')?.url) || '',
-          title: c.title,
+          thumbSrc: getMediaUrl(c.thumbnail_url || imageMediaUrl || c.url) || '',
+          title: c.title || 'Untitled',
           description: c.description,
-          tags: c.tags ?? [],
-          isLiked: c.is_liked,
-          isSaved: c.is_saved,
-          isLocked: c.is_locked,
+          tags: Array.isArray(c.tags) ? c.tags : [],
+          isLiked: Boolean(c.is_liked),
+          isSaved: Boolean(c.is_saved),
+          isLocked: Boolean(c.is_locked),
         });
       }
       return acc;
     }, [] as MediaGridItem[]);
-  }, [content]);
+  }, [safeContent]);
 
   const videoItems = useMemo<MediaGridItem[]>(() => {
-    if (!content) return [];
-    return content.reduce((acc, c) => {
-      if (c.type === 'video' || (!c.type && c.media.some((m) => m.media_type === 'video'))) {
+    return safeContent.reduce((acc, c) => {
+      if (!c) return acc;
+      const media = Array.isArray(c.media) ? c.media : [];
+      const hasVideoMedia = media.some((m) => m?.media_type === 'video');
+      if (c.type === 'video' || (!c.type && hasVideoMedia)) {
+        const imageMediaUrl = media.find((m) => m?.media_type === 'image')?.url;
+        const videoMediaUrl = media.find((m) => m?.media_type === 'video')?.url;
         acc.push({
           id: String(c.id),
           contentId: c.id,
-          thumbSrc: getMediaUrl(c.thumbnail_url || c.media.find((m) => m.media_type === 'image')?.url) || '',
-          title: c.title,
+          thumbSrc: getMediaUrl(c.thumbnail_url || imageMediaUrl) || '',
+          title: c.title || 'Untitled',
           description: c.description,
-          tags: c.tags ?? [],
-          isLiked: c.is_liked,
-          isSaved: c.is_saved,
-          isLocked: c.is_locked,
-          videoSrc: getMediaUrl(c.url || c.media.find((m) => m.media_type === 'video')?.url) || '',
+          tags: Array.isArray(c.tags) ? c.tags : [],
+          isLiked: Boolean(c.is_liked),
+          isSaved: Boolean(c.is_saved),
+          isLocked: Boolean(c.is_locked),
+          videoSrc: getMediaUrl(c.url || videoMediaUrl) || '',
         });
       }
       return acc;
     }, [] as MediaGridItem[]);
-  }, [content]);
+  }, [safeContent]);
 
   const audioItems = useMemo<MediaGridItem[]>(() => {
-    if (!content) return [];
-    return content.reduce((acc, c) => {
-      if (c.media.some((m) => m.media_type === 'audio')) {
+    return safeContent.reduce((acc, c) => {
+      if (!c) return acc;
+      const media = Array.isArray(c.media) ? c.media : [];
+      const hasAudioMedia = media.some((m) => m?.media_type === 'audio');
+      if (c.type === 'audio' || hasAudioMedia) {
+        const audioMediaUrl = media.find((m) => m?.media_type === 'audio')?.url;
         acc.push({
           id: String(c.id),
           contentId: c.id,
           thumbSrc: getMediaUrl(c.thumbnail_url) || '',
-          title: c.title,
+          title: c.title || 'Untitled',
           description: c.description,
-          tags: c.tags ?? [],
-          isLiked: c.is_liked,
-          isSaved: c.is_saved,
-          isLocked: c.is_locked,
-          audioSrc: getMediaUrl(c.media.find((m) => m.media_type === 'audio')?.url) || '',
+          tags: Array.isArray(c.tags) ? c.tags : [],
+          isLiked: Boolean(c.is_liked),
+          isSaved: Boolean(c.is_saved),
+          isLocked: Boolean(c.is_locked),
+          audioSrc: getMediaUrl(audioMediaUrl) || '',
         });
       }
       return acc;
     }, [] as MediaGridItem[]);
-  }, [content]);
+  }, [safeContent]);
 
   const requestAccessThen = (needsAccess: boolean, openContent: () => void) => {
     if (needsAccess && !isAuthenticated) {
@@ -856,7 +913,7 @@ function CreatorMediaBlocks({
 
         {activeTab === 'products' && (
           <div className="grid w-full grid-cols-3 gap-0">
-            {products.map((p) => (
+            {safeProducts.map((p) => (
               <button
                 key={p.id}
                 type="button"
@@ -883,6 +940,7 @@ function CreatorMediaBlocks({
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 33vw, 200px"
+                    unoptimized
                   />
                 )}
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
@@ -895,7 +953,7 @@ function CreatorMediaBlocks({
                 </div>
               </button>
             ))}
-            {products.length === 0 && (
+            {safeProducts.length === 0 && (
               <div className="col-span-3">
                 <EmptyState icon={Package} message="No products yet" />
               </div>

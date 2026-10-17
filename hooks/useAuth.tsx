@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { authService, type User, type SendOTPRequest, type VerifyOTPRequest, SetupPINRequest, LoginPINRequest, PINResetInitiateRequest, PINResetConfirmRequest } from '@/services/auth';
+import { apiClient } from '@/lib/axios';
 import { queryClient } from '@/lib/queryClient';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setAuth, clearAuth, setLoading } from '@/store/slices/authSlice';
@@ -20,6 +21,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (tokens: { access_token: string; refresh_token?: string; session_token?: string }, user: User) => void;
+  updateUser: (data: Partial<User>) => void;
   logout: () => void;
 }
 
@@ -71,6 +73,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const updateUser = (data: Partial<User>) => {
+    if (!user) return;
+    const updated = { ...user, ...data };
+    localStorage.setItem('auth_user', JSON.stringify(updated));
+    dispatch(setAuth({
+      user: updated,
+      token: token || 'mock_token',
+      refreshToken: refreshToken || undefined,
+      sessionToken: sessionToken || undefined,
+    }));
+    queryClient.invalidateQueries({ queryKey: ['user', 'me'] });
+  };
+
   const logout = (redirectPath: string = '/login') => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('refresh_token');
@@ -94,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!token,
         isLoading,
         login,
+        updateUser,
         logout,
       }}
     >
@@ -187,16 +203,41 @@ export function useConfirmPINReset() {
   });
 }
 
-/** Verify OTP only — does not replace session or call login (e.g. sensitive actions). */
+/** Verify OTP only — saves new tokens to localStorage and axios defaults so following requests stay authenticated. */
 export function useVerifyOTPOnly() {
   return useMutation({
-    mutationFn: (data: VerifyOTPRequest) => authService.verifyOTP(data),
+    mutationFn: async (data: VerifyOTPRequest) => {
+      const response = await authService.verifyOTP(data);
+      if (response?.access_token) {
+        localStorage.setItem('auth_token', response.access_token);
+        if (response.refresh_token) localStorage.setItem('refresh_token', response.refresh_token);
+        if (response.session_token) localStorage.setItem('session_token', response.session_token);
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.access_token}`;
+      }
+      return response;
+    },
+  });
+}
+
+/** Verify PIN only — saves new tokens to localStorage and axios defaults so following requests stay authenticated. */
+export function useVerifyPINOnly() {
+  return useMutation({
+    mutationFn: async (data: LoginPINRequest) => {
+      const response = await authService.loginWithPIN(data);
+      if (response?.access_token) {
+        localStorage.setItem('auth_token', response.access_token);
+        if (response.refresh_token) localStorage.setItem('refresh_token', response.refresh_token);
+        if (response.session_token) localStorage.setItem('session_token', response.session_token);
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.access_token}`;
+      }
+      return response;
+    },
   });
 }
 
 export function useDeleteAccount() {
   return useMutation({
-    mutationFn: (payload?: { otp?: string }) => authService.deleteAccount(payload),
+    mutationFn: (payload?: { otp?: string; token?: string }) => authService.deleteAccount(payload),
   });
 }
 

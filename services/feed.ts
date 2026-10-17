@@ -382,23 +382,39 @@ export const feedService = {
    */
   getCreatorByUsername: async (username: string): Promise<Creator> => {
     const response = await apiClient.get(`/api/v1/fan/creators/${username}`);
-    const payload = response.data.data;
-    return payload.data ?? payload;
+    const payload = response.data?.data;
+    return payload?.data ?? payload;
   },
 
   /**
    * Get content by creator username
    */
   getCreatorContentByUsername: async (username: string): Promise<Content[]> => {
-    const response = await apiClient.get(`/api/v1/fan/creators/${username}/content`);
-    return response.data.data;
+    try {
+      const response = await apiClient.get(`/api/v1/fan/creators/${username}/content`);
+      const data = response.data?.data;
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.data)) return data.data;
+      if (Array.isArray(data?.items)) return data.items;
+      return [];
+    } catch {
+      return [];
+    }
   },
 
   /**
    * Get products by creator username
    */
   getCreatorProductsByUsername: async (username: string): Promise<Product[]> => {
-    const response = await apiClient.get(`/api/v1/fan/creators/${username}/products`);
-    return response.data.data;
+    try {
+      const response = await apiClient.get(`/api/v1/fan/creators/${username}/products`);
+      const data = response.data?.data;
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.data)) return data.data;
+      if (Array.isArray(data?.items)) return data.items;
+      return [];
+    } catch {
+      return [];
+    }
   },
 };

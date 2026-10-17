@@ -104,7 +104,7 @@ export function CreatorsGrid({ creators, isLoading, error, refetch }: CreatorsGr
       {creators.map((creator) => (
         <Link
           key={creator.id}
-          href={`/creator/${creator.username}`}
+          href={`/creator/${creator.username || creator.id}`}
           className="block"
         >
           <CreatorCard creator={creator} />

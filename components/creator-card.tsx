@@ -61,10 +61,11 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
           {creator.avatar ? (
             <Image
               src={getMediaUrl(creator.avatar) || ''}
-              alt={creator.name || creator.username}
+              alt={creator.name || creator.username || 'Creator'}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 50vw, 300px"
+              unoptimized
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

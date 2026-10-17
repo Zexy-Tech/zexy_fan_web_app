@@ -5,16 +5,19 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, MoreVertical, Send, Smile, Trash2, Loader2, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { TipModal } from '@/components/tip-modal';
+import dynamic from 'next/dynamic';
+import type { Theme } from 'emoji-picker-react';
 import { useMessageThread, useSendMessage, useMarkAsRead, useClearChat, useDeleteMessage } from '@/hooks/useMessages';
-import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useCreatorByIdentifier } from '@/hooks/useFeed';
 import { getMediaUrl, cn } from '@/lib/utils';
-import { VideoPlayer } from '@/components/content/video-player';
-import { AudioPlayer } from '@/components/content/audio-player';
-import { ImageViewer } from '@/components/content/image-viewer';
 import { messageService, Message } from '@/services/messages';
+
+const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
+const TipModal = dynamic(() => import('@/components/tip-modal').then((mod) => mod.TipModal), { ssr: false });
+const VideoPlayer = dynamic(() => import('@/components/content/video-player').then((mod) => mod.VideoPlayer), { ssr: false });
+const AudioPlayer = dynamic(() => import('@/components/content/audio-player').then((mod) => mod.AudioPlayer), { ssr: false });
+const ImageViewer = dynamic(() => import('@/components/content/image-viewer').then((mod) => mod.ImageViewer), { ssr: false });
 
 function formatTime(value: string) {
   return new Intl.DateTimeFormat('en-IN', {
@@ -439,7 +442,7 @@ export default function ChatThreadPage() {
 
           {showEmoji && (
           <div className="absolute bottom-16 left-2 z-50">
-            <EmojiPicker onEmojiClick={(e) => setDraft(prev => prev + e.emoji)} theme={Theme.DARK} />
+            <EmojiPicker onEmojiClick={(e) => setDraft(prev => prev + e.emoji)} theme={'dark' as unknown as Theme} />
           </div>
           )}
         <div className="relative flex items-center gap-2">

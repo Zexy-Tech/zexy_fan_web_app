@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { useSendOTP, useVerifyOTPOnly } from '@/hooks/useAuth';
+import { useSendOTP, useVerifyOTPOnly, useVerifyPINOnly } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,19 +13,24 @@ import { isValidIndianMobileTen, normalizeToIndianMobileTen } from '@/lib/indian
 export interface LoginVerificationPopupProps {
   open: boolean;
   onClose: () => void;
-  /** Runs after OTP is accepted by the verify API. Close the popup after this resolves. */
-  onVerified: (args: { mobile: string; otp: string }) => void | Promise<void>;
+  /** Runs after OTP/PIN is accepted by the verify API. Close the popup after this resolves. */
+  onVerified: (args: { mobile: string; otp: string; token?: string }) => void | Promise<void>;
   title?: string;
   description?: string;
-  /** If valid 10-digit Indian mobile, shown read-only on the first step. */
+  /** If valid 10-digit Indian mobile, shown read-only on the first step (unless allowEditMobile is true). */
   prefilledMobile?: string | null;
+  allowEditMobile?: boolean;
 }
 
 function getAxiosErrorMessage(error: unknown, fallback: string): string {
   if (typeof error === 'object' && error !== null && 'response' in error) {
     const r = (error as { response?: { data?: { error?: { message?: string }; message?: string } } }).response?.data;
     const m = r?.error?.message ?? r?.message;
-    if (typeof m === 'string' && m.length > 0) return m;
+    if (typeof m === 'string' && m.length > 0) {
+      const parts = m.split(' - ');
+      if (parts.length >= 3) return parts.slice(2).join(' - ');
+      return m;
+    }
   }
   if (error instanceof Error) return error.message;
   return fallback;
@@ -35,48 +40,81 @@ export function LoginVerificationPopup({
   open,
   onClose,
   onVerified,
-  title = 'Verify your identity',
+  title = 'Verify Mobile',
   description,
   prefilledMobile,
+  allowEditMobile = true,
 }: LoginVerificationPopupProps) {
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [step, setStep] = useState<'phone' | 'otp' | 'pin'>('phone');
   const [mobile, setMobile] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '']);
-  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [code, setCode] = useState(['', '', '', '']);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const hasTriggeredRef = useRef(false);
 
   const sendOTP = useSendOTP();
-  const verifyOnly = useVerifyOTPOnly();
+  const verifyOTPOnly = useVerifyOTPOnly();
+  const verifyPINOnly = useVerifyPINOnly();
 
   const lockedTen = normalizeToIndianMobileTen(prefilledMobile ?? undefined);
-  const isMobileLocked = lockedTen != null && isValidIndianMobileTen(lockedTen);
+  const isMobileLocked = !allowEditMobile && lockedTen != null && isValidIndianMobileTen(lockedTen);
+
+  const executeSendOTP = useCallback(
+    async (targetMobile: string) => {
+      if (!isValidIndianMobileTen(targetMobile)) {
+        toast.error('Please enter a valid 10-digit mobile number starting with 6–9');
+        return;
+      }
+
+      try {
+        const response = await sendOTP.mutateAsync({ mobile: targetMobile });
+        if (response.auth_method === 'pin') {
+          setStep('pin');
+          toast.success(response.message || 'PIN login required');
+        } else {
+          setStep('otp');
+          toast.success(response.message || 'OTP sent successfully');
+        }
+      } catch (error: unknown) {
+        toast.error(getAxiosErrorMessage(error, 'Failed to process request'));
+        setStep('phone');
+      }
+    },
+    [sendOTP]
+  );
 
   useEffect(() => {
     if (!open) {
       setStep('phone');
       setMobile('');
-      setOtp(['', '', '', '']);
+      setCode(['', '', '', '']);
+      setIsSubmitting(false);
+      hasTriggeredRef.current = false;
       return;
     }
-    if (isMobileLocked && lockedTen) {
+
+    if (lockedTen) {
       setMobile(lockedTen);
-    } else {
-      setMobile('');
+      if (!hasTriggeredRef.current) {
+        hasTriggeredRef.current = true;
+        void executeSendOTP(lockedTen);
+      }
     }
-  }, [open, isMobileLocked, lockedTen]);
+  }, [open, lockedTen, executeSendOTP]);
 
   useEffect(() => {
-    if (!open || step !== 'otp') return;
+    if (!open || (step !== 'otp' && step !== 'pin')) return;
 
-    const firstEmptyIndex = otp.findIndex((digit) => digit === '');
+    const firstEmptyIndex = code.findIndex((digit) => digit === '');
     const targetIndex = firstEmptyIndex === -1 ? 0 : firstEmptyIndex;
 
     const timer = window.setTimeout(() => {
-      otpInputRefs.current[targetIndex]?.focus();
-      otpInputRefs.current[targetIndex]?.select();
+      codeInputRefs.current[targetIndex]?.focus();
+      codeInputRefs.current[targetIndex]?.select();
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [open, step, otp]);
+  }, [open, step, code]);
 
   if (!open) return null;
 
@@ -85,82 +123,93 @@ export function LoginVerificationPopup({
       ? isMobileLocked
         ? 'We will send a verification code to the mobile number on your account.'
         : 'Enter your mobile number to receive a verification code.'
+      : step === 'pin'
+      ? 'PIN login required. Enter your 4-digit PIN to confirm deletion.'
       : `Enter the 4-digit code sent to +91 ${mobile}`;
 
-  const handleSendOTP = async (e?: React.FormEvent) => {
+  const handleSendSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
-
-    if (!isValidIndianMobileTen(mobile)) {
-      toast.error('Please enter a valid 10-digit mobile number starting with 6–9');
-      return;
-    }
-
-    try {
-      await sendOTP.mutateAsync({ mobile, role: 'fan' });
-      toast.success('OTP sent successfully');
-      setStep('otp');
-    } catch (error: unknown) {
-      toast.error(getAxiosErrorMessage(error, 'Failed to send OTP'));
-    }
+    await executeSendOTP(mobile);
   };
 
-  const handleVerifyOTP = async (e?: React.FormEvent) => {
+  const handleVerifyCode = async (e?: React.FormEvent, customCode?: string) => {
     e?.preventDefault();
-    const otpCode = otp.join('');
+    const finalCode = customCode || code.join('');
 
-    if (otpCode.length !== 4) {
-      toast.error('Please enter a valid 4-digit OTP');
+    if (finalCode.length !== 4) {
+      toast.error(`Please enter a valid 4-digit ${step === 'pin' ? 'PIN' : 'OTP'}`);
       return;
     }
 
     if (!isValidIndianMobileTen(mobile)) {
-      toast.error('Invalid mobile for verification.');
+      toast.error('Invalid mobile number.');
       return;
     }
 
-    try {
-      await verifyOnly.mutateAsync({ mobile, otp: otpCode, role: 'fan' });
-    } catch (error: unknown) {
-      toast.error(getAxiosErrorMessage(error, 'Invalid OTP'));
-      setOtp(['', '', '', '']);
-      otpInputRefs.current[0]?.focus();
-      return;
+    let authToken: string | undefined;
+
+    if (step === 'pin') {
+      try {
+        const pinRes = await verifyPINOnly.mutateAsync({ mobile, pin: finalCode, role: 'fan' });
+        authToken = pinRes?.access_token;
+      } catch (error: unknown) {
+        toast.error(getAxiosErrorMessage(error, 'Incorrect PIN'));
+        setCode(['', '', '', '']);
+        codeInputRefs.current[0]?.focus();
+        return;
+      }
+    } else {
+      try {
+        const otpRes = await verifyOTPOnly.mutateAsync({ mobile, otp: finalCode, role: 'fan' });
+        authToken = otpRes?.access_token;
+      } catch (error: unknown) {
+        toast.error(getAxiosErrorMessage(error, 'Invalid OTP'));
+        setCode(['', '', '', '']);
+        codeInputRefs.current[0]?.focus();
+        return;
+      }
     }
 
+    setIsSubmitting(true);
     try {
-      await onVerified({ mobile, otp: otpCode });
+      await onVerified({ mobile, otp: finalCode, token: authToken });
       onClose();
     } catch (error: unknown) {
       toast.error(getAxiosErrorMessage(error, 'Something went wrong. Please try again.'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleOtpChange = (value: string, index: number) => {
+  const handleCodeChange = (value: string, index: number) => {
     const digit = value.replace(/\D/g, '').slice(-1);
     if (!digit && value !== '') return;
 
-    const newOtp = [...otp];
-    newOtp[index] = digit;
-    setOtp(newOtp);
+    const newCode = [...code];
+    newCode[index] = digit;
+    setCode(newCode);
 
     if (digit && index < 3) {
-      otpInputRefs.current[index + 1]?.focus();
+      codeInputRefs.current[index + 1]?.focus();
     }
 
-    if (newOtp.every((d) => d !== '') && digit) {
+    if (newCode.every((d) => d !== '') && digit) {
       window.setTimeout(() => {
-        if (newOtp.join('').length === 4) {
-          void handleVerifyOTP();
+        const full = newCode.join('');
+        if (full.length === 4) {
+          void handleVerifyCode(undefined, full);
         }
       }, 250);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpInputRefs.current[index - 1]?.focus();
+    if (e.key === 'Backspace' && !code[index] && index > 0) {
+      codeInputRefs.current[index - 1]?.focus();
     }
   };
+
+  const isVerifying = step === 'pin' ? verifyPINOnly.isPending : verifyOTPOnly.isPending;
 
   return (
     <div
@@ -171,16 +220,20 @@ export function LoginVerificationPopup({
         <Card className="border-zinc-800 bg-zinc-900/95 text-white backdrop-blur-xl">
           <CardContent className="p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold tracking-tight">{step === 'phone' ? title : 'Verify OTP'}</h3>
+              <h3 className="text-lg font-bold tracking-tight">
+                {step === 'phone' ? (title ?? 'Verify Mobile') : step === 'pin' ? 'Verify PIN' : 'Verify OTP'}
+              </h3>
               <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Close">
                 <X className="size-4" />
               </Button>
             </div>
 
-            <p className="mb-5 text-sm text-zinc-400">{description ?? defaultDescription}</p>
+            <p className="mb-5 text-sm text-zinc-400">
+              {step === 'phone' ? (description ?? defaultDescription) : defaultDescription}
+            </p>
 
             {step === 'phone' ? (
-              <form onSubmit={(e) => void handleSendOTP(e)} className="space-y-4">
+              <form onSubmit={(e) => void handleSendSubmit(e)} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
                     Mobile number
@@ -217,46 +270,43 @@ export function LoginVerificationPopup({
                       Sending OTP…
                     </>
                   ) : (
-                    'Send verification code'
+                    'Send OTP'
                   )}
                 </Button>
               </form>
             ) : (
-              <form onSubmit={(e) => void handleVerifyOTP(e)} className="space-y-6">
+              <form onSubmit={(e) => void handleVerifyCode(e)} className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between px-1">
                     <label className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-                      Security code
+                      {step === 'pin' ? 'Security PIN' : 'Security code'}
                     </label>
                     <button
                       type="button"
-                      onClick={() => {
-                        if (isMobileLocked) void handleSendOTP();
-                        else setStep('phone');
-                      }}
+                      onClick={() => setStep('phone')}
                       className="text-xs font-medium text-purple-400 hover:underline"
                     >
-                      {isMobileLocked ? 'Resend code' : 'Change number'}
+                      Change number
                     </button>
                   </div>
                   <div className="flex justify-between gap-3">
-                    {otp.map((digit, index) => (
+                    {code.map((digit, index) => (
                       <input
                         key={index}
                         ref={(el) => {
-                          otpInputRefs.current[index] = el;
+                          codeInputRefs.current[index] = el;
                         }}
-                        type="text"
+                        type={step === 'pin' ? 'password' : 'text'}
                         inputMode="numeric"
-                        autoComplete="one-time-code"
+                        autoComplete={step === 'pin' ? 'current-password' : 'one-time-code'}
                         value={digit}
-                        onChange={(e) => handleOtpChange(e.target.value, index)}
+                        onChange={(e) => handleCodeChange(e.target.value, index)}
                         onKeyDown={(e) => handleKeyDown(e, index)}
                         className={cn(
                           'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800 text-center text-lg font-bold outline-none transition-all focus:border-purple-500 focus:ring-1 focus:ring-purple-500',
                           digit && 'border-purple-500 bg-zinc-800/80'
                         )}
-                        disabled={verifyOnly.isPending}
+                        disabled={isVerifying || isSubmitting}
                         maxLength={1}
                       />
                     ))}
@@ -265,27 +315,32 @@ export function LoginVerificationPopup({
                 <Button
                   type="submit"
                   className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white transition-all hover:bg-purple-700 active:scale-[0.98]"
-                  disabled={verifyOnly.isPending || otp.join('').length < 4}
+                  disabled={isVerifying || isSubmitting || code.join('').length < 4}
                 >
-                  {verifyOnly.isPending ? (
+                  {isVerifying || isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-4 animate-spin" />
-                      Verifying…
+                      {isSubmitting ? 'Deleting account…' : 'Verifying…'}
                     </>
+                  ) : step === 'pin' ? (
+                    'Verify PIN'
                   ) : (
-                    'Verify'
+                    'Verify OTP'
                   )}
                 </Button>
-                <p className="text-center text-xs text-zinc-500">
-                  Didn&apos;t receive a code?{' '}
-                  <button
-                    type="button"
-                    className="font-medium text-purple-400 hover:underline"
-                    onClick={() => void handleSendOTP()}
-                  >
-                    Resend
-                  </button>
-                </p>
+                {step === 'otp' && (
+                  <p className="text-center text-xs text-zinc-500">
+                    Didn&apos;t receive a code?{' '}
+                    <button
+                      type="button"
+                      className="font-medium text-purple-400 hover:underline"
+                      onClick={() => void executeSendOTP(mobile)}
+                      disabled={sendOTP.isPending}
+                    >
+                      Resend
+                    </button>
+                  </p>
+                )}
               </form>
             )}
           </CardContent>

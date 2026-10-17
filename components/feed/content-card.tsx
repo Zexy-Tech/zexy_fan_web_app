@@ -22,21 +22,22 @@ export function ContentCard({ content }: ContentCardProps) {
               {content.creator_avatar ? (
                 <Image
                   src={getMediaUrl(content.creator_avatar) || ''}
-                  alt={content.creator_name || content.creator_username}
+                  alt={content.creator_name || content.creator_username || 'Creator'}
                   fill
                   className="object-cover"
                   sizes="40px"
+                  unoptimized
                 />
               ) : (
-                content.creator_name?.[0] || 'C'
+                content.creator_name?.[0] || content.creator_username?.[0] || 'C'
               )}
             </div>
             <div className="flex-1">
               <Link
-                href={`/creator/${content.creator_username}`}
+                href={`/creator/${content.creator_username || content.creator_uid}`}
                 className="font-semibold hover:underline"
               >
-                {content.creator_name || content.creator_username}
+                {content.creator_name || content.creator_username || 'Creator'}
               </Link>
               <p className="text-xs text-muted-foreground">{formatDate(content.created_on)}</p>
             </div>
@@ -65,6 +66,7 @@ export function ContentCard({ content }: ContentCardProps) {
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 800px"
+                    unoptimized
                   />
                 ) : null}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/10">
@@ -92,7 +94,7 @@ export function ContentCard({ content }: ContentCardProps) {
           </div>
 
           {content.is_locked ? (
-            <Link href={`/creator/${content.creator_username}`} className="w-full">
+            <Link href={`/creator/${content.creator_username || content.creator_uid}`} className="w-full">
               <Button className="w-full">
                 <Lock className="mr-2 size-4" />
                 Join to Unlock

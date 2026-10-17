@@ -6,14 +6,14 @@ export function fanHasActiveSubscriptionToCreator(
   subscriptions: ActiveSubscription[] | undefined
 ): boolean {
   if (!subscriptions?.length) return false;
-  const handle = creator.username.toLowerCase();
+  const handle = creator?.username ? creator.username.toLowerCase() : '';
   const now = Date.now();
   return subscriptions.some((sub) => {
     if (sub.status !== 'active') return false;
     const exp = new Date(sub.expires_at).getTime();
     if (!Number.isFinite(exp) || exp <= now) return false;
     const u = sub.creator_username?.toLowerCase() ?? '';
-    return u === handle || sub.creator_uid === creator.id;
+    return (handle ? u === handle : false) || (creator?.id != null && sub.creator_uid === creator.id);
   });
 }
 

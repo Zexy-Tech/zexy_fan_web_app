@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Creator, CreatorFilters } from '@/services/feed';
 import { Check, ChevronDown, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { City } from 'country-state-city';
+import indianCities from '@/constants/indianCities.json';
 import { useCategories } from '@/hooks/useCategories';
 
 type GenderValue = 'ALL' | 'M' | 'F' | 'O';
@@ -54,16 +54,12 @@ export function CreatorSearchFilters({
   const { data: categories } = useCategories();
 
   const cityOptions = useMemo(() => {
-    const indiaCities = (City.getCitiesOfCountry('IN') || [])
-      .map((city) => city.name.trim())
-      .filter((city) => city.length > 0);
-
     const creatorCities = (creators || [])
       .map((creator) => (creator as Creator & { city?: string | null }).city)
       .filter((city): city is string => Boolean(city && city.trim()))
       .map((city) => city.trim());
 
-    return Array.from(new Set([...indiaCities, ...creatorCities])).sort((a, b) =>
+    return Array.from(new Set([...indianCities, ...creatorCities])).sort((a, b) =>
       a.localeCompare(b)
     );
   }, [creators]);

@@ -4,27 +4,22 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 Sentry.init({
-  dsn: "https://b7a3527ba6702f1bdd1dac8ad01a096a@o4511432134557696.ingest.us.sentry.io/4511432642658304",
-
-  // Adjust this value in production, or use tracesSampler for greater control
-  tracesSampleRate: 1,
-
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
+  dsn: isProduction ? "https://b7a3527ba6702f1bdd1dac8ad01a096a@o4511432134557696.ingest.us.sentry.io/4511432642658304" : undefined,
+  enabled: isProduction,
+  tracesSampleRate: 0.1,
   debug: false,
-
   replaysOnErrorSampleRate: 1.0,
-
-  // This sets the sample rate to be 100% for testing. 
-  replaysSessionSampleRate: 1.0,
-
-  // You can remove this option if you're not planning to use the Sentry Session Replay feature:
-  integrations: [
-    Sentry.replayIntegration({
-      // Additional Replay configuration goes in here, for example:
-      maskAllText: true,
-      maskAllInputs: true,
-      blockAllMedia: true,
-    }),
-  ],
+  replaysSessionSampleRate: 0.1,
+  integrations: isProduction
+    ? [
+        Sentry.replayIntegration({
+          maskAllText: true,
+          maskAllInputs: true,
+          blockAllMedia: true,
+        }),
+      ]
+    : [],
 });

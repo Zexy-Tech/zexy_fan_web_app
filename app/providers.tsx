@@ -10,6 +10,8 @@ import { SecurityProvider } from '@/hooks/useSecurity';
 import { Toaster } from 'sonner';
 import { SecurityShield, Watermark } from '@/components/SecurityShield';
 
+import { MandatoryProfileGuard } from '@/components/auth/mandatory-profile-guard';
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
@@ -19,7 +21,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <AuthProvider>
               <SecurityShield />
               <Watermark />
-              {children}
+              <MandatoryProfileGuard>
+                {children}
+              </MandatoryProfileGuard>
               <Toaster position="top-center" richColors />
             </AuthProvider>
           </SecurityProvider>

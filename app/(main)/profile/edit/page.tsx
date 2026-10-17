@@ -4,14 +4,24 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { isAxiosError } from 'axios';
-import { Loader2, Pencil } from 'lucide-react';
+import { CheckCircle2, Loader2, Pencil, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useFanCommonProfile, useUpdateFanCommonProfile } from '@/hooks/useFanCommonProfile';
+import {
+  useFanCommonProfile,
+  useUpdateFanCommonProfile,
+  useRequestMobileChange,
+  useVerifyMobileChange,
+  useSendCurrentMobileOtp,
+  useVerifyCurrentMobileOtp,
+} from '@/hooks/useFanCommonProfile';
+import { normalizeToIndianMobileTen } from '@/lib/indianMobile';
+import { OtpVerificationModal } from '@/components/profile/otp-verification-modal';
 import { cn, getMediaUrl } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const MAX_AVATAR_BYTES = 3 * 1024 * 1024;
+const MOBILE_REGEX = /^[6-9]\d{9}$/;
 
 const nativeControlClass = cn(
   'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background',
@@ -38,14 +48,37 @@ function readFileAsDataUrl(file: File): Promise<string> {
   });
 }
 
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (isAxiosError(err)) {
+    const data = err.response?.data as { message?: string; error?: { message?: string } } | undefined;
+    return data?.error?.message || data?.message || err.message || fallback;
+  }
+  if (err instanceof Error) return err.message;
+  return fallback;
+}
+
 export default function EditProfilePage() {
   const { push } = useRouter();
   const { data: profile, isLoading, isError, error, refetch } = useFanCommonProfile();
   const updateProfile = useUpdateFanCommonProfile();
+  const sendCurrentMobileOtp = useSendCurrentMobileOtp();
+  const verifyCurrentMobileOtp = useVerifyCurrentMobileOtp();
+  const requestMobileChange = useRequestMobileChange();
+  const verifyMobileChange = useVerifyMobileChange();
 
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
-  const [mobile, setMobile] = useState('');
+  const [verifiedMobile, setVerifiedMobile] = useState<string | null>(null);
+
+  // 2-step mobile change states
+  const [isChangingMobile, setIsChangingMobile] = useState(false);
+  const [newMobile, setNewMobile] = useState('');
+  const [isCurrentMobileVerifiedByOtp, setIsCurrentMobileVerifiedByOtp] = useState(false);
+  const [otpStep, setOtpStep] = useState<'existing' | 'new'>('existing');
+  const [verificationSource, setVerificationSource] = useState<'inline' | 'save'>('inline');
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState('');
   const [city, setCity] = useState('');
@@ -62,7 +95,6 @@ export default function EditProfilePage() {
     if (!profile) return;
     setName(profile.name ?? '');
     setUsername((profile.username ?? '').replace(/^@+/, ''));
-    setMobile(profile.mobile ?? '');
     setDateOfBirth(dateOfBirthInputValue(profile.date_of_birth));
     setGender(profile.gender ?? '');
     setCity(profile.city ?? '');
@@ -70,6 +102,12 @@ export default function EditProfilePage() {
     setCountry(profile.country ?? '');
     setAvatarValue(profile.avatar);
   }, [profile]);
+
+  const initialMobileClean =
+    normalizeToIndianMobileTen(profile?.mobile) ?? (profile?.mobile ?? '').replace(/\D/g, '').slice(-10);
+  const currentActiveMobile = verifiedMobile || initialMobileClean;
+  const cleanNewMobile = newMobile.replace(/\D/g, '').slice(0, 10);
+  const isNewMobileValid = MOBILE_REGEX.test(cleanNewMobile);
 
   useEffect(() => {
     if (!avatarMenuOpen) return;
@@ -112,20 +150,127 @@ export default function EditProfilePage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmedName = name.trim();
-    const trimmedUser = username.trim().replace(/^@/, '');
-    const trimmedMobile = mobile.trim();
-    if (!trimmedName || !trimmedUser || !trimmedMobile) {
-      toast.error('Name, username, and mobile are required.');
+  // STEP 1: Initiate verification of existing mobile number
+  const handleInitiateExistingMobileVerification = async () => {
+    if (!initialMobileClean) {
+      setIsCurrentMobileVerifiedByOtp(true);
+      setIsChangingMobile(true);
       return;
     }
+    setOtpStep('existing');
+    setOtpError(null);
+    try {
+      const res = await sendCurrentMobileOtp.mutateAsync({ mobile: initialMobileClean });
+      toast.success(res.message || 'OTP sent to your current mobile number');
+      setOtpModalOpen(true);
+    } catch (err) {
+      const msg = getErrorMessage(err, 'Failed to send OTP to current mobile');
+      toast.error(msg);
+    }
+  };
+
+  // STEP 1: Verify OTP for existing mobile number
+  const handleVerifyExistingOtp = async (otpCode: string) => {
+    setOtpError(null);
+    try {
+      await verifyCurrentMobileOtp.mutateAsync({
+        mobile: initialMobileClean,
+        otp: otpCode,
+      });
+      setIsCurrentMobileVerifiedByOtp(true);
+      setIsChangingMobile(true);
+      setNewMobile('');
+      setOtpModalOpen(false);
+      toast.success('Current number verified! Enter your new mobile number.');
+    } catch (err) {
+      const msg = getErrorMessage(err, 'Invalid OTP');
+      setOtpError(msg);
+      throw err;
+    }
+  };
+
+  // STEP 2: Initiate verification of new mobile number
+  const handleInitiateNewMobileVerification = async (source: 'inline' | 'save') => {
+    if (!isCurrentMobileVerifiedByOtp && initialMobileClean) {
+      toast.info('Please verify your current mobile number first.');
+      await handleInitiateExistingMobileVerification();
+      return;
+    }
+
+    if (!isNewMobileValid) {
+      toast.error('Please enter a valid 10-digit Indian mobile number starting with 6-9');
+      return;
+    }
+
+    if (cleanNewMobile === initialMobileClean) {
+      toast.error('New mobile number must be different from current mobile number');
+      return;
+    }
+
+    setOtpStep('new');
+    setVerificationSource(source);
+    setOtpError(null);
+    try {
+      const res = await requestMobileChange.mutateAsync({ new_mobile: cleanNewMobile });
+      toast.success(res.message || 'OTP sent to your new mobile number');
+      setOtpModalOpen(true);
+    } catch (err) {
+      const msg = getErrorMessage(err, 'Failed to send OTP to new mobile');
+      toast.error(msg);
+    }
+  };
+
+  // STEP 2: Verify OTP for new mobile number
+  const handleVerifyNewOtp = async (otpCode: string) => {
+    setOtpError(null);
+    try {
+      const res = await verifyMobileChange.mutateAsync({
+        new_mobile: cleanNewMobile,
+        otp: otpCode,
+      });
+      setVerifiedMobile(cleanNewMobile);
+      setIsChangingMobile(false);
+      setNewMobile('');
+      setOtpModalOpen(false);
+      toast.success(res.message || 'Mobile number updated successfully!');
+
+      if (verificationSource === 'save') {
+        await saveProfileDetails(cleanNewMobile);
+      }
+    } catch (err) {
+      const msg = getErrorMessage(err, 'Invalid OTP');
+      setOtpError(msg);
+      throw err;
+    }
+  };
+
+  // Resend OTP for either Step 1 or Step 2
+  const handleResendOtp = async () => {
+    setOtpError(null);
+    try {
+      if (otpStep === 'existing') {
+        const res = await sendCurrentMobileOtp.mutateAsync({ mobile: initialMobileClean });
+        toast.success(res.message || 'OTP resent to current mobile number');
+      } else {
+        if (!isNewMobileValid) return;
+        const res = await requestMobileChange.mutateAsync({ new_mobile: cleanNewMobile });
+        toast.success(res.message || 'OTP resent to new mobile number');
+      }
+    } catch (err) {
+      const msg = getErrorMessage(err, 'Failed to resend OTP');
+      setOtpError(msg);
+      toast.error(msg);
+    }
+  };
+
+  const saveProfileDetails = async (targetMobile: string) => {
+    const trimmedName = name.trim();
+    const trimmedUser = username.trim().replace(/^@/, '');
     try {
       await updateProfile.mutateAsync({
         name: trimmedName,
         username: trimmedUser,
-        mobile: trimmedMobile,
+        mobile: targetMobile,
         avatar: avatarValue?.trim() || null,
         date_of_birth: dateOfBirth.trim() || null,
         gender: gender.trim() || null,
@@ -136,15 +281,40 @@ export default function EditProfilePage() {
       toast.success('Profile updated.');
       push('/profile');
     } catch (err) {
-      const msg = isAxiosError(err)
-        ? (err.response?.data as { message?: string } | undefined)?.message ||
-          err.response?.statusText ||
-          err.message
-        : err instanceof Error
-          ? err.message
-          : 'Update failed.';
+      const msg = getErrorMessage(err, 'Update failed.');
       toast.error(msg);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedName = name.trim();
+    const trimmedUser = username.trim().replace(/^@/, '');
+    const activeMobile = verifiedMobile || initialMobileClean;
+
+    if (!trimmedName || !trimmedUser || !activeMobile) {
+      toast.error('Name, username, and mobile are required.');
+      return;
+    }
+
+    if (isChangingMobile) {
+      if (!cleanNewMobile) {
+        toast.error('Please enter a valid 10-digit new mobile number.');
+        return;
+      }
+      if (!isNewMobileValid) {
+        toast.error('Please enter a valid 10-digit Indian mobile number starting with 6-9');
+        return;
+      }
+      if (cleanNewMobile === initialMobileClean) {
+        toast.error('New mobile number must be different from current mobile number');
+        return;
+      }
+      await handleInitiateNewMobileVerification('save');
+      return;
+    }
+
+    await saveProfileDetails(activeMobile);
   };
 
   return (
@@ -261,20 +431,132 @@ export default function EditProfilePage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="edit-mobile" className="text-sm font-medium">
-                Mobile
-              </label>
-              <Input
-                id="edit-mobile"
-                type="tel"
-                inputMode="numeric"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-                autoComplete="tel"
-                required
-              />
-            </div>
+            {/* MOBILE NUMBER SECTION - 2-STEP VERIFICATION */}
+            {!isChangingMobile ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="edit-mobile" className="text-sm font-medium">
+                    Mobile Number
+                  </label>
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                    <CheckCircle2 className="size-3 text-emerald-400" />
+                    Verified
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <span
+                      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground select-none"
+                      aria-hidden
+                    >
+                      +91
+                    </span>
+                    <Input
+                      id="edit-mobile"
+                      type="tel"
+                      value={currentActiveMobile}
+                      readOnly
+                      className="pl-12 bg-zinc-900/50 text-zinc-300 cursor-not-allowed border-zinc-800 focus-visible:ring-0"
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={() => void handleInitiateExistingMobileVerification()}
+                    disabled={sendCurrentMobileOtp.isPending}
+                    className="shrink-0 h-10 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium shadow"
+                  >
+                    {sendCurrentMobileOtp.isPending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      'Change'
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-zinc-500">
+                  To change your mobile number, verify your current number via OTP first.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3 p-3.5 rounded-xl border border-purple-500/30 bg-purple-500/5 animate-in fade-in">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck className="size-4 text-purple-400" />
+                    <span className="text-xs font-semibold text-purple-300 uppercase tracking-wider">
+                      Change Mobile Number
+                    </span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs text-emerald-400 font-medium">
+                    <CheckCircle2 className="size-3 text-emerald-400" />
+                    Current verified
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="new-mobile" className="text-xs font-medium text-zinc-300">
+                    Enter New Mobile Number
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <span
+                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground select-none"
+                        aria-hidden
+                      >
+                        +91
+                      </span>
+                      <Input
+                        id="new-mobile"
+                        type="tel"
+                        inputMode="numeric"
+                        className="pl-12"
+                        value={newMobile}
+                        onChange={(e) => setNewMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        autoComplete="tel"
+                        placeholder="10-digit new mobile"
+                        maxLength={10}
+                        autoFocus
+                        required
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      onClick={() => void handleInitiateNewMobileVerification('inline')}
+                      disabled={
+                        requestMobileChange.isPending ||
+                        !isNewMobileValid ||
+                        cleanNewMobile === initialMobileClean
+                      }
+                      className="shrink-0 h-10 px-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-medium shadow"
+                    >
+                      {requestMobileChange.isPending ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <>
+                          <ShieldCheck className="size-4 mr-1.5" />
+                          Verify
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {cleanNewMobile.length > 0 && !isNewMobileValid ? (
+                  <p className="text-xs text-amber-400">
+                    Please enter a valid 10-digit Indian mobile number starting with 6-9
+                  </p>
+                ) : cleanNewMobile === initialMobileClean ? (
+                  <p className="text-xs text-amber-400">
+                    New mobile number must be different from current mobile number
+                  </p>
+                ) : (
+                  <p className="text-xs text-zinc-400">
+                    An OTP will be sent to verify your new mobile number.
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="space-y-2">
               <label htmlFor="edit-dob" className="text-sm font-medium">
@@ -365,6 +647,36 @@ export default function EditProfilePage() {
             </div>
           </div>
         </form>
+      ) : null}
+
+      {profile ? (
+        <OtpVerificationModal
+          open={otpModalOpen}
+          onClose={() => {
+            setOtpModalOpen(false);
+            setOtpError(null);
+          }}
+          title={otpStep === 'existing' ? 'Verify Current Mobile' : 'Verify New Mobile'}
+          subtitle={
+            otpStep === 'existing'
+              ? 'Enter the 4-digit code sent to your current number'
+              : 'Enter the 4-digit code sent to your new number'
+          }
+          mobile={otpStep === 'existing' ? initialMobileClean : cleanNewMobile}
+          onVerify={otpStep === 'existing' ? handleVerifyExistingOtp : handleVerifyNewOtp}
+          onResend={handleResendOtp}
+          isLoading={
+            otpStep === 'existing'
+              ? verifyCurrentMobileOtp.isPending
+              : verifyMobileChange.isPending
+          }
+          isResending={
+            otpStep === 'existing'
+              ? sendCurrentMobileOtp.isPending
+              : requestMobileChange.isPending
+          }
+          error={otpError}
+        />
       ) : null}
     </div>
   );

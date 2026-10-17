@@ -70,6 +70,24 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
 
+    // Do NOT trigger token refresh or global 401 session wipe for auth verification endpoints or delete profile
+    const isAuthOrDeleteEndpoint =
+      originalRequest?.url?.includes('/api/v1/auth/pin/login') ||
+      originalRequest?.url?.includes('/api/v1/auth/login') ||
+      originalRequest?.url?.includes('/api/v1/auth/signup') ||
+      originalRequest?.url?.includes('/api/v1/auth/mobile') ||
+      originalRequest?.url?.includes('/api/v1/auth/google') ||
+      originalRequest?.url?.includes('/api/v1/auth/truecaller') ||
+      originalRequest?.url?.includes('/api/v1/auth/otp/verify') ||
+      originalRequest?.url?.includes('/api/v1/auth/otp/send') ||
+      originalRequest?.url?.includes('/api/v1/auth/token/refresh') ||
+      originalRequest?.url?.includes('/api/v1/auth/refresh') ||
+      (originalRequest?.url?.includes('/api/v1/common/profile') && originalRequest?.method?.toLowerCase() === 'delete');
+
+    if (isAuthOrDeleteEndpoint) {
+      return Promise.reject(error);
+    }
+
     // 1. Handle 401 Unauthorized with token refresh
     if (status === 401 && !originalRequest._retry) {
       if (isRefreshing) {

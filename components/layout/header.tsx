@@ -7,8 +7,8 @@ import { useState } from 'react';
 import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid, Radio } from 'lucide-react';
-
+import { ArrowLeft, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid, Radio, LogIn } from 'lucide-react';
+import { SignupModal } from '@/components/auth/signup-modal';
 
 const navItems = [
   { href: '/creators', label: 'Creators', icon: Users },
@@ -27,6 +27,7 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const isMyCreatorsHeader = pathname === '/subscriptions';
   const isMembershipHeader =
@@ -36,7 +37,7 @@ export function Header() {
   const isDeleteAccountHeader = pathname === '/profile/delete-account';
   const isSwitchToCreatorHeader = pathname === '/profile/switch-to-creator';
   const isSavedHeader = pathname === '/profile/saved';
-  const categorySlugMatch = pathname.match(/^\/categories\/([^/]+)$/);
+  const categorySlugMatch = pathname?.match(/^\/categories\/([^/]+)$/) ?? null;
   const categorySlug = categorySlugMatch?.[1] ?? null;
   const isCategoriesListHeader = pathname === '/categories';
   const isCategoryDetailHeader = Boolean(categorySlug);
@@ -203,7 +204,7 @@ export function Header() {
           })}
         </nav>
 
-        {user && (
+        {user ? (
           <div className="border-t px-2 py-3">
             <Button
               variant="ghost"
@@ -218,8 +219,26 @@ export function Header() {
               Logout
             </Button>
           </div>
+        ) : (
+          <div className="border-t px-2 py-3">
+            <Button
+              className="w-full justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl text-xs h-10 transition-all active:scale-[0.98]"
+              onClick={() => {
+                setIsDrawerOpen(false);
+                setIsAuthModalOpen(true);
+              }}
+            >
+              <LogIn className="size-4" />
+              Log In / Sign Up
+            </Button>
+          </div>
         )}
       </aside>
+
+      <SignupModal
+        open={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </>
   );
 }

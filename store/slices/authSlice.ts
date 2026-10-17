@@ -2,12 +2,18 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface User {
   id: number;
-  mobile: string;
+  mobile: string | null;
   username: string | null;
   name: string | null;
   avatar: string | null;
   role: 'fan' | 'creator' | 'admin';
   has_completed_onboarding: boolean;
+  onboarding_step?: number;
+  is_mobile_verified?: boolean;
+  email?: string | null;
+  city?: string | null;
+  date_of_birth?: string | null;
+  gender?: string | null;
 }
 
 interface AuthState {
@@ -37,6 +43,11 @@ const authSlice = createSlice({
       state.sessionToken = action.payload.sessionToken || null;
       state.isLoading = false;
     },
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
     clearAuth: (state) => {
       state.user = null;
       state.token = null;
@@ -50,5 +61,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setAuth, clearAuth, setLoading } = authSlice.actions;
+export const { setAuth, updateUser, clearAuth, setLoading } = authSlice.actions;
 export default authSlice.reducer;

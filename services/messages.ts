@@ -29,6 +29,7 @@ export interface Message {
   tip_transaction_id?: number | null;
   created_at: string;
   read_at: string | null;
+  is_deleted?: boolean;
 }
 
 export interface Conversation {

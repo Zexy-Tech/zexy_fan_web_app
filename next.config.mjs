@@ -12,10 +12,24 @@ const nextConfig = {
   reactStrictMode: false,
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'api.zexy.live' },
-      { protocol: 'http', hostname: 'localhost' },
-      // Allow any local development IP on port 8000
-      { protocol: 'http', hostname: '**', port: '8000' },
+      { protocol: 'https', hostname: '**' },
+      { protocol: 'http', hostname: '**' },
+    ],
+  },
+  compress: true,
+  poweredByHeader: false,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      'date-fns',
+      '@tanstack/react-query',
+      'axios',
+      'sonner',
+      'react-hot-toast',
+      'socket.io-client',
     ],
   },
 };

@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Loader2, ShieldCheck, ChevronRight, KeyRound, ArrowLeft, Type, Eye } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { ENV } from '@/constants/env';
 
 export default function SettingsPage() {
   const { fontSize, setFontSize } = useTypography();
@@ -230,7 +231,7 @@ export default function SettingsPage() {
               onClick={async () => {
                 toast.info('Simulating API error…');
                 try {
-                  const res = await fetch('http://localhost:8000/api/v1/debug/force-crash-test-500');
+                  const res = await fetch(`${ENV.API_BASE_URL}/api/v1/debug/force-crash-test-500`);
                   const data = await res.json();
                   if (!res.ok) {
                     // Display the new flat error message format directly

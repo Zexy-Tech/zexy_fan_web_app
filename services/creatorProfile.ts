@@ -192,58 +192,91 @@ export const creatorProfileService = {
    * @returns Profile configuration object
    */
   getProfileConfig: async (username: string): Promise<CreatorProfileConfig> => {
-    const response = await apiClient.get(
-      `/api/v1/fan/creators/${username}/profile-config`
-    );
-    const payload = response.data.data;
-    const data = payload.data ?? payload;
-    
-    // Map snake_case from backend to camelCase for frontend
-    return {
-      creatorId: data.creator_id,
-      username: data.username,
-      is_live: data.is_live,
-      active_room_id: data.active_room_id,
-      theme: {
-        primaryColor: data.theme.primaryColor,
-        secondaryColor: data.theme.secondaryColor,
-        gradientStart: data.theme.gradientStart,
-        gradientEnd: data.theme.gradientEnd,
-        fontFamily: data.theme.fontFamily,
-        borderRadius: data.theme.borderRadius,
-        buttonStyle: data.theme.buttonStyle,
-      },
-      intro: {
-        greeting: data.intro.greeting,
-        bio: data.intro.bio,
-        showAvatar: data.intro.showAvatar,
-        avatarStyle: data.intro.avatarStyle,
-      },
-      actionButtons: (data.action_buttons || []).map((btn: any) => ({
-        id: btn.id,
-        label: btn.label,
-        type: btn.type,
-        action: btn.action,
-        icon: btn.icon,
-        style: btn.style,
-      })),
-      sections: (data.sections || []).map((sec: any) => ({
-        id: sec.id,
-        type: sec.type,
-        enabled: sec.enabled,
-        order: sec.order,
-        config: sec.config,
-      })),
-      bottomNav: (data.bottom_nav || []).map((nav: any) => ({
-        id: nav.id,
-        label: nav.label,
-        icon: nav.icon,
-        route: nav.route,
-        requiresAuth: nav.requiresAuth,
-      })),
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-    };
+    try {
+      const response = await apiClient.get(
+        `/api/v1/fan/creators/${username}/profile-config`
+      );
+      const payload = response.data?.data;
+      const data = payload?.data ?? payload ?? {};
+      
+      const rawTheme = data.theme || {};
+      const rawIntro = data.intro || {};
+
+      // Map snake_case from backend to camelCase for frontend
+      return {
+        creatorId: data.creator_id ?? 0,
+        username: data.username ?? username,
+        is_live: Boolean(data.is_live),
+        active_room_id: data.active_room_id ?? null,
+        theme: {
+          primaryColor: rawTheme.primaryColor || rawTheme.primary_color || '#ffffff',
+          secondaryColor: rawTheme.secondaryColor || rawTheme.secondary_color || '#3f3f46',
+          gradientStart: rawTheme.gradientStart || rawTheme.gradient_start || '#9333ea',
+          gradientEnd: rawTheme.gradientEnd || rawTheme.gradient_end || '#ec4899',
+          fontFamily: rawTheme.fontFamily || rawTheme.font_family || 'Inter',
+          borderRadius: rawTheme.borderRadius || rawTheme.border_radius || 'md',
+          buttonStyle: rawTheme.buttonStyle || rawTheme.button_style || 'solid',
+        },
+        intro: {
+          greeting: rawIntro.greeting || '',
+          bio: rawIntro.bio || '',
+          showAvatar: rawIntro.showAvatar ?? rawIntro.show_avatar ?? true,
+          avatarStyle: rawIntro.avatarStyle || rawIntro.avatar_style || 'circle',
+        },
+        actionButtons: (Array.isArray(data.action_buttons) ? data.action_buttons : []).map((btn: any) => ({
+          id: btn?.id || `btn-${Math.random()}`,
+          label: btn?.label || '',
+          type: btn?.type || 'custom_link',
+          action: btn?.action || '',
+          icon: btn?.icon || null,
+          style: btn?.style || 'secondary',
+        })),
+        sections: (Array.isArray(data.sections) ? data.sections : []).map((sec: any) => ({
+          id: sec?.id || `sec-${Math.random()}`,
+          type: sec?.type || 'intro',
+          enabled: sec?.enabled ?? true,
+          order: sec?.order ?? 0,
+          config: sec?.config || {},
+        })),
+        bottomNav: (Array.isArray(data.bottom_nav) ? data.bottom_nav : []).map((nav: any) => ({
+          id: nav?.id || `nav-${Math.random()}`,
+          label: nav?.label || '',
+          icon: nav?.icon || 'Home',
+          route: nav?.route || '/feed',
+          requiresAuth: nav?.requiresAuth ?? false,
+        })),
+        createdAt: data.created_at || new Date().toISOString(),
+        updatedAt: data.updated_at || new Date().toISOString(),
+      };
+    } catch {
+      // Return safe default profile config if endpoint fails or creator has no custom config
+      return {
+        creatorId: 0,
+        username,
+        is_live: false,
+        active_room_id: null,
+        theme: {
+          primaryColor: '#ffffff',
+          secondaryColor: '#3f3f46',
+          gradientStart: '#9333ea',
+          gradientEnd: '#ec4899',
+          fontFamily: 'Inter',
+          borderRadius: 'md',
+          buttonStyle: 'solid',
+        },
+        intro: {
+          greeting: '',
+          bio: '',
+          showAvatar: true,
+          avatarStyle: 'circle',
+        },
+        actionButtons: [],
+        sections: [],
+        bottomNav: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    }
   },
 
   /**
