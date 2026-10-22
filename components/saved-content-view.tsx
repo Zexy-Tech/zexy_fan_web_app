@@ -77,7 +77,7 @@ function SavedMediaGrid({
           key={item.id}
           type="button"
           onClick={() => onTileClick(item)}
-          className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
+          className="relative aspect-square w-full overflow-hidden bg-muted p-0"
         >
           {item.duration ? (
             <div className="pointer-events-none absolute right-1 top-1 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-white">
@@ -86,19 +86,19 @@ function SavedMediaGrid({
           ) : null}
 
           {isAudio && !item.thumbSrc ? (
-            <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
-              <Music className="size-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
+            <div className="flex h-full w-full items-center justify-center bg-muted">
+              <Music className="size-8 text-muted-foreground sm:h-10 sm:w-10" strokeWidth={1.5} />
             </div>
           ) : isVideo && !item.thumbSrc ? (
-            <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
-              <Video className="size-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
+            <div className="flex h-full w-full items-center justify-center bg-muted">
+              <Video className="size-8 text-muted-foreground sm:h-10 sm:w-10" strokeWidth={1.5} />
             </div>
           ) : item.thumbSrc ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={item.thumbSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-zinc-900/50">
-              <LucideImage className="size-8 text-zinc-700 sm:h-10 sm:w-10" strokeWidth={1.5} />
+            <div className="flex h-full w-full items-center justify-center bg-muted">
+              <LucideImage className="size-8 text-muted-foreground sm:h-10 sm:w-10" strokeWidth={1.5} />
             </div>
           )}
 

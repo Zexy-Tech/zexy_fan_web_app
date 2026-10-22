@@ -80,14 +80,14 @@ function InvoiceDetailPageContent() {
           variant="ghost" 
           size="icon" 
           onClick={() => router.push('/billing')}
-          className="rounded-full bg-zinc-900/50 border border-zinc-800"
+          className="rounded-full bg-card border border-border shadow-sm text-foreground hover:bg-muted"
         >
           <ArrowLeft className="size-5" />
         </Button>
-        <h1 className="text-xl font-bold tracking-tight">Invoice Details</h1>
+        <h1 className="text-xl font-bold tracking-tight text-foreground">Invoice Details</h1>
       </div>
 
-      <Card className="border-zinc-800/50 bg-zinc-950 shadow-2xl overflow-hidden">
+      <Card className="border-border bg-card shadow-lg overflow-hidden">
         {/* Status Banner */}
         <div className={cn(
           "px-6 py-4 flex items-center justify-between",
@@ -108,7 +108,7 @@ function InvoiceDetailPageContent() {
               Payment {transaction.status}
             </span>
           </div>
-          <span className="text-zinc-500 text-xs font-mono font-medium">
+          <span className="text-muted-foreground text-xs font-mono font-medium">
             #{transaction.id}
           </span>
         </div>
@@ -116,11 +116,11 @@ function InvoiceDetailPageContent() {
         <CardContent className="p-0">
           {/* Main Info */}
           <div className="p-8 text-center space-y-1">
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] mb-3 pl-[0.3em]">Total Amount</p>
-            <h2 className="text-4xl font-black text-white tabular-nums">
+            <p className="text-muted-foreground text-xs font-bold uppercase tracking-[0.3em] mb-3 pl-[0.3em]">Total Amount</p>
+            <h2 className="text-4xl font-black text-foreground tabular-nums">
               {formatCurrency(transaction.amount || transaction.gross_amount || 0)}
             </h2>
-            <p className="text-zinc-400 text-sm font-medium pt-2">
+            <p className="text-muted-foreground text-sm font-medium pt-2">
               {format(new Date(transaction.created_at), 'dd MMM yyyy, hh:mm a')}
             </p>
           </div>
@@ -128,30 +128,30 @@ function InvoiceDetailPageContent() {
           <div className="px-8 pb-8 space-y-8">
              {/* Breakdown Section */}
              <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-zinc-900">
+                <div className="flex items-center gap-2 pb-2 border-b border-border">
                    <Receipt className="size-4 text-purple-500" />
-                   <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">Transaction Summary</h3>
+                   <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Transaction Summary</h3>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-zinc-500 text-sm">Purpose</span>
-                    <span className="text-white text-sm font-semibold capitalize">{transaction.purpose.replace(/_/g, ' ')}</span>
+                    <span className="text-muted-foreground text-sm">Purpose</span>
+                    <span className="text-foreground text-sm font-semibold capitalize">{transaction.purpose.replace(/_/g, ' ')}</span>
                   </div>
 
                   {transaction.creator_name && (
                     <div className="flex justify-between items-start">
-                      <span className="text-zinc-500 text-sm">Creator</span>
+                      <span className="text-muted-foreground text-sm">Creator</span>
                       <div className="flex flex-col items-end">
-                        <span className="text-white text-sm font-semibold">{transaction.creator_name}</span>
-                        <span className="text-zinc-500 text-xs">@{transaction.creator_username}</span>
+                        <span className="text-foreground text-sm font-semibold">{transaction.creator_name}</span>
+                        <span className="text-muted-foreground text-xs">@{transaction.creator_username}</span>
                       </div>
                     </div>
                   )}
 
                   <div className="flex justify-between items-start">
-                    <span className="text-zinc-500 text-sm">Gateway ID</span>
-                    <span className="text-zinc-400 text-xs font-mono break-all max-w-[180px] text-right">
+                    <span className="text-muted-foreground text-sm">Gateway ID</span>
+                    <span className="text-muted-foreground text-xs font-mono break-all max-w-[180px] text-right">
                        {transaction.gateway_payment_id || '—'}
                     </span>
                   </div>
@@ -159,13 +159,13 @@ function InvoiceDetailPageContent() {
              </div>
 
              {/* Security Note */}
-             <div className="p-4 rounded-xl bg-zinc-900/30 border border-zinc-800/50 flex gap-4">
-                <div className="p-2 rounded-lg bg-zinc-800/50 h-fit">
+             <div className="p-4 rounded-xl bg-muted/40 border border-border flex gap-4">
+                <div className="p-2 rounded-lg bg-muted h-fit">
                    <ShieldCheck className="size-5 text-purple-400" />
                 </div>
                 <div>
-                   <p className="text-xs font-bold text-zinc-300 mb-1 uppercase tracking-wide">Secure Transaction</p>
-                   <p className="text-[11px] text-zinc-500 leading-relaxed">
+                   <p className="text-xs font-bold text-foreground mb-1 uppercase tracking-wide">Secure Transaction</p>
+                   <p className="text-[11px] text-muted-foreground leading-relaxed">
                       Your payment information is encrypted and handled by authorized payment gateways. 
                       This invoice serves as proof of purchase for digital services.
                    </p>
@@ -175,7 +175,7 @@ function InvoiceDetailPageContent() {
         </CardContent>
 
         {/* Footer Actions */}
-        <div className="p-6 bg-zinc-900/30 border-t border-zinc-800/50 flex flex-col sm:flex-row gap-3">
+        <div className="p-6 bg-muted/30 border-t border-border flex flex-col sm:flex-row gap-3">
           <Button 
             onClick={handleDownload}
             disabled={isDownloading || !isSuccess}
@@ -191,7 +191,7 @@ function InvoiceDetailPageContent() {
           <Button 
             variant="outline"
             onClick={() => router.push('/creators')}
-            className="flex-1 h-12 border-zinc-800 bg-transparent text-zinc-400 hover:text-white hover:bg-zinc-800 font-bold rounded-xl"
+            className="flex-1 h-12 border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted font-bold rounded-xl"
           >
             Browse Creators
           </Button>
@@ -199,7 +199,7 @@ function InvoiceDetailPageContent() {
       </Card>
 
       <div className="text-center py-4">
-        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.4em]">© 2026 ZEXY PLATFORM</p>
+        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.4em]">© 2026 ZEXY PLATFORM</p>
       </div>
     </div>
   );

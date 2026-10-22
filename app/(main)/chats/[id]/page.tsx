@@ -10,8 +10,10 @@ import type { Theme } from 'emoji-picker-react';
 import { useMessageThread, useSendMessage, useMarkAsRead, useClearChat, useDeleteMessage } from '@/hooks/useMessages';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useCreatorByIdentifier } from '@/hooks/useFeed';
+import { useTheme } from '@/hooks/useTheme';
 import { getMediaUrl, cn } from '@/lib/utils';
 import { messageService, Message } from '@/services/messages';
+import { toUserCode, fromUserCode } from '@/lib/userCode';
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 const TipModal = dynamic(() => import('@/components/tip-modal').then((mod) => mod.TipModal), { ssr: false });
@@ -60,15 +62,15 @@ function MediaBubble({ msg, onImageClick }: { msg: Message; onImageClick: (url: 
 
   if (loading) {
     return (
-      <div className="flex h-32 w-full items-center justify-center bg-zinc-900 rounded-xl">
-        <Loader2 className="size-5 animate-spin text-zinc-500" />
+      <div className="flex h-32 w-full items-center justify-center bg-muted rounded-xl">
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!signedUrl) {
     return (
-      <div className="flex h-32 w-full items-center justify-center bg-zinc-900 rounded-xl border border-dashed border-white/10 text-zinc-500 text-xs">
+      <div className="flex h-32 w-full items-center justify-center bg-muted rounded-xl border border-dashed border-border text-muted-foreground text-xs">
         Failed to load media
       </div>
     );
@@ -116,11 +118,13 @@ function MediaBubble({ msg, onImageClick }: { msg: Message; onImageClick: (url: 
 export default function ChatThreadPage() {
   const { push } = useRouter();
   const params = useParams();
-  const id = Number(params.id);
+  const rawId = typeof params.id === 'string' ? params.id : String(params.id ?? '');
+  const id = fromUserCode(rawId) ?? Number(rawId);
   const { user: me } = useAuthContext();
+  const { resolvedTheme } = useTheme();
 
   const { data: messages, isLoading: messagesLoading } = useMessageThread(id);
-  const { data: creator, isLoading: creatorLoading } = useCreatorByIdentifier(String(id));
+  const { data: creator, isLoading: creatorLoading } = useCreatorByIdentifier(rawId);
   const sendMessageMutation = useSendMessage();
   const markAsReadMutation = useMarkAsRead();
   const clearChatMutation = useClearChat();
@@ -258,7 +262,7 @@ export default function ChatThreadPage() {
 
   if (messagesLoading || creatorLoading) {
     return (
-      <div className="fixed inset-0 z-[80] h-dvh bg-black flex items-center justify-center text-white">
+      <div className="fixed inset-0 z-[80] h-dvh bg-background flex items-center justify-center text-foreground">
         <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
@@ -273,16 +277,16 @@ export default function ChatThreadPage() {
   const partnerDisplayName = partner.name || partner.username || 'User';
 
   return (
-    <div className="fixed inset-0 z-[80] h-dvh bg-black flex flex-col overflow-hidden text-white">
-      {/* WhatsApp-like top bar */}
-      <div className="border-b border-zinc-800 bg-black">
+    <div className="fixed inset-0 z-[80] h-dvh bg-background flex flex-col overflow-hidden text-foreground">
+      {/* Top bar */}
+      <div className="border-b border-border bg-card">
         <div className="flex items-center gap-3 px-3 py-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => push('/chats')}
             aria-label="Back"
-            className="shrink-0 text-white hover:bg-zinc-800"
+            className="shrink-0 text-foreground hover:bg-muted"
           >
             <ArrowLeft className="size-5" />
           </Button>
@@ -290,7 +294,7 @@ export default function ChatThreadPage() {
           <button
             type="button"
             onClick={() => partner.username && push(`/creator/${encodeURIComponent(partner.username)}`)}
-            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left transition-colors hover:bg-zinc-900/90 active:bg-zinc-800 sm:-ml-1 sm:px-1"
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left transition-colors hover:bg-muted active:bg-accent sm:-ml-1 sm:px-1"
             aria-label={`Open ${partnerDisplayName}'s profile`}
           >
             <div className="size-9 shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center font-semibold overflow-hidden border border-white/5">
@@ -307,8 +311,10 @@ export default function ChatThreadPage() {
             </div>
 
             <div className="min-w-0">
-              <p className="font-semibold leading-tight truncate text-white">{partnerDisplayName}</p>
-              <p className="text-xs text-zinc-400 truncate">@{partner.username || 'user'}</p>
+              <p className="font-semibold leading-tight truncate text-foreground">{partnerDisplayName}</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {partner.username ? `@${partner.username}` : creator?.user_code || toUserCode(id, 'creator')}
+              </p>
             </div>
           </button>
 
@@ -318,16 +324,16 @@ export default function ChatThreadPage() {
               size="icon"
               aria-label="Chat options"
               onClick={() => setMenuOpen((v) => !v)}
-              className="text-white hover:bg-zinc-800"
+              className="text-foreground hover:bg-muted"
             >
               <MoreVertical className="size-5" />
             </Button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-10 z-30 min-w-[160px] rounded-md border border-zinc-700 bg-zinc-900 p-1 shadow-lg">
+              <div className="absolute right-0 top-10 z-30 min-w-[160px] rounded-md border border-border bg-popover p-1 shadow-lg">
                 <button
                   type="button"
-                  className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-sm text-red-400 hover:bg-zinc-800"
+                  className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-sm text-destructive hover:bg-muted"
                   onClick={handleDeleteChat}
                 >
                   <Trash2 className="size-4 shrink-0" />
@@ -340,7 +346,7 @@ export default function ChatThreadPage() {
       </div>
 
       {/* Message list */}
-      <div className="flex-1 min-h-0 overflow-y-auto bg-black p-3 space-y-4 pb-10">
+      <div className="flex-1 min-h-0 overflow-y-auto bg-background p-3 space-y-4 pb-10">
         {messages && messages.length > 0 ? messages.map((msg) => {
           const isMe = msg.sender_uid === me?.id;
           const isTipDemand = msg.message_type === 'tip_demand';
@@ -360,7 +366,7 @@ export default function ChatThreadPage() {
                 <button
                   type="button"
                   onClick={() => handleDeleteMessage(msg.id)}
-                  className="mr-2 self-center text-zinc-500 hover:text-red-400 transition-colors"
+                  className="mr-2 self-center text-muted-foreground hover:text-destructive transition-colors"
                   aria-label="Delete message"
                 >
                   <Trash2 className="size-4" />
@@ -370,8 +376,8 @@ export default function ChatThreadPage() {
                 className={cn(
                   'max-w-[85%] rounded-2xl px-1 py-1 overflow-hidden transition-all',
                   isMe
-                    ? 'bg-zinc-800 text-white rounded-br-md shadow-lg shadow-black/20'
-                    : isTipDemand ? 'bg-amber-600/20 border border-amber-500/30 text-white rounded-bl-md' : 'bg-zinc-900 border border-white/5 text-white rounded-bl-md shadow-md',
+                    ? 'bg-purple-600 text-white rounded-br-md shadow-sm'
+                    : isTipDemand ? 'bg-amber-500/15 border border-amber-500/30 text-foreground rounded-bl-md' : 'bg-card border border-border text-foreground rounded-bl-md shadow-sm',
                   hasMedia && 'w-full max-w-[280px]'
                 )}
               >
@@ -380,7 +386,7 @@ export default function ChatThreadPage() {
 
                 <div className="px-3 py-2">
                     {isTipDemand && (
-                        <div className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-200">
+                        <div className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-500 dark:text-amber-300">
                             <Smile className="size-3" />
                             Tip Request
                         </div>
@@ -389,7 +395,7 @@ export default function ChatThreadPage() {
                         {isTipDemand ? `${msg.body || 'Requested a tip'} - ₹${msg.tip_amount}` : msg.body}
                     </p>
                     <div className="mt-1.5 flex items-center justify-between gap-4">
-                    <p className={`text-[10px] uppercase font-bold tracking-tighter ${isMe ? 'text-white/40' : 'text-white/30'}`}>
+                    <p className={`text-[10px] uppercase font-bold tracking-tighter ${isMe ? 'text-white/70' : 'text-muted-foreground'}`}>
                         {formatTime(msg.created_at)}
                     </p>
                     {isMe && msg.read_at && (
@@ -413,7 +419,7 @@ export default function ChatThreadPage() {
       </div>
 
       {/* Bottom input bar */}
-      <div className="shrink-0 border-t border-zinc-800 bg-black p-2 pb-6">
+      <div className="shrink-0 border-t border-border bg-card p-2 pb-6">
         <div
         className={`mb-2 flex w-full items-center gap-2 ${
           creatorTipRequest && creatorTipBannerVisible ? 'justify-between' : 'justify-end'
@@ -423,10 +429,10 @@ export default function ChatThreadPage() {
           <button
             type="button"
             onClick={openRequestedTipPopup}
-            className="rounded-xl border border-amber-500/40 bg-amber-500/15 px-3 py-2 text-left text-xs font-medium text-amber-200 whitespace-nowrap sm:text-sm"
+            className="rounded-xl border border-amber-500/40 bg-amber-500/15 px-3 py-2 text-left text-xs font-medium text-amber-700 dark:text-amber-200 whitespace-nowrap sm:text-sm"
           >
             {creatorTipRequest.message}
-            <span className="text-amber-200/80"> · Tap to pay</span>
+            <span className="text-amber-600 dark:text-amber-200/80"> · Tap to pay</span>
           </button>
         )}
   
@@ -442,7 +448,7 @@ export default function ChatThreadPage() {
 
           {showEmoji && (
           <div className="absolute bottom-16 left-2 z-50">
-            <EmojiPicker onEmojiClick={(e) => setDraft(prev => prev + e.emoji)} theme={'dark' as unknown as Theme} />
+            <EmojiPicker onEmojiClick={(e) => setDraft(prev => prev + e.emoji)} theme={(resolvedTheme === 'dark' ? 'dark' : 'light') as unknown as Theme} />
           </div>
           )}
         <div className="relative flex items-center gap-2">
@@ -451,7 +457,7 @@ export default function ChatThreadPage() {
             size="icon"
             aria-label="Emoji"
             onClick={handleAddEmoji}
-            className="text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <Smile className="size-5" />
           </Button>
@@ -461,7 +467,7 @@ export default function ChatThreadPage() {
             placeholder="Type a message"
             autoFocus
             spellCheck={false}
-            className="flex-1 border-zinc-700 bg-zinc-900 text-white caret-white placeholder:text-zinc-500 selection:bg-pink-500/40"
+            className="flex-1 border-input bg-muted text-foreground placeholder:text-muted-foreground selection:bg-pink-500/40"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={handleMessageInputBlur}

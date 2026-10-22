@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useAuthContext } from '@/hooks/useAuth';
 import { authService } from '@/services/auth';
 import { hasAllMandatoryDetails, saveMockUser, MockRegisteredUser } from '@/lib/mockAuth';
+import { toUserCode } from '@/lib/userCode';
 
 type GenderOption = 'male' | 'female' | 'other';
 
@@ -88,8 +89,10 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
       toast.success('Mandatory profile details saved successfully!');
     } catch {
       // Fallback for mock/offline
+      const userId = user?.id || Date.now();
       const updatedUser: MockRegisteredUser = {
-        id: user?.id || Date.now(),
+        id: userId,
+        user_code: user?.user_code || toUserCode(userId, user?.role || 'fan'),
         name: name.trim(),
         mobile: mobile.trim(),
         username: user?.username || name.toLowerCase().replace(/[^a-z0-9]/g, '') + '123',

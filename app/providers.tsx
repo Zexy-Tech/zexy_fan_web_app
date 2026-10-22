@@ -7,10 +7,11 @@ import { queryClient } from '@/lib/queryClient';
 import { AuthProvider } from '@/hooks/useAuth';
 import { TypographyProvider } from '@/hooks/useTypography';
 import { SecurityProvider } from '@/hooks/useSecurity';
+import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import { SecurityShield, Watermark } from '@/components/SecurityShield';
-
 import { MandatoryProfileGuard } from '@/components/auth/mandatory-profile-guard';
+import { NotificationPermissionModal } from '@/components/notifications/notification-permission-modal';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -19,12 +20,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <TypographyProvider>
           <SecurityProvider>
             <AuthProvider>
-              <SecurityShield />
-              <Watermark />
-              <MandatoryProfileGuard>
-                {children}
-              </MandatoryProfileGuard>
-              <Toaster position="top-center" richColors />
+              <ThemeProvider>
+                <SecurityShield />
+                <Watermark />
+                <MandatoryProfileGuard>
+                  {children}
+                </MandatoryProfileGuard>
+                <NotificationPermissionModal />
+                <Toaster position="top-center" richColors />
+              </ThemeProvider>
             </AuthProvider>
           </SecurityProvider>
         </TypographyProvider>

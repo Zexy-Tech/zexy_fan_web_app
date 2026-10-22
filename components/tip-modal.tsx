@@ -39,7 +39,7 @@ export function TipModal({
       onClick={handleBackdropClick}
     >
       <Card
-        className="w-full max-w-md rounded-2xl border-zinc-700 bg-zinc-900 text-zinc-100"
+        className="w-full max-w-md rounded-2xl border-border bg-card text-card-foreground shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <CardHeader className="relative pb-2">
@@ -48,7 +48,7 @@ export function TipModal({
             variant="ghost"
             size="icon"
             aria-label="Close"
-            className="absolute right-2 top-2 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            className="absolute right-2 top-2 text-muted-foreground hover:bg-muted hover:text-foreground"
             onClick={onClose}
           >
             <X className="size-5" />
@@ -57,17 +57,17 @@ export function TipModal({
 
         <CardContent className="space-y-5 pb-6">
           <div className="text-center">
-            <div className="text-sm text-zinc-400">{title}</div>
+            <div className="text-sm text-muted-foreground">{title}</div>
             {lockAmount ? (
-              <div className="mt-2 text-lg font-bold tabular-nums">₹{amount}</div>
+              <div className="mt-2 text-lg font-bold tabular-nums text-foreground">₹{amount}</div>
             ) : (
               <div className="mt-3 flex items-center justify-center gap-2">
-                <span className="text-lg font-bold">₹</span>
+                <span className="text-lg font-bold text-foreground">₹</span>
                 <Input
                   type="number"
                   min={1}
                   inputMode="numeric"
-                  className="h-11 max-w-[160px] border-zinc-600 bg-black text-center text-lg font-bold tabular-nums text-white [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  className="h-11 max-w-[160px] border-input bg-muted text-center text-lg font-bold tabular-nums text-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   value={amount < 1 ? '' : amount}
                   onChange={(e) => {
                     const raw = e.target.value;
@@ -95,8 +95,8 @@ export function TipModal({
                     className={[
                       'min-w-0 flex-1 rounded-xl border px-2 py-3 text-center text-sm font-semibold transition-colors sm:px-3 sm:text-sm',
                       active
-                        ? 'border-pink-500 bg-pink-500/20 text-white'
-                        : 'border-zinc-600 bg-zinc-800 text-zinc-200 hover:bg-zinc-700',
+                        ? 'border-pink-500 bg-pink-500/20 text-pink-600 dark:text-pink-300 font-bold'
+                        : 'border-border bg-muted text-muted-foreground hover:bg-accent hover:text-foreground',
                     ].join(' ')}
                   >
                     ₹{preset}
@@ -108,7 +108,7 @@ export function TipModal({
 
           <Button
             type="button"
-            className="w-full gap-2 rounded-xl font-semibold bg-pink-600 hover:bg-pink-500"
+            className="w-full gap-2 rounded-xl font-semibold bg-pink-600 hover:bg-pink-500 text-white"
             onClick={() => (onSend ? onSend(amount) : onClose())}
             disabled={!lockAmount && (!amount || amount < 1)}
           >

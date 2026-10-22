@@ -18,6 +18,7 @@ export interface ActiveSubscription {
   id: number;
   fan_uid: number;
   creator_uid: number;
+  creator_user_code?: string;
   creator_username: string;
   creator_name: string;
   /** Creator profile image path or URL when provided by API */

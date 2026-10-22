@@ -17,6 +17,7 @@ import { useCreatorProfileConfig } from '@/hooks/useCreatorProfile';
 import { useCreatorPlans, useMySubscriptions } from '@/hooks/useSubscriptions';
 import { useAuthContext } from '@/hooks/useAuth';
 import { cn, formatCurrency, getMediaUrl } from '@/lib/utils';
+import { toUserCode } from '@/lib/userCode';
 import { isCreatorMemberForFan } from '@/lib/creatorMembership';
 import { queryClient } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
@@ -251,8 +252,9 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
     };
   }, []);
 
-  const displayName = creator?.name || creator?.username || (username ? `Creator #${username}` : 'Creator');
-  const handle = creator?.username || (username ? `${username}` : (creator?.id ? `${creator.id}` : ''));
+  const creatorCode = creator?.user_code || toUserCode(creator?.id || username, 'creator');
+  const displayName = creator?.name || creator?.username || creatorCode || 'Creator';
+  const handle = creator?.username || (username && !/^\d+$/.test(username) ? username : creatorCode);
   const bio = config?.intro?.bio?.trim() || '';
 
   const coverUrl = useMemo(() => {
@@ -270,18 +272,18 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
 
   if (creatorLoading || configLoading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center bg-zinc-950 text-white">
-        <Loader2 className="size-8 animate-spin" />
+      <div className="min-h-[70vh] flex items-center justify-center bg-background text-foreground">
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (creatorError || !creator) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center p-4 bg-zinc-950 text-white">
-        <Card className="max-w-md w-full bg-zinc-900 text-white border-white/10">
+      <div className="min-h-[70vh] flex items-center justify-center p-4 bg-background text-foreground">
+        <Card className="max-w-md w-full border-border bg-card shadow-sm">
           <CardContent className="pt-6 text-center">
-            <p className="text-zinc-400">Creator not found</p>
+            <p className="text-muted-foreground">Creator not found</p>
           </CardContent>
         </Card>
       </div>
@@ -377,6 +379,11 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
           <div className="mx-auto max-w-md text-center flex flex-col items-center">
             <h1 className="text-lg font-semibold tracking-tight drop-shadow-sm">{displayName}</h1>
             <p className="mt-1 text-sm text-zinc-300">@{handle}</p>
+            {creatorCode && (
+              <span className="mt-1.5 inline-block rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-2.5 py-0.5 font-mono text-[11px] font-medium text-purple-200">
+                {creatorCode}
+              </span>
+            )}
 
             {config?.is_live && (
               <Badge 

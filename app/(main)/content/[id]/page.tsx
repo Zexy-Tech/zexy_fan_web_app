@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Heart, Bookmark, MessageCircle, Share2 } from 'lucide-react';
 import { formatCurrency, formatDate, cn, getMediaUrl } from '@/lib/utils';
+import { toUserCode } from '@/lib/userCode';
 import Link from 'next/link';
 import Image from 'next/image';
 import { VideoPlayer } from '@/components/content/video-player';
@@ -61,7 +62,7 @@ export default function ContentDetailPage() {
             </div>
             <div className="flex-1">
               <Link
-                href={`/creator/${content.creator_username || content.creator_uid}`}
+                href={`/creator/${content.creator_username || content.creator_user_code || toUserCode(content.creator_uid, 'creator')}`}
                 className="font-semibold hover:underline"
               >
                 {content.creator_name || content.creator_username}

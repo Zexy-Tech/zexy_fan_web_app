@@ -38,9 +38,21 @@ export function sleep(ms: number): Promise<void> {
 
 export function getMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  if (path.startsWith('http')) return path;
-  
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zexy.live';
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zexy.live').replace(/\/+$/, '');
+
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    try {
+      const url = new URL(path);
+      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        const cleanPath = url.pathname.startsWith('/') ? url.pathname : `/${url.pathname}`;
+        return `${baseUrl}${cleanPath}${url.search}${url.hash}`;
+      }
+      return path;
+    } catch {
+      return path;
+    }
+  }
+
   // Ensure we don't have double slashes
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${baseUrl}${cleanPath}`;

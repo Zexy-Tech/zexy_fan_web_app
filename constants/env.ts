@@ -1,9 +1,6 @@
 const getApiBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-    return process.env.NEXT_PUBLIC_API_BASE_URL;
-  }
-  
-  return 'https://api.zexy.live';
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zexy.live';
+  return url.replace(/\/+$/, '');
 };
 
 const getSocketUrl = () => {
@@ -11,15 +8,7 @@ const getSocketUrl = () => {
     return process.env.NEXT_PUBLIC_SOCKET_URL;
   }
   
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return 'ws://localhost:3001';
-    }
-  }
-  
-  // No production socket server yet, fallback to localhost 3001
-  return 'ws://localhost:3001';
+  return 'wss://api.zexy.live';
 };
 
 export const ENV = {

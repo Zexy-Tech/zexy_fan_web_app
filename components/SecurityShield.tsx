@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useAuthContext } from '@/hooks/useAuth';
+import { toUserCode } from '@/lib/userCode';
 import { useSecurity } from '@/hooks/useSecurity';
 
 export function SecurityShield() {
@@ -58,14 +59,15 @@ export function Watermark() {
 
   if (!user || !watermarkEnabled) return null;
 
-  const watermarkText = `ZEXY | ${user.username || user.mobile} | ${new Date().toLocaleDateString()}`;
+  const userCode = user.user_code || toUserCode(user.id, user.role);
+  const watermarkText = `ZEXY | ${user.username || userCode} | ${new Date().toLocaleDateString()}`;
 
   return (
     <div 
       className="pointer-events-none fixed inset-0 z-[9999] flex select-none items-center justify-center overflow-hidden opacity-[0.03]"
       style={{ transform: 'rotate(-30deg)' }}
     >
-      <div className="flex flex-wrap gap-20 whitespace-nowrap text-3xl font-bold text-white">
+      <div className="flex flex-wrap gap-20 whitespace-nowrap text-3xl font-bold text-foreground">
         {Array.from({ length: 20 }).map((_, i) => (
           <span key={i}>{watermarkText}</span>
         ))}

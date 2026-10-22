@@ -8,6 +8,7 @@ import { sleep } from '@/lib/utils';
 
 export interface Creator {
   id: number;
+  user_code?: string;
   username: string;
   name: string;
   avatar: string | null;
@@ -41,6 +42,7 @@ export interface ContentMedia {
 export interface Content {
   id: number;
   creator_uid: number;
+  creator_user_code?: string;
   creator_username: string;
   creator_name: string;
   creator_avatar: string | null;

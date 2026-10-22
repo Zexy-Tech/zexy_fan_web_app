@@ -457,7 +457,7 @@ export default function EditProfilePage() {
                       type="tel"
                       value={currentActiveMobile}
                       readOnly
-                      className="pl-12 bg-zinc-900/50 text-zinc-300 cursor-not-allowed border-zinc-800 focus-visible:ring-0"
+                      className="pl-12 bg-muted text-muted-foreground cursor-not-allowed border-input focus-visible:ring-0"
                     />
                   </div>
 

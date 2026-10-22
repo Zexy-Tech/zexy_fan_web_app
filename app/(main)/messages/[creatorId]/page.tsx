@@ -14,15 +14,17 @@ import { MediaMessage } from '@/components/messages/media-message';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { ENV } from '@/constants/env';
+import { toUserCode, fromUserCode } from '@/lib/userCode';
 
 export default function MessageThreadPage() {
   const params = useParams();
-  const creatorId = Number(params.creatorId);
+  const rawCreatorId = typeof params.creatorId === 'string' ? params.creatorId : String(params.creatorId ?? '');
+  const creatorId = fromUserCode(rawCreatorId) ?? Number(rawCreatorId);
   const { user } = useAuthContext();
   const bottomRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState('');
 
-  const identifier = Number.isFinite(creatorId) ? String(creatorId) : undefined;
+  const identifier = rawCreatorId || (Number.isFinite(creatorId) ? String(creatorId) : undefined);
   const { data: creator } = useCreatorByIdentifier(identifier);
   const { data: messages, isLoading, error } = useMessageThread(
     Number.isFinite(creatorId) ? creatorId : 0
@@ -46,7 +48,8 @@ export default function MessageThreadPage() {
     }
   };
 
-  const displayName = creator?.name || creator?.username || 'Creator';
+  const userCode = creator?.user_code || (Number.isFinite(creatorId) ? toUserCode(creatorId, 'creator') : '');
+  const displayName = creator?.name || creator?.username || userCode || 'Creator';
 
   if (!Number.isFinite(creatorId)) {
     return (

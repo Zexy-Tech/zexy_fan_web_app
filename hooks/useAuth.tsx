@@ -8,6 +8,7 @@ import { apiClient } from '@/lib/axios';
 import { queryClient } from '@/lib/queryClient';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setAuth, clearAuth, setLoading } from '@/store/slices/authSlice';
+import { toUserCode, saveUserCodeToStorage } from '@/lib/userCode';
 
 // ============================================================================
 // CONTEXT
@@ -40,8 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedSessionToken = localStorage.getItem('session_token');
 
     if (storedUser && storedToken) {
+      const parsedUser = JSON.parse(storedUser);
+      if (!parsedUser.user_code && parsedUser.id) {
+        parsedUser.user_code = toUserCode(parsedUser.id, parsedUser.role);
+        saveUserCodeToStorage(parsedUser.id, parsedUser.user_code);
+        localStorage.setItem('auth_user', JSON.stringify(parsedUser));
+      }
       dispatch(setAuth({
-        user: JSON.parse(storedUser),
+        user: parsedUser,
         token: storedToken,
         refreshToken: storedRefreshToken || undefined,
         sessionToken: storedSessionToken || undefined,
@@ -60,13 +67,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [dispatch]);
 
   const login = (tokens: { access_token: string; refresh_token?: string; session_token?: string }, newUser: User) => {
+    const userWithCode = {
+      ...newUser,
+      user_code: newUser.user_code || toUserCode(newUser.id, newUser.role),
+    };
+    saveUserCodeToStorage(userWithCode.id, userWithCode.user_code);
     localStorage.setItem('auth_token', tokens.access_token);
     if (tokens.refresh_token) localStorage.setItem('refresh_token', tokens.refresh_token);
     if (tokens.session_token) localStorage.setItem('session_token', tokens.session_token);
-    localStorage.setItem('auth_user', JSON.stringify(newUser));
+    localStorage.setItem('auth_user', JSON.stringify(userWithCode));
 
     dispatch(setAuth({
-      user: newUser,
+      user: userWithCode,
       token: tokens.access_token,
       refreshToken: tokens.refresh_token,
       sessionToken: tokens.session_token,
@@ -75,7 +87,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateUser = (data: Partial<User>) => {
     if (!user) return;
-    const updated = { ...user, ...data };
+    const updated = {
+      ...user,
+      ...data,
+      user_code: user.user_code || toUserCode(user.id, user.role),
+    };
     localStorage.setItem('auth_user', JSON.stringify(updated));
     dispatch(setAuth({
       user: updated,

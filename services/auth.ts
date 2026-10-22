@@ -86,8 +86,30 @@ export interface MobileLoginRequest {
   device_name?: string;
 }
 
+export interface GoogleCheckRequest {
+  id_token: string;
+}
+
+export interface TruecallerCheckRequest {
+  request_id?: string;
+  access_token?: string;
+  phone?: string;
+  name?: string;
+}
+
+export interface OAuthCheckResponse {
+  exists: boolean;
+  has_pin: boolean;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  message: string;
+}
+
 export interface GoogleAuthRequest {
   id_token: string;
+  pin?: string;
+  confirm_pin?: string;
   role?: 'fan';
   device_name?: string;
 }
@@ -97,6 +119,8 @@ export interface TruecallerAuthRequest {
   request_id?: string;
   phone?: string;
   name?: string;
+  pin?: string;
+  confirm_pin?: string;
   role?: 'fan';
   device_name?: string;
 }
@@ -111,6 +135,7 @@ export interface UserProfileUpdateRequest {
 
 export interface User {
   id: number;
+  user_code?: string;
   mobile: string | null;
   username: string | null;
   name: string | null;
@@ -290,6 +315,40 @@ export const authService = {
       };
     }
     const response = await apiClient.post('/api/v1/auth/login/mobile', data);
+    return response.data?.data ?? response.data;
+  },
+
+  /**
+   * Check Google account status
+   * POST /api/v1/auth/google/check
+   */
+  checkGoogle: async (data: GoogleCheckRequest): Promise<OAuthCheckResponse> => {
+    if (ENV.IS_MOCK) {
+      await sleep(300);
+      return {
+        exists: false,
+        has_pin: false,
+        message: 'New account. Set PIN to complete sign up.',
+      };
+    }
+    const response = await apiClient.post('/api/v1/auth/google/check', data);
+    return response.data?.data ?? response.data;
+  },
+
+  /**
+   * Check Truecaller account status
+   * POST /api/v1/auth/truecaller/check
+   */
+  checkTruecaller: async (data: TruecallerCheckRequest): Promise<OAuthCheckResponse> => {
+    if (ENV.IS_MOCK) {
+      await sleep(300);
+      return {
+        exists: false,
+        has_pin: false,
+        message: 'New account. Set PIN to complete sign up.',
+      };
+    }
+    const response = await apiClient.post('/api/v1/auth/truecaller/check', data);
     return response.data?.data ?? response.data;
   },
 

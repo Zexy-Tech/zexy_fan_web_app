@@ -20,15 +20,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      {/* Inline fallback so the shell isn’t stark white if CSS chunks fail to load (network / cache). */}
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={inter.className}
+        className={`${inter.className} bg-background text-foreground antialiased`}
         style={{
           margin: 0,
           minHeight: '100vh',
-          backgroundColor: 'hsl(240 10% 3.9%)',
-          color: 'hsl(0 0% 98%)',
         }}
       >
         <Providers>{children}</Providers>

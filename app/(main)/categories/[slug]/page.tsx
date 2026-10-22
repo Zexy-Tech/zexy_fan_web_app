@@ -8,6 +8,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { toUserCode } from '@/lib/userCode';
 
 export default function CategoryCreatorsPage() {
   const params = useParams();
@@ -68,7 +69,7 @@ export default function CategoryCreatorsPage() {
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {creators.map((creator) => (
-            <Link key={creator.id} href={`/creator/${creator.username || creator.id}`} className="block">
+            <Link key={creator.id} href={`/creator/${creator.username || creator.user_code || toUserCode(creator.id, 'creator')}`} className="block">
               <CreatorCard creator={creator} />
             </Link>
           ))}

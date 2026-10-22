@@ -1,10 +1,12 @@
 import { apiClient } from '@/lib/axios';
 import { ENV } from '@/constants/env';
 import { sleep } from '@/lib/utils';
+import { toUserCode, saveUserCodeToStorage } from '@/lib/userCode';
 
 /** Response body from `GET /api/v1/common/profile` (`data` field). */
 export interface FanCommonProfile {
   id: number;
+  user_code?: string;
   mobile: string;
   name: string | null;
   username: string | null;
@@ -117,7 +119,10 @@ export const commonProfileService = {
     const response = await apiClient.get<{ success: boolean; data: FanCommonProfile }>(
       '/api/v1/common/profile'
     );
-    return response.data.data;
+    const data = response.data.data;
+    const user_code = data.user_code || toUserCode(data.id, data.role);
+    saveUserCodeToStorage(data.id, user_code);
+    return { ...data, user_code };
   },
 
   updateProfile: async (payload: UpdateCommonProfilePayload): Promise<FanCommonProfile> => {
@@ -125,6 +130,7 @@ export const commonProfileService = {
       await sleep(600);
       return {
         ...MOCK_FAN_PROFILE,
+        user_code: toUserCode(MOCK_FAN_PROFILE.id, MOCK_FAN_PROFILE.role),
         name: payload.name,
         username: payload.username,
         mobile: payload.mobile,
@@ -141,7 +147,10 @@ export const commonProfileService = {
       '/api/v1/common/profile',
       payload
     );
-    return response.data.data;
+    const data = response.data.data;
+    const user_code = data.user_code || toUserCode(data.id, data.role);
+    saveUserCodeToStorage(data.id, user_code);
+    return { ...data, user_code };
   },
 
   switchToCreator: async (): Promise<{ status: string; message: string; role: string }> => {

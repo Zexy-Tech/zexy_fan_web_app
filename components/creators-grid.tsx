@@ -13,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyStatePlaceholder } from '@/components/ui/empty-state-placeholder';
 import { AlertCircle, Users } from 'lucide-react';
+import { toUserCode } from '@/lib/userCode';
 
 interface CreatorsGridProps {
   creators?: Creator[];
@@ -104,7 +105,7 @@ export function CreatorsGrid({ creators, isLoading, error, refetch }: CreatorsGr
       {creators.map((creator) => (
         <Link
           key={creator.id}
-          href={`/creator/${creator.username || creator.id}`}
+          href={`/creator/${creator.username || creator.user_code || toUserCode(creator.id, 'creator')}`}
           className="block"
         >
           <CreatorCard creator={creator} />

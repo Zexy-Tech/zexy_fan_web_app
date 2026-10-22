@@ -59,27 +59,27 @@ export default function BillingPage() {
            <Receipt className="size-6" />
         </div>
         <div>
-          <h1 className="text-lg font-semibold">Billing & Invoices</h1>
-          <p className="text-zinc-400 text-sm">Manage your payments and download receipts</p>
+          <h1 className="text-lg font-semibold text-foreground">Billing & Invoices</h1>
+          <p className="text-muted-foreground text-sm">Manage your payments and download receipts</p>
         </div>
       </div>
 
       <div className="space-y-4">
         {transactions.length === 0 ? (
-          <Card className="bg-zinc-900/50 border-zinc-800">
+          <Card className="bg-card border-border shadow-sm">
             <CardContent className="py-12 text-center">
-              <CreditCard className="size-12 text-zinc-700 mx-auto mb-4" />
-              <p className="text-zinc-500">No payment history found</p>
+              <CreditCard className="size-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No payment history found</p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-3">
             {transactions.map((tx) => (
-              <Card key={tx.id} className="bg-zinc-900/50 border-zinc-800 hover:bg-zinc-900/80 transition-colors group">
+              <Card key={tx.id} className="bg-card border-border hover:bg-muted/60 transition-colors group shadow-sm">
                 <CardContent className="p-4 flex items-center gap-4">
                   <Link href={`/billing/${tx.id}`} className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-sm capitalize">
+                      <span className="font-semibold text-sm capitalize text-foreground">
                         {tx.purpose.replace(/_/g, ' ')}
                       </span>
                       <span className={cn(
@@ -91,23 +91,23 @@ export default function BillingPage() {
                         {tx.status}
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted-foreground">
                       {tx.creator_name ? `To ${tx.creator_name} • ` : ''}
                       {format(new Date(tx.created_at), 'dd MMM yyyy')}
                     </p>
                   </Link>
 
                   <div className="text-right">
-                    <p className="font-bold text-white mb-1 tabular-nums">
+                    <p className="font-bold text-foreground mb-1 tabular-nums">
                        {formatCurrency(tx.amount || tx.gross_amount || 0)}
                     </p>
                     <div className="flex items-center justify-end gap-2">
-                       <Link href={`/billing/${tx.id}`} className="text-[10px] text-zinc-500 hover:text-white transition-colors">Details</Link>
-                       <span className="text-zinc-800">•</span>
+                       <Link href={`/billing/${tx.id}`} className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">Details</Link>
+                       <span className="text-muted-foreground/40">•</span>
                        <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-7 text-[10px] gap-1.5 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 p-0 px-2"
+                        className="h-7 text-[10px] gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-500/10 p-0 px-2"
                         onClick={() => handleDownloadInvoice(tx.id)}
                         disabled={isDownloading === tx.id || tx.status !== 'success'}
                       >

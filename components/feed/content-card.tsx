@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button';
 import { Lock, Play, Image as ImageIcon, Heart, Bookmark } from 'lucide-react';
 import { formatDate, getMediaUrl } from '@/lib/utils';
+import { toUserCode } from '@/lib/userCode';
 import type { Content } from '@/services/feed';
 
 interface ContentCardProps {
@@ -34,7 +35,7 @@ export function ContentCard({ content }: ContentCardProps) {
             </div>
             <div className="flex-1">
               <Link
-                href={`/creator/${content.creator_username || content.creator_uid}`}
+                href={`/creator/${content.creator_username || content.creator_user_code || toUserCode(content.creator_uid, 'creator')}`}
                 className="font-semibold hover:underline"
               >
                 {content.creator_name || content.creator_username || 'Creator'}
@@ -94,7 +95,7 @@ export function ContentCard({ content }: ContentCardProps) {
           </div>
 
           {content.is_locked ? (
-            <Link href={`/creator/${content.creator_username || content.creator_uid}`} className="w-full">
+            <Link href={`/creator/${content.creator_username || content.creator_user_code || toUserCode(content.creator_uid, 'creator')}`} className="w-full">
               <Button className="w-full">
                 <Lock className="mr-2 size-4" />
                 Join to Unlock

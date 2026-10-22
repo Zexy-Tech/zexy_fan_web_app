@@ -4,7 +4,7 @@ let socket: Socket | null = null;
 
 export const getSignalingSocket = () => {
   if (!socket) {
-    const signalingUrl = process.env.NEXT_PUBLIC_SIGNALING_URL || 'http://localhost:3001';
+    const signalingUrl = process.env.NEXT_PUBLIC_SIGNALING_URL || 'https://api.zexy.live';
     socket = io(signalingUrl, {
       path: '/socket.io',
       transports: ['websocket'],

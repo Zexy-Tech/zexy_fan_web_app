@@ -37,40 +37,40 @@ export default function ActivityPage() {
     <div className="max-w-2xl mx-auto p-4 space-y-6">
       <div className="space-y-1">
         <h1 className="text-lg font-bold">Activity History</h1>
-        <p className="text-zinc-400 text-sm">Monitor your account activity and security events</p>
+        <p className="text-muted-foreground text-sm">Monitor your account activity and security events</p>
       </div>
 
       <div className="space-y-3">
         {items.length === 0 ? (
-          <Card className="bg-zinc-900/50 border-zinc-800">
-            <CardContent className="py-10 text-center text-zinc-500">
+          <Card className="bg-card border-border shadow-sm">
+            <CardContent className="py-10 text-center text-muted-foreground">
               No activity recorded yet
             </CardContent>
           </Card>
         ) : (
           items.map((item) => {
-            const config = EVENT_CONFIG[item.event_type] || { icon: Shield, label: item.event_type, color: 'text-zinc-400' };
+            const config = EVENT_CONFIG[item.event_type] || { icon: Shield, label: item.event_type, color: 'text-muted-foreground' };
             const Icon = config.icon;
 
             return (
-              <Card key={item.id} className="bg-zinc-900/50 border-zinc-800 hover:bg-zinc-900 transition-colors">
+              <Card key={item.id} className="bg-card border-border hover:bg-muted/60 transition-colors shadow-sm">
                 <CardContent className="p-4 flex items-center gap-4">
-                  <div className={cn("p-2 rounded-xl bg-zinc-800/50", config.color)}>
+                  <div className={cn("p-2 rounded-xl bg-muted", config.color)}>
                     <Icon className="size-5" />
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm capitalize">
+                    <p className="font-semibold text-sm capitalize text-foreground">
                       {item.event_type.replace(/_/g, ' ')}
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted-foreground">
                       {format(new Date(item.created_at), 'dd MMM yyyy, hh:mm a')}
                     </p>
                   </div>
 
                   {item.amount && (
                     <div className="text-right">
-                      <p className="text-sm font-bold text-white">₹{item.amount}</p>
+                      <p className="text-sm font-bold text-foreground">₹{item.amount}</p>
                     </div>
                   )}
                 </CardContent>

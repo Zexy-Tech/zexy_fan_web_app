@@ -30,10 +30,10 @@ export default function LiveListingPage() {
   if (!lives || lives.length === 0) {
     return (
       <div className="py-20 text-center space-y-4">
-        <div className="bg-zinc-900 size-20 rounded-full flex items-center justify-center mx-auto">
-          <Radio className="size-10 text-zinc-600" />
+        <div className="bg-muted size-20 rounded-full flex items-center justify-center mx-auto">
+          <Radio className="size-10 text-muted-foreground" />
         </div>
-        <h2 className="text-lg font-semibold">No one is live right now</h2>
+        <h2 className="text-lg font-semibold text-foreground">No one is live right now</h2>
         <p className="text-muted-foreground max-w-xs mx-auto">
           Follow your favorite creators to get notified when they go live!
         </p>
@@ -59,9 +59,9 @@ export default function LiveListingPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {lives.map((live) => (
           <Link key={live.id} href={`/live/${live.room_id}`}>
-            <Card className="overflow-hidden bg-zinc-950 border-white/5 hover:border-red-500/30 transition-all group">
+            <Card className="overflow-hidden bg-card border-border hover:border-red-500/30 transition-all group shadow-sm">
               <CardContent className="p-0">
-                <div className="relative aspect-video bg-zinc-900">
+                <div className="relative aspect-video bg-muted">
                   {live.creator_avatar ? (
                     <Image
                       src={getMediaUrl(live.creator_avatar) || ''}

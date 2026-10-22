@@ -34,6 +34,7 @@ export interface Message {
 
 export interface Conversation {
   other_user_id: number;
+  other_user_code?: string;
   other_user_name: string | null;
   other_user_username: string | null;
   other_user_avatar: string | null;

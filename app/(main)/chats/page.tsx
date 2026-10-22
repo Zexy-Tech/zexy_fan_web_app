@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { MessageCircle, Loader2 } from 'lucide-react';
 import { formatDate, getMediaUrl } from '@/lib/utils';
 import { useConversations } from '@/hooks/useMessages';
+import { toUserCode } from '@/lib/userCode';
 
 function formatChatTimestamp(value: string) {
   const date = new Date(value);
@@ -54,7 +55,7 @@ export default function ChatsPage() {
       {conversations.map((chat) => (
         <Link
           key={chat.other_user_id}
-          href={`/chats/${chat.other_user_id}`}
+          href={`/chats/${chat.other_user_code || toUserCode(chat.other_user_id, 'creator')}`}
           className="block cursor-pointer px-4 py-3 transition-colors hover:bg-accent/40"
         >
           <div className="flex items-center gap-3">
@@ -72,7 +73,9 @@ export default function ChatsPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-0.5">
-                <p className="font-semibold truncate">{chat.other_user_name || chat.other_user_username}</p>
+                <p className="font-semibold truncate">
+                  {chat.other_user_name || (chat.other_user_username ? `@${chat.other_user_username}` : (chat.other_user_code || toUserCode(chat.other_user_id, 'creator')))}
+                </p>
                 <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
                   {formatChatTimestamp(chat.last_message_at)}
                 </span>

@@ -6,6 +6,7 @@ import { useResolvedSubscriptionRows } from '@/hooks/useResolvedSubscriptionRows
 import { Input } from '@/components/ui/input';
 import { Loader2, MessageCircle, Image as ImageIcon, Video, Music, Package, Search } from 'lucide-react';
 import { subscriptionAvatarSrc } from '@/lib/subscriptionUi';
+import { toUserCode } from '@/lib/userCode';
 import type { ActiveSubscription } from '@/services/subscriptions';
 
 function HollowBadge({
@@ -34,7 +35,7 @@ function SubscribedCreatorRow({ sub }: { sub: ActiveSubscription }) {
   return (
     <div className="-mx-4 border-b border-border px-4 py-4 last:border-b-0 sm:-mx-0 sm:px-0">
       <div className="flex gap-3">
-        <Link href={`/creator/${sub.creator_username || sub.creator_uid}`} className="flex min-w-0 flex-1 gap-3">
+        <Link href={`/creator/${sub.creator_username || sub.creator_user_code || toUserCode(sub.creator_uid, 'creator')}`} className="flex min-w-0 flex-1 gap-3">
           <div className="flex size-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element

@@ -1,4 +1,5 @@
 import type { Conversation, Message } from '@/services/messages';
+import { toUserCode } from '@/lib/userCode';
 
 /**
  * Fan /messages/conversations API returns the latest Message per thread (enriched).
@@ -23,6 +24,7 @@ export function mapMessageToConversationPreview(
 
   return {
     other_user_id: otherId,
+    other_user_code: toUserCode(otherId, 'creator'),
     other_user_name: otherName,
     other_user_username: otherUsername,
     other_user_avatar: otherAvatar,

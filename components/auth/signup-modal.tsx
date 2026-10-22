@@ -78,14 +78,20 @@ export function SignupModal({
   const [isCheckingMobile, setIsCheckingMobile] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [pendingTokens, setPendingTokens] = useState<{ access_token: string; refresh_token?: string; session_token?: string } | null>(null);
+  const [authMethod, setAuthMethod] = useState<'mobile' | 'google' | 'truecaller'>('mobile');
+  const [pendingOAuth, setPendingOAuth] = useState<{
+    provider: 'google' | 'truecaller';
+    idToken?: string;
+    requestId?: string;
+    accessToken?: string;
+    phone?: string;
+    name?: string;
+    email?: string;
+  } | null>(null);
 
   // Truecaller flow states
   const [isTruecallerAvailable, setIsTruecallerAvailable] = useState(false);
-  const [truecallerTab, setTruecallerTab] = useState<'onetap' | 'simulation'>('onetap');
   const [isWaitingTruecaller, setIsWaitingTruecaller] = useState(false);
-  const [truecallerSimType, setTruecallerSimType] = useState<'existing' | 'new' | 'custom'>('existing');
-  const [customTruecallerName, setCustomTruecallerName] = useState('');
-  const [customTruecallerMobile, setCustomTruecallerMobile] = useState('');
 
   // Input refs for PIN boxes
   const loginPinRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -108,11 +114,9 @@ export function SignupModal({
       setIsCheckingMobile(false);
       setUserEmail(null);
       setPendingTokens(null);
-      setTruecallerTab('onetap');
+      setAuthMethod('mobile');
+      setPendingOAuth(null);
       setIsWaitingTruecaller(false);
-      setTruecallerSimType('existing');
-      setCustomTruecallerName('');
-      setCustomTruecallerMobile('');
     } else {
       setIsTruecallerAvailable(isTruecallerSupported());
     }
@@ -224,7 +228,28 @@ export function SignupModal({
 
     setIsCheckingMobile(true);
     try {
-      const tokenData = await authService.loginMobile({ mobile, pin: enteredPin });
+      let tokenData;
+      if (authMethod === 'google' && pendingOAuth?.idToken) {
+        tokenData = await authService.googleLogin({
+          id_token: pendingOAuth.idToken,
+          pin: enteredPin,
+          role: 'fan',
+          device_name: 'web',
+        });
+      } else if (authMethod === 'truecaller' && pendingOAuth) {
+        tokenData = await authService.truecallerCallback({
+          request_id: pendingOAuth.requestId,
+          access_token: pendingOAuth.accessToken,
+          phone: pendingOAuth.phone,
+          name: pendingOAuth.name,
+          pin: enteredPin,
+          role: 'fan',
+          device_name: 'web',
+        });
+      } else {
+        tokenData = await authService.loginMobile({ mobile, pin: enteredPin });
+      }
+
       const tokens = {
         access_token: tokenData.access_token,
         refresh_token: tokenData.refresh_token,
@@ -240,7 +265,7 @@ export function SignupModal({
       setIsCheckingMobile(false);
 
       if (me.has_completed_onboarding && hasAllMandatoryDetails(me)) {
-        finishLogin(me, tokens, `Welcome back, ${me.name || 'Fan'}!`);
+        finishLogin(me, tokens, `Welcome back, ${me.name || name || 'Fan'}!`);
       } else {
         setPendingTokens(tokens);
         setName(me.name || name);
@@ -285,12 +310,34 @@ export function SignupModal({
 
     setIsCheckingMobile(true);
     try {
-      const tokenData = await authService.signupSetPin({
-        mobile,
-        name: name.trim(),
-        pin: pinStr,
-        confirm_pin: confirmStr,
-      });
+      let tokenData;
+      if (authMethod === 'google' && pendingOAuth?.idToken) {
+        tokenData = await authService.googleLogin({
+          id_token: pendingOAuth.idToken,
+          pin: pinStr,
+          confirm_pin: confirmStr,
+          role: 'fan',
+          device_name: 'web',
+        });
+      } else if (authMethod === 'truecaller' && pendingOAuth) {
+        tokenData = await authService.truecallerCallback({
+          request_id: pendingOAuth.requestId,
+          access_token: pendingOAuth.accessToken,
+          phone: pendingOAuth.phone,
+          name: pendingOAuth.name,
+          pin: pinStr,
+          confirm_pin: confirmStr,
+          role: 'fan',
+          device_name: 'web',
+        });
+      } else {
+        tokenData = await authService.signupSetPin({
+          mobile,
+          name: name.trim(),
+          pin: pinStr,
+          confirm_pin: confirmStr,
+        });
+      }
 
       const tokens = {
         access_token: tokenData.access_token,
@@ -303,9 +350,16 @@ export function SignupModal({
       if (tokens.refresh_token) localStorage.setItem('refresh_token', tokens.refresh_token);
       if (tokens.session_token) localStorage.setItem('session_token', tokens.session_token);
 
+      const me = await authService.getMe();
       setIsCheckingMobile(false);
-      // Proceeds to Step 4: Complete Profile
-      navigateTo('complete_profile');
+
+      if (authMethod === 'google' && !me.mobile) {
+        setMobile('');
+        navigateTo('gmail_enter_mobile');
+      } else {
+        setMobile(me.mobile ? me.mobile.replace(/\D/g, '').slice(-10) : mobile);
+        navigateTo('complete_profile');
+      }
     } catch (err: unknown) {
       setIsCheckingMobile(false);
       const msg = (err as { message?: string })?.message || 'Failed to setup PIN. Please try again.';
@@ -403,72 +457,6 @@ export function SignupModal({
     });
   };
 
-  const handleTruecallerAuthSubmit = async () => {
-    let targetName = 'Vikram Malhotra';
-    let targetMobile = '9876543210';
-    let targetReqId = 'tc_demo_vikram';
-
-    if (truecallerSimType === 'new') {
-      targetName = 'Rohan Verma';
-      targetMobile = '9812345678';
-      targetReqId = 'tc_demo_rohan';
-    } else if (truecallerSimType === 'custom') {
-      if (!customTruecallerName.trim()) {
-        toast.error('Please enter name');
-        return;
-      }
-      if (!validateMobile(customTruecallerMobile)) {
-        toast.error('Please enter a valid 10-digit mobile number starting with 6–9');
-        return;
-      }
-      targetName = customTruecallerName.trim();
-      targetMobile = customTruecallerMobile.trim();
-      targetReqId = `tc_custom_${targetMobile}`;
-    }
-
-    setName(targetName);
-    setMobile(targetMobile);
-
-    setIsCheckingMobile(true);
-    try {
-      const tokenData = await authService.truecallerCallback({
-        request_id: targetReqId,
-        phone: targetMobile,
-        name: targetName,
-      });
-
-      const tokens = {
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
-        session_token: tokenData.session_token,
-      };
-
-      localStorage.setItem('auth_token', tokens.access_token);
-      if (tokens.refresh_token) localStorage.setItem('refresh_token', tokens.refresh_token);
-      if (tokens.session_token) localStorage.setItem('session_token', tokens.session_token);
-
-      const me = await authService.getMe();
-      setIsCheckingMobile(false);
-
-      if (me.has_completed_onboarding && hasAllMandatoryDetails(me)) {
-        finishLogin(me, tokens, `Welcome back, ${me.name || 'Fan'}!`);
-      } else {
-        setPendingTokens(tokens);
-        setName(me.name || targetName);
-        setMobile(me.mobile ? me.mobile.replace(/\D/g, '').slice(-10) : targetMobile);
-        setCity(me.city || '');
-        setDob(me.date_of_birth || '');
-        setGender((me.gender as GenderOption) || '');
-        toast.info('Truecaller verified! Please complete your missing profile details.');
-        navigateTo('complete_profile');
-      }
-    } catch (err: unknown) {
-      setIsCheckingMobile(false);
-      const msg = (err as { message?: string })?.message || 'Truecaller authentication failed. Please try again.';
-      toast.error(msg);
-    }
-  };
-
   // --------------------------------------------------------------------------
   // GMAIL AUTHENTICATION FLOW (REAL FIREBASE GOOGLE SIGN-IN)
   // --------------------------------------------------------------------------
@@ -487,42 +475,24 @@ export function SignupModal({
       setName(targetName);
       setUserEmail(targetEmail);
 
-      const tokenData = await authService.googleLogin({
-        id_token: idToken,
-        role: 'fan',
-        device_name: 'web',
-      });
-
-      const tokens = {
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
-        session_token: tokenData.session_token,
-      };
-
-      localStorage.setItem('auth_token', tokens.access_token);
-      if (tokens.refresh_token) localStorage.setItem('refresh_token', tokens.refresh_token);
-      if (tokens.session_token) localStorage.setItem('session_token', tokens.session_token);
-
-      const me = await authService.getMe();
+      const checkRes = await authService.checkGoogle({ id_token: idToken });
       setIsCheckingMobile(false);
 
-      if (me.has_completed_onboarding && hasAllMandatoryDetails(me)) {
-        finishLogin(me, tokens, `Welcome back, ${me.name || targetName}!`);
-      } else {
-        setPendingTokens(tokens);
-        setName(me.name || targetName);
-        setUserEmail(me.email || targetEmail);
-        setCity(me.city || '');
-        setDob(me.date_of_birth || '');
-        setGender((me.gender as GenderOption) || '');
+      setAuthMethod('google');
+      setPendingOAuth({
+        provider: 'google',
+        idToken,
+        name: checkRes.name || targetName,
+        email: checkRes.email || targetEmail,
+      });
 
-        if (!me.mobile) {
-          setMobile('');
-          navigateTo('gmail_enter_mobile');
-        } else {
-          setMobile(me.mobile.replace(/\D/g, '').slice(-10));
-          navigateTo('complete_profile');
-        }
+      if (checkRes.exists && checkRes.has_pin) {
+        setLoginPin(['', '', '', '']);
+        navigateTo('mobile_login_pin');
+      } else {
+        setPin(['', '', '', '']);
+        setConfirmPin(['', '', '', '']);
+        navigateTo('set_pin');
       }
     } catch (err: unknown) {
       setIsCheckingMobile(false);
@@ -635,12 +605,18 @@ export function SignupModal({
       case 'mobile_login_pin':
         return {
           title: 'Log In with PIN',
-          subtitle: `Enter your 4-digit PIN for +91 ${mobile}`,
+          subtitle:
+            authMethod === 'google'
+              ? `Enter your 4-digit PIN for ${userEmail || name || 'your Google account'}`
+              : `Enter your 4-digit PIN for +91 ${mobile}`,
         };
       case 'set_pin':
         return {
           title: 'Set Your Security PIN',
-          subtitle: 'Create and confirm a 4-digit PIN for your account',
+          subtitle:
+            authMethod === 'google'
+              ? `Create and confirm a 4-digit PIN for ${userEmail || name || 'your Google account'}`
+              : `Create and confirm a 4-digit PIN for ${mobile ? `+91 ${mobile}` : 'your account'}`,
         };
       case 'complete_profile':
         return {
@@ -958,11 +934,19 @@ export function SignupModal({
                 <div className="rounded-xl border border-zinc-800 bg-zinc-800/40 p-3 flex items-center justify-between">
                   <div className="text-xs">
                     <span className="text-zinc-400">Logging in for: </span>
-                    <span className="font-semibold text-white">+91 {mobile}</span>
+                    <span className="font-semibold text-white">
+                      {authMethod === 'google'
+                        ? (userEmail || name || 'Google Account')
+                        : `+91 ${mobile}`}
+                    </span>
                   </div>
                   <button
                     type="button"
-                    onClick={() => setView('mobile_input')}
+                    onClick={() => {
+                      setAuthMethod('mobile');
+                      setPendingOAuth(null);
+                      setView(authMethod === 'mobile' ? 'mobile_input' : 'options');
+                    }}
                     className="text-[11px] font-medium text-purple-400 hover:underline"
                   >
                     Change
@@ -1024,6 +1008,30 @@ export function SignupModal({
             {/* =============================================================== */}
             {view === 'set_pin' && (
               <form onSubmit={handleSetPinNext} className="space-y-5">
+                <div className="rounded-xl border border-zinc-800 bg-zinc-800/40 p-3 flex items-center justify-between">
+                  <div className="text-xs">
+                    <span className="text-zinc-400">Setting PIN for: </span>
+                    <span className="font-semibold text-white">
+                      {authMethod === 'google'
+                        ? (userEmail || name || 'Google Account')
+                        : mobile
+                        ? `+91 ${mobile}`
+                        : (name || 'New Account')}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMethod('mobile');
+                      setPendingOAuth(null);
+                      setView(authMethod === 'mobile' ? 'mobile_input' : 'options');
+                    }}
+                    className="text-[11px] font-medium text-purple-400 hover:underline"
+                  >
+                    Change
+                  </button>
+                </div>
+
                 {/* Enter PIN */}
                 <div className="space-y-2">
                   <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
@@ -1229,243 +1237,62 @@ export function SignupModal({
                   </p>
                 </div>
 
-                {/* Tab Switcher */}
-                <div className="grid grid-cols-2 p-1 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-semibold">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTruecallerTab('onetap');
-                      setIsWaitingTruecaller(false);
-                    }}
-                    className={cn(
-                      'py-2 rounded-lg transition-all',
-                      truecallerTab === 'onetap'
-                        ? 'bg-[#0087FF] text-white shadow-sm'
-                        : 'text-zinc-400 hover:text-white'
-                    )}
-                  >
-                    1-Tap (Live App)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTruecallerTab('simulation');
-                      setIsWaitingTruecaller(false);
-                    }}
-                    className={cn(
-                      'py-2 rounded-lg transition-all',
-                      truecallerTab === 'simulation'
-                        ? 'bg-zinc-800 text-white shadow-sm'
-                        : 'text-zinc-400 hover:text-white'
-                    )}
-                  >
-                    Test Simulator
-                  </button>
-                </div>
-
-                {/* TAB 1: Real 1-Tap Deep Link */}
-                {truecallerTab === 'onetap' && (
-                  <div className="space-y-3">
-                    {isWaitingTruecaller ? (
-                      <div className="p-5 rounded-xl border border-blue-500/40 bg-blue-950/20 text-center space-y-3">
-                        <div className="relative size-14 mx-auto flex items-center justify-center">
-                          <div className="absolute inset-0 rounded-full bg-[#0087FF]/20 animate-ping" />
-                          <div className="size-11 rounded-full bg-[#0087FF] text-white flex items-center justify-center shadow-lg shadow-blue-500/40">
-                            <PhoneCall className="size-5" />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold text-white">Truecaller App Prompt Triggered</div>
-                          <div className="text-[11px] text-zinc-400 mt-1">
-                            Please confirm the verification overlay in Truecaller on your device.
-                          </div>
-                        </div>
-                        <div className="pt-2 flex flex-col gap-2">
-                          <Button
-                            type="button"
-                            onClick={handleTruecallerOneTap}
-                            className="w-full h-10 text-xs bg-[#0087FF] hover:bg-[#0077e6] text-white font-semibold rounded-lg"
-                          >
-                            Open Truecaller Again
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => setIsWaitingTruecaller(false)}
-                            className="w-full h-9 text-xs text-zinc-400 hover:text-white"
-                          >
-                            Cancel
-                          </Button>
+                <div className="space-y-3">
+                  {isWaitingTruecaller ? (
+                    <div className="p-5 rounded-xl border border-blue-500/40 bg-blue-950/20 text-center space-y-3">
+                      <div className="relative size-14 mx-auto flex items-center justify-center">
+                        <div className="absolute inset-0 rounded-full bg-[#0087FF]/20 animate-ping" />
+                        <div className="size-11 rounded-full bg-[#0087FF] text-white flex items-center justify-center shadow-lg shadow-blue-500/40">
+                          <PhoneCall className="size-5" />
                         </div>
                       </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs text-zinc-300 space-y-2">
-                          <div className="flex items-center gap-2 text-white font-semibold">
-                            <span className="size-2 rounded-full bg-emerald-400" />
-                            Ready to verify
-                          </div>
-                          <p className="text-[11px] text-zinc-400 leading-relaxed">
-                            Clicking below triggers Truecaller&apos;s native bottom sheet on Android mobile browsers to verify your phone without OTP.
-                          </p>
+                      <div>
+                        <div className="text-sm font-bold text-white">Truecaller App Prompt Triggered</div>
+                        <div className="text-[11px] text-zinc-400 mt-1">
+                          Please confirm the verification overlay in Truecaller on your device.
                         </div>
-
+                      </div>
+                      <div className="pt-2 flex flex-col gap-2">
                         <Button
                           type="button"
                           onClick={handleTruecallerOneTap}
-                          className="h-12 w-full rounded-xl bg-gradient-to-r from-[#0087FF] to-[#0066CC] hover:from-[#0077e6] hover:to-[#0055b3] font-bold text-white shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                          className="w-full h-10 text-xs bg-[#0087FF] hover:bg-[#0077e6] text-white font-semibold rounded-lg"
                         >
-                          <PhoneCall className="size-4" />
-                          <span>Launch Truecaller 1-Tap</span>
+                          Open Truecaller Again
                         </Button>
-
-                        <button
+                        <Button
                           type="button"
-                          onClick={() => setTruecallerTab('simulation')}
-                          className="w-full text-center text-xs text-zinc-400 hover:text-zinc-200 transition-colors pt-1"
+                          variant="ghost"
+                          onClick={() => setIsWaitingTruecaller(false)}
+                          className="w-full h-9 text-xs text-zinc-400 hover:text-white"
                         >
-                          Testing on desktop or no Truecaller? <span className="text-[#0087FF] underline">Use Simulator →</span>
-                        </button>
+                          Cancel
+                        </Button>
                       </div>
-                    )}
-                  </div>
-                )}
-
-                {/* TAB 2: Simulation / Test Options */}
-                {truecallerTab === 'simulation' && (
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                        Choose Test Account
-                      </label>
-                      <div className="space-y-2">
-                        <label
-                          onClick={() => setTruecallerSimType('existing')}
-                          className={cn(
-                            'flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all',
-                            truecallerSimType === 'existing'
-                              ? 'border-[#0087FF] bg-[#0087FF]/15 text-white ring-1 ring-[#0087FF]'
-                              : 'border-zinc-800 bg-zinc-800/40 text-zinc-400 hover:bg-zinc-800'
-                          )}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="size-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">
-                              VM
-                            </div>
-                            <div className="text-left text-xs">
-                              <div className="font-semibold text-white">Vikram Malhotra</div>
-                              <div className="text-[11px] text-zinc-400">+91 9876543210 (Existing User)</div>
-                            </div>
-                          </div>
-                          <input
-                            type="radio"
-                            name="truecaller-sim"
-                            checked={truecallerSimType === 'existing'}
-                            onChange={() => setTruecallerSimType('existing')}
-                            className="accent-[#0087FF]"
-                          />
-                        </label>
-
-                        <label
-                          onClick={() => setTruecallerSimType('new')}
-                          className={cn(
-                            'flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all',
-                            truecallerSimType === 'new'
-                              ? 'border-[#0087FF] bg-[#0087FF]/15 text-white ring-1 ring-[#0087FF]'
-                              : 'border-zinc-800 bg-zinc-800/40 text-zinc-400 hover:bg-zinc-800'
-                          )}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="size-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-white">
-                              RV
-                            </div>
-                            <div className="text-left text-xs">
-                              <div className="font-semibold text-white">Rohan Verma</div>
-                              <div className="text-[11px] text-zinc-400">+91 9812345678 (New User)</div>
-                            </div>
-                          </div>
-                          <input
-                            type="radio"
-                            name="truecaller-sim"
-                            checked={truecallerSimType === 'new'}
-                            onChange={() => setTruecallerSimType('new')}
-                            className="accent-[#0087FF]"
-                          />
-                        </label>
-
-                        <label
-                          onClick={() => setTruecallerSimType('custom')}
-                          className={cn(
-                            'flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all',
-                            truecallerSimType === 'custom'
-                              ? 'border-[#0087FF] bg-[#0087FF]/15 text-white ring-1 ring-[#0087FF]'
-                              : 'border-zinc-800 bg-zinc-800/40 text-zinc-400 hover:bg-zinc-800'
-                          )}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="size-8 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold text-white">
-                              +
-                            </div>
-                            <div className="text-left text-xs">
-                              <div className="font-semibold text-white">Custom Number</div>
-                              <div className="text-[11px] text-zinc-400">Test any name & mobile number</div>
-                            </div>
-                          </div>
-                          <input
-                            type="radio"
-                            name="truecaller-sim"
-                            checked={truecallerSimType === 'custom'}
-                            onChange={() => setTruecallerSimType('custom')}
-                            className="accent-[#0087FF]"
-                          />
-                        </label>
-                      </div>
-
-                      {truecallerSimType === 'custom' && (
-                        <div className="space-y-3 pt-2">
-                          <Input
-                            type="text"
-                            placeholder="Enter Name"
-                            value={customTruecallerName}
-                            onChange={(e) => setCustomTruecallerName(e.target.value)}
-                            className="h-10 border-zinc-700 bg-zinc-800 text-xs text-white"
-                          />
-                          <div className="flex gap-2">
-                            <div className="flex items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/80 px-2.5 text-xs text-zinc-300">
-                              +91
-                            </div>
-                            <Input
-                              type="tel"
-                              placeholder="10-digit mobile"
-                              value={customTruecallerMobile}
-                              onChange={(e) =>
-                                setCustomTruecallerMobile(
-                                  e.target.value.replace(/\D/g, '').slice(0, 10)
-                                )
-                              }
-                              className="h-10 flex-1 border-zinc-700 bg-zinc-800 text-xs text-white"
-                            />
-                          </div>
-                        </div>
-                      )}
                     </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs text-zinc-300 space-y-2">
+                        <div className="flex items-center gap-2 text-white font-semibold">
+                          <span className="size-2 rounded-full bg-emerald-400" />
+                          Ready to verify
+                        </div>
+                        <p className="text-[11px] text-zinc-400 leading-relaxed">
+                          Clicking below triggers Truecaller&apos;s native bottom sheet on Android mobile browsers to verify your phone without OTP.
+                        </p>
+                      </div>
 
-                    <Button
-                      type="button"
-                      onClick={handleTruecallerAuthSubmit}
-                      disabled={isCheckingMobile}
-                      className="h-12 w-full rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 font-bold text-white transition-all active:scale-[0.98] mt-2"
-                    >
-                      {isCheckingMobile ? (
-                        <>
-                          <Loader2 className="mr-2 size-4 animate-spin" /> Verifying…
-                        </>
-                      ) : (
-                        'Verify Test Account'
-                      )}
-                    </Button>
-                  </div>
-                )}
+                      <Button
+                        type="button"
+                        onClick={handleTruecallerOneTap}
+                        className="h-12 w-full rounded-xl bg-gradient-to-r from-[#0087FF] to-[#0066CC] hover:from-[#0077e6] hover:to-[#0055b3] font-bold text-white shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                      >
+                        <PhoneCall className="size-4" />
+                        <span>Launch Truecaller 1-Tap</span>
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

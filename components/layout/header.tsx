@@ -7,8 +7,10 @@ import { useState } from 'react';
 import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid, Radio, LogIn } from 'lucide-react';
+import { ArrowLeft, Bell, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid, Radio, LogIn } from 'lucide-react';
 import { SignupModal } from '@/components/auth/signup-modal';
+import { NotificationBell } from '@/components/notifications/notification-bell';
+import { ThemeToggle, ThemeSelectorGroup } from '@/components/theme-toggle';
 
 const navItems = [
   { href: '/creators', label: 'Creators', icon: Users },
@@ -16,6 +18,7 @@ const navItems = [
   { href: '/live', label: 'Live Now', icon: Radio },
   { href: '/subscriptions', label: 'My Creators', icon: CreditCard },
   { href: '/chats', label: 'Chats', icon: MessageCircle },
+  { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/activity', label: 'Activity History', icon: History },
   { href: '/billing', label: 'Billing & Invoices', icon: Receipt },
   { href: '/profile', label: 'Profile', icon: User },
@@ -32,6 +35,7 @@ export function Header() {
   const isMyCreatorsHeader = pathname === '/subscriptions';
   const isMembershipHeader =
     pathname === '/membership' || /^\/subscriptions\/[^/]+$/.test(pathname);
+  const isNotificationsHeader = pathname === '/notifications';
   const isSettingsHeader = pathname === '/settings';
   const isEditProfileHeader = pathname === '/profile/edit';
   const isDeleteAccountHeader = pathname === '/profile/delete-account';
@@ -54,6 +58,7 @@ export function Header() {
   const isSubscriptionsStyleHeader =
     isMyCreatorsHeader ||
     isMembershipHeader ||
+    isNotificationsHeader ||
     isSettingsHeader ||
     isEditProfileHeader ||
     isDeleteAccountHeader ||
@@ -64,6 +69,8 @@ export function Header() {
     ? 'My Creators'
     : isMembershipHeader
       ? 'My subscription'
+      : isNotificationsHeader
+        ? 'Notifications'
       : isSettingsHeader
       ? 'Settings'
       : isEditProfileHeader
@@ -100,15 +107,19 @@ export function Header() {
                 <h1 className="text-sm font-semibold tracking-tight">{subscriptionsStyleTitle}</h1>
               </div>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Open menu"
-                onClick={() => setIsDrawerOpen(true)}
-                className="shrink-0"
-              >
-                <Menu className="size-5" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <ThemeToggle />
+                <NotificationBell />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Open menu"
+                  onClick={() => setIsDrawerOpen(true)}
+                  className="shrink-0"
+                >
+                  <Menu className="size-5" />
+                </Button>
+              </div>
             </>
           ) : (
             <>
@@ -127,14 +138,18 @@ export function Header() {
                 <h1 className="text-lg font-semibold tracking-[0.2em]">ZEXY</h1>
               </div>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Open menu"
-                onClick={() => setIsDrawerOpen(true)}
-              >
-                <Menu className="size-5" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <ThemeToggle />
+                <NotificationBell />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Open menu"
+                  onClick={() => setIsDrawerOpen(true)}
+                >
+                  <Menu className="size-5" />
+                </Button>
+              </div>
             </>
           )}
         </div>
@@ -203,6 +218,13 @@ export function Header() {
             );
           })}
         </nav>
+
+        <div className="border-t px-4 py-3">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            Appearance
+          </p>
+          <ThemeSelectorGroup />
+        </div>
 
         {user ? (
           <div className="border-t px-2 py-3">
