@@ -4,7 +4,13 @@
  */
 
 import assert from 'node:assert';
-import { buildUpiUrl, inspectUpiUrl, UPI_CONFIG } from '../constants/payment';
+import {
+  buildAndroidUpiIntentUrl,
+  buildUpiPayQueryString,
+  buildUpiUrl,
+  inspectUpiUrl,
+  UPI_CONFIG,
+} from '../constants/payment';
 
 console.log('--- Testing UPI Deep-Link Generation for Zexy ---');
 
@@ -84,5 +90,21 @@ const merchantUri = buildUpiUrl({
 });
 assert.ok(merchantUri.includes('mc=5815'), 'mc must be included when isMerchant is true');
 assert.ok(merchantUri.includes('mode=02'), 'mode=02 must be included when isMerchant is true');
+
+// Test 7: Android NPCI intent URL (mobile web launch)
+const query = buildUpiPayQueryString({
+  amount: 1,
+  transactionRef: 'order_upi_1234567890abcdef',
+  transactionNote: 'Zexy: Subscription: Gold',
+});
+const gpayIntent = buildAndroidUpiIntentUrl(query, 'com.google.android.apps.nbu.paisa.user');
+assert.ok(gpayIntent.startsWith('intent://pay?'), 'Android intent must use intent://pay');
+assert.ok(gpayIntent.includes('scheme=upi'), 'Android intent must declare scheme=upi');
+assert.ok(
+  gpayIntent.includes('package=com.google.android.apps.nbu.paisa.user'),
+  'Google Pay intent must target GPay package'
+);
+assert.ok(gpayIntent.includes('am=1.00'), 'Intent query must include formatted amount');
+assert.ok(!gpayIntent.includes('mc='), 'Intent must not include mc for personal VPA');
 
 console.log('✅ ALL UPI URI TESTS PASSED SUCCESSFULLY!');

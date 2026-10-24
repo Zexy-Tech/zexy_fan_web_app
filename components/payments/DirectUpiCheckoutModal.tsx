@@ -20,7 +20,13 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { CreateIntentResponse } from '@/services/payment';
-import { SUPPORTED_UPI_APPS, UPI_CONFIG, buildUpiUrl, UpiAppOption } from '@/constants/payment';
+import {
+  SUPPORTED_UPI_APPS,
+  UPI_CONFIG,
+  buildUpiUrl,
+  launchUpiIntent,
+  UpiAppOption,
+} from '@/constants/payment';
 import { useOrderStatus, useSubmitUtr } from '@/hooks/usePayment';
 
 interface DirectUpiCheckoutModalProps {
@@ -145,7 +151,11 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
       timestamp: new Date().toISOString(),
     });
 
-    const url = buildUpiUrl({
+    setHasLaunchedApp(true);
+    // Increment attempt count for next launch so reference is never reused (Req 5)
+    setAttemptCount((prev) => prev + 1);
+
+    launchUpiIntent({
       payeeVpa: merchantUpiId,
       payeeName: payeeName,
       amount: intent.amount,
@@ -153,13 +163,6 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
       transactionNote: `Zexy: ${itemName}`,
       scheme: scheme,
     });
-
-    setHasLaunchedApp(true);
-    // Increment attempt count for next launch so reference is never reused (Req 5)
-    setAttemptCount((prev) => prev + 1);
-
-    // On mobile devices, window.location.href triggers the respective app intent
-    window.location.href = url;
   };
 
   // Safe report of "Bank limit exceeded" error (Req 13, 15)
@@ -387,7 +390,12 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
                     <img src={qrDataUrl} alt="Scan UPI QR Code" className="w-48 h-48 object-contain" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-semibold text-zinc-200">Scan with PhonePe, Google Pay, or Paytm</p>
+                    <p className="text-xs font-semibold text-zinc-200">Scan with your camera (not Gallery)</p>
+                    <p className="text-[11px] text-amber-200/90 leading-snug">
+                      Do not upload this QR from Photos/Gallery in Google Pay or PhonePe — that triggers
+                      &quot;pay up to ₹2,000 with QR codes via gallery&quot; even for small amounts. Use the
+                      button below or point your UPI app camera at this screen.
+                    </p>
                     <p className="text-[11px] text-zinc-400">
                       Amount: <span className="font-semibold text-white">₹{intent.amount.toFixed(2)}</span> • Payee: {merchantUpiId}
                     </p>
@@ -414,7 +422,7 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
                 >
                   <span className="flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>Seeing &quot;Bank limit exceeded&quot; or payment error in app?</span>
+                    <span>Payment error in Google Pay / PhonePe?</span>
                   </span>
                   {showBankLimitHelp ? (
                     <ChevronUp className="w-4 h-4 text-zinc-400" />
@@ -426,7 +434,15 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
                 {showBankLimitHelp && (
                   <div className="p-4 pt-1 border-t border-zinc-800/60 space-y-3 text-xs text-zinc-400">
                     <p className="font-semibold text-amber-300">
-                      Why does your UPI app say &quot;You have exceeded the bank limit for this payment, retry with smaller amount&quot;?
+                      Google Pay: &quot;You can pay up to ₹2,000 with QR codes via gallery&quot;
+                    </p>
+                    <p className="text-[11px] text-zinc-300 leading-relaxed">
+                      That message means the payment was started from a <strong className="text-zinc-200">saved QR image</strong> (Gallery),
+                      not from the <strong className="text-zinc-200">Pay with UPI App</strong> button. Tap that button above, or scan this QR
+                      with the in-app <strong className="text-zinc-200">camera scanner</strong> while this page is open on your screen.
+                    </p>
+                    <p className="font-semibold text-amber-300 pt-1">
+                      &quot;Bank limit exceeded&quot; or transaction failed?
                     </p>
                     <ul className="list-disc pl-4 space-y-1.5 text-[11px] text-zinc-300 leading-relaxed">
                       <li>

@@ -38,6 +38,17 @@ export interface UpiAppOption {
 /**
  * List of major UPI apps supported on mobile devices
  */
+/**
+ * Android package IDs for targeted UPI Intent launches (see Google Pay India in-app docs).
+ * Using intent://pay?...#Intent;scheme=upi;package=... avoids GPay/PhonePe treating
+ * the flow like a QR image opened from gallery (₹2,000 gallery-scan limits).
+ */
+export const UPI_ANDROID_PACKAGES: Partial<Record<string, string>> = {
+  phonepe: 'com.phonepe.app',
+  tez: 'com.google.android.apps.nbu.paisa.user',
+  paytmmp: 'net.one97.paytm',
+};
+
 export const SUPPORTED_UPI_APPS: UpiAppOption[] = [
   {
     id: 'phonepe',
@@ -162,6 +173,59 @@ export function buildUpiUrl(params: BuildUpiUrlParams): string {
   }
 
   return uri;
+}
+
+/** True when running in Android mobile browser (Chrome, in-app WebView, etc.). */
+export function isAndroidMobile(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /Android/i.test(navigator.userAgent);
+}
+
+/** Query string for `upi://pay?` — shared by QR codes and Android Intent URLs. */
+export function buildUpiPayQueryString(params: BuildUpiUrlParams): string {
+  const full = buildUpiUrl({ ...params, scheme: 'upi' });
+  const qIndex = full.indexOf('?');
+  return qIndex >= 0 ? full.slice(qIndex + 1) : '';
+}
+
+/**
+ * Android Chrome WebView: launch UPI via Intent URL (NPCI generic intent).
+ * @see https://developers.google.com/pay/india/api/android/in-app-payments
+ */
+export function buildAndroidUpiIntentUrl(queryString: string, androidPackage?: string): string {
+  const packagePart = androidPackage ? `package=${androidPackage};` : '';
+  return `intent://pay?${queryString}#Intent;scheme=upi;${packagePart}end`;
+}
+
+/**
+ * Opens the user's UPI app with a prefilled payment.
+ * On Android uses `intent://pay?...#Intent;scheme=upi;package=...` (proper UPI Intent).
+ * On iOS / desktop falls back to app-specific or generic deep links.
+ */
+export function launchUpiIntent(params: BuildUpiUrlParams & { scheme?: string }): void {
+  if (typeof window === 'undefined') return;
+
+  const scheme = params.scheme || 'upi';
+  const queryString = buildUpiPayQueryString(params);
+
+  if (isAndroidMobile()) {
+    const androidPackage = UPI_ANDROID_PACKAGES[scheme];
+    const intentUrl = buildAndroidUpiIntentUrl(queryString, androidPackage);
+    if (typeof window !== 'undefined') {
+      console.info('[UPI Launch] Android NPCI intent:', {
+        scheme,
+        androidPackage: androidPackage ?? 'system_chooser',
+        amount: params.amount,
+        transactionRef: params.transactionRef,
+      });
+    }
+    window.location.assign(intentUrl);
+    return;
+  }
+
+  const deepLink = buildUpiUrl({ ...params, scheme });
+  console.info('[UPI Launch] Deep link:', { scheme, transactionRef: params.transactionRef });
+  window.location.assign(deepLink);
 }
 
 /**
