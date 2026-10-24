@@ -9,7 +9,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:doctor": "npx react-doctor@latest"
+    "lint:doctor": "npx react-doctor@latest",
+    "test:upi": "npx tsx scripts/test-upi-uri.ts"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

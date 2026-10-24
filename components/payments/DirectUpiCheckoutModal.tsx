@@ -15,6 +15,9 @@ import {
   AlertCircle,
   Clock,
   Sparkles,
+  RotateCcw,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { CreateIntentResponse } from '@/services/payment';
 import { SUPPORTED_UPI_APPS, UPI_CONFIG, buildUpiUrl, UpiAppOption } from '@/constants/payment';
@@ -42,11 +45,17 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
   const [utrInput, setUtrInput] = useState<string>('');
   const [utrSubmitted, setUtrSubmitted] = useState<boolean>(false);
 
+  // Attempt tracking to ensure unique transaction reference per payment attempt (Req 5)
+  const [attemptCount, setAttemptCount] = useState<number>(1);
+  const [hasLaunchedApp, setHasLaunchedApp] = useState<boolean>(false);
+  const [showBankLimitHelp, setShowBankLimitHelp] = useState<boolean>(false);
+  const [limitReported, setLimitReported] = useState<boolean>(false);
+
   const orderId = intent?.gateway_order_id;
   const merchantUpiId = intent?.merchant_upi_id || UPI_CONFIG.upiId;
   const payeeName = intent?.payee_name || UPI_CONFIG.merchantName;
 
-  // Poll authoritative status from backend
+  // Poll authoritative status from backend (Req 11, 12)
   const { data: orderStatus, refetch: refetchStatus, isFetching: isCheckingStatus } = useOrderStatus(
     orderId,
     isOpen
@@ -54,21 +63,30 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
 
   const submitUtrMutation = useSubmitUtr();
 
-  // Generate QR Code data URL when order intent is ready
+  // Helper to generate a unique transaction reference for each payment attempt (Req 5)
+  // Max length is 35 chars per NPCI standard.
+  const getAttemptRef = (baseId: string, attempt: number): string => {
+    if (attempt <= 1) {
+      return baseId.slice(0, 35);
+    }
+    const cleanBase = baseId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30);
+    return `${cleanBase}_A${attempt}`.slice(0, 35);
+  };
+
+  // Generate QR Code data URL when order intent is ready (Req 7, 8)
   useEffect(() => {
     if (!intent) return;
-    const genericUpiUrl =
-      intent.upi_intent_url ||
-      buildUpiUrl({
-        payeeVpa: merchantUpiId,
-        payeeName: payeeName,
-        amount: intent.amount,
-        transactionRef: intent.gateway_order_id,
-        transactionNote: `Zexy: ${itemName}`,
-        scheme: 'upi',
-      });
+    // Always use clean buildUpiUrl (omits mc & mode=02 for personal accounts)
+    const cleanQrUrl = buildUpiUrl({
+      payeeVpa: merchantUpiId,
+      payeeName: payeeName,
+      amount: intent.amount,
+      transactionRef: getAttemptRef(intent.gateway_order_id, attemptCount),
+      transactionNote: `Zexy: ${itemName}`,
+      scheme: 'upi',
+    });
 
-    QRCode.toDataURL(genericUpiUrl, {
+    QRCode.toDataURL(cleanQrUrl, {
       width: 260,
       margin: 2,
       color: {
@@ -77,10 +95,23 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
       },
     })
       .then((url) => setQrDataUrl(url))
-      .catch((err) => console.error('Failed to generate UPI QR code:', err));
-  }, [intent, merchantUpiId, payeeName, itemName]);
+      .catch((err) => console.error('[Direct UPI] Failed to generate UPI QR code:', err));
+  }, [intent, merchantUpiId, payeeName, itemName, attemptCount]);
 
-  // Handle successful status transition
+  // App switching & tab return detection (Req 10): refetch status when returning from UPI app
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && hasLaunchedApp && orderId) {
+        console.info('[Direct UPI] Fan returned from UPI app, checking authoritative status for:', orderId);
+        refetchStatus();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [hasLaunchedApp, orderId, refetchStatus]);
+
+  // Handle successful status transition strictly from authoritative backend (Req 11, 12)
   useEffect(() => {
     if (orderStatus?.status === 'success') {
       toast.success('Payment verified successfully! Access granted.');
@@ -101,17 +132,56 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
   };
 
   const handleLaunchUpi = (scheme: string) => {
+    const currentAttemptRef = getAttemptRef(intent.gateway_order_id, attemptCount);
+
+    // Safe diagnostic logging (Req 13) - never logs credentials
+    console.info('[Direct UPI] Launching UPI payment attempt:', {
+      orderId: intent.gateway_order_id,
+      attemptNumber: attemptCount,
+      transactionRef: currentAttemptRef,
+      amount: intent.amount.toFixed(2),
+      scheme,
+      payeeVpa: merchantUpiId,
+      timestamp: new Date().toISOString(),
+    });
+
     const url = buildUpiUrl({
       payeeVpa: merchantUpiId,
       payeeName: payeeName,
       amount: intent.amount,
-      transactionRef: intent.gateway_order_id,
+      transactionRef: currentAttemptRef,
       transactionNote: `Zexy: ${itemName}`,
       scheme: scheme,
     });
 
-    // On mobile devices, window.location.href triggers app intent
+    setHasLaunchedApp(true);
+    // Increment attempt count for next launch so reference is never reused (Req 5)
+    setAttemptCount((prev) => prev + 1);
+
+    // On mobile devices, window.location.href triggers the respective app intent
     window.location.href = url;
+  };
+
+  // Safe report of "Bank limit exceeded" error (Req 13, 15)
+  const handleReportBankLimit = () => {
+    setLimitReported(true);
+    console.warn('[Payment Diagnostics] "Bank limit exceeded" reported by user:', {
+      orderId: intent.gateway_order_id,
+      attemptNumber: attemptCount,
+      transactionRef: getAttemptRef(intent.gateway_order_id, attemptCount),
+      amount: intent.amount,
+      payeeVpa: merchantUpiId,
+      selectedScheme,
+      timestamp: new Date().toISOString(),
+      failureType: 'BANK_LIMIT_EXCEEDED',
+    });
+    toast('Limit issue logged. Please review the guidance below.', { icon: 'ℹ️' });
+  };
+
+  const handleRetryFreshAttempt = () => {
+    const nextRef = getAttemptRef(intent.gateway_order_id, attemptCount);
+    console.info('[Direct UPI] Fan initiated fresh payment retry with new ref:', nextRef);
+    handleLaunchUpi(selectedScheme);
   };
 
   const handleSubmitUtr = async (e: React.FormEvent) => {
@@ -123,12 +193,18 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
     }
 
     try {
+      console.info('[Direct UPI] Submitting fan UTR reference for verification:', {
+        orderId: intent.gateway_order_id,
+        utrLength: clean.length,
+        maskedUtr: clean.slice(0, 4) + '****' + clean.slice(-4),
+      });
+
       await submitUtrMutation.mutateAsync({
         gatewayOrderId: intent.gateway_order_id,
         utr: clean,
       });
       setUtrSubmitted(true);
-      toast.success('UTR submitted! Waiting for verification.');
+      toast.success('UTR submitted! Waiting for authoritative verification.');
       refetchStatus();
     } catch (err: unknown) {
       const errorMsg =
@@ -208,7 +284,14 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
             <div className="pt-2 border-t border-zinc-800/80 flex flex-wrap items-center justify-between text-xs text-zinc-400 gap-2">
               <div className="flex items-center gap-1.5 font-mono">
                 <span className="text-zinc-500">Ref:</span>
-                <span className="text-zinc-300">{intent.gateway_order_id.slice(0, 18)}...</span>
+                <span className="text-zinc-300">
+                  {getAttemptRef(intent.gateway_order_id, attemptCount).slice(0, 22)}...
+                </span>
+                {attemptCount > 1 && (
+                  <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-[10px] text-pink-400 font-sans">
+                    Attempt #{attemptCount}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-1">
                 <span>Payee:</span>
@@ -227,6 +310,19 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
 
           {!isSuccess && (
             <>
+              {/* Returned from UPI app prompt */}
+              {hasLaunchedApp && !utrSubmitted && (
+                <div className="p-3.5 rounded-2xl bg-zinc-900/80 border border-pink-500/30 flex items-start gap-2.5 animate-in fade-in duration-200">
+                  <Sparkles className="w-4 h-4 text-pink-400 shrink-0 mt-0.5" />
+                  <div className="text-xs text-zinc-300 space-y-1">
+                    <p className="font-semibold text-white">Returned from your UPI app?</p>
+                    <p className="text-[11px] text-zinc-400">
+                      If you completed the payment of ₹{intent.amount.toFixed(2)}, enter your 12-digit UTR below to confirm access.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Select UPI App */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
@@ -308,6 +404,73 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
                 <Sparkles className="w-4 h-4" />
                 Pay ₹{intent.amount.toFixed(2)} with UPI App
               </button>
+
+              {/* Bank Limit & Payment Issues Assistant (Req 15) */}
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowBankLimitHelp(!showBankLimitHelp)}
+                  className="w-full px-4 py-3 flex items-center justify-between text-left text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition"
+                >
+                  <span className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Seeing &quot;Bank limit exceeded&quot; or payment error in app?</span>
+                  </span>
+                  {showBankLimitHelp ? (
+                    <ChevronUp className="w-4 h-4 text-zinc-400" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-zinc-400" />
+                  )}
+                </button>
+
+                {showBankLimitHelp && (
+                  <div className="p-4 pt-1 border-t border-zinc-800/60 space-y-3 text-xs text-zinc-400">
+                    <p className="font-semibold text-amber-300">
+                      Why does your UPI app say &quot;You have exceeded the bank limit for this payment, retry with smaller amount&quot;?
+                    </p>
+                    <ul className="list-disc pl-4 space-y-1.5 text-[11px] text-zinc-300 leading-relaxed">
+                      <li>
+                        <strong className="text-zinc-200">Bank 24-Hour Cooling Limit:</strong> If you recently registered on PhonePe/Google Pay, swapped SIM cards, or reset your UPI PIN, your bank caps transfers for 24–72 hours.
+                      </li>
+                      <li>
+                        <strong className="text-zinc-200">Daily Frequency Cap:</strong> Most Indian banks restrict the number of UPI transfers (typically 10–20 daily) regardless of payment amount.
+                      </li>
+                      <li>
+                        <strong className="text-zinc-200">Intent Parameters Fixed:</strong> Commercial merchant category tags (`mc` / `mode=02`) on personal UPI accounts have been removed by Zexy to ensure clean peer-to-peer routing.
+                      </li>
+                    </ul>
+
+                    <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-[11px] space-y-1.5 text-zinc-400">
+                      <span className="font-semibold text-zinc-200">Recommended Steps:</span>
+                      <p>• Switch to another bank account linked inside your UPI app.</p>
+                      <p>• Try selecting a different UPI app above (Google Pay, PhonePe, Paytm, or Generic).</p>
+                      <p>• Tap <strong>&quot;Retry Fresh Attempt&quot;</strong> below to issue a new unique transaction reference.</p>
+                      <p className="text-[10px] text-zinc-500 italic">
+                        * Note: Per financial safety rules, Zexy cannot automatically reduce the order amount or fabricate success.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleRetryFreshAttempt}
+                        className="flex-1 min-w-[140px] py-2 px-3 rounded-xl text-[11px] font-semibold bg-zinc-800 hover:bg-zinc-700 text-white flex items-center justify-center gap-1.5 transition border border-zinc-700"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-pink-400" />
+                        Retry Fresh Attempt
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleReportBankLimit}
+                        disabled={limitReported}
+                        className="py-2 px-3 rounded-xl text-[11px] font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white transition border border-zinc-800 disabled:opacity-50"
+                      >
+                        {limitReported ? 'Limit Logged' : 'Log Diagnostic Report'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* UTR Submission Form */}
               <div className="pt-2 border-t border-zinc-800/80 space-y-2.5">
