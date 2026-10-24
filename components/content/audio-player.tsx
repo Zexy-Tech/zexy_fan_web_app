@@ -99,7 +99,7 @@ export function AudioPlayer({ src, className }: AudioPlayerProps) {
           step="0.1"
           value={currentTime}
           onChange={handleSeek}
-          className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-pink-500 hover:h-1.5 transition-all"
+          className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-pink-500 hover:h-1.5"
         />
       </div>
 

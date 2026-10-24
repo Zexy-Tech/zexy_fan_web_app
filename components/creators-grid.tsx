@@ -30,14 +30,14 @@ function CreatorCardSkeleton() {
     <Card className="overflow-hidden">
       <CardContent className="p-0">
         {/* Avatar skeleton */}
-        <div className="aspect-square bg-muted animate-pulse" />
+        <div className="aspect-square bg-muted" />
         
         {/* Info skeleton */}
         <div className="p-4 space-y-2">
-          <div className="h-6 bg-muted rounded animate-pulse" />
-          <div className="h-4 bg-muted rounded w-2/3 animate-pulse" />
-          <div className="h-5 bg-muted rounded w-1/2 animate-pulse" />
-          <div className="h-4 bg-muted rounded w-3/4 animate-pulse" />
+          <div className="h-6 bg-muted rounded" />
+          <div className="h-4 bg-muted rounded w-2/3" />
+          <div className="h-5 bg-muted rounded w-1/2" />
+          <div className="h-4 bg-muted rounded w-3/4" />
         </div>
       </CardContent>
     </Card>

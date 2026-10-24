@@ -1,78 +1,57 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useCreatePaymentIntent, useVerifyPayment } from '@/hooks/usePayment';
-import { useUnlockContent } from '@/hooks/useContent';
+import { useCreatePaymentIntent } from '@/hooks/usePayment';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
+import type { CreateIntentResponse } from '@/services/payment';
+import { DirectUpiCheckoutModal } from '@/components/payments/DirectUpiCheckoutModal';
 
 interface PaymentModalProps {
   contentId: number;
   amount: number;
   title: string;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export function PaymentModal({ contentId, amount, title, onClose }: PaymentModalProps) {
-  const router = useRouter();
+export function PaymentModal({ contentId, amount, title, onClose, onSuccess }: PaymentModalProps) {
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+  const [checkoutIntent, setCheckoutIntent] = useState<CreateIntentResponse | null>(null);
+  const [showCheckoutModal, setShowCheckoutModal] = useState<boolean>(false);
 
   const createIntent = useCreatePaymentIntent();
-  const verifyPayment = useVerifyPayment();
-  const unlockContent = useUnlockContent();
 
   const handlePayment = async () => {
     setStatus('processing');
 
     try {
-      // Step 1: Create payment intent
+      // Step 1: Create payment intent on backend
       const intent = await createIntent.mutateAsync({
         purpose: 'content',
         reference_id: contentId,
       });
 
-      if (intent.mock_checkout_url) {
-        // Handle mock:// protocol if returned by backend, or absolute/relative URLs
-        let targetUrl = intent.mock_checkout_url;
-        if (targetUrl.startsWith('mock://')) {
-          const urlParams = targetUrl.replace('mock://checkout?', '');
-          targetUrl = `/mock-pg?${urlParams}`;
-        }
-        window.location.href = targetUrl;
-        return; // Component will unmount
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('post_payment_redirect', `/content/${contentId}`);
       }
 
-      // Step 2: Simulate Razorpay payment (fallback/legacy)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Step 3: Verify payment
-      await verifyPayment.mutateAsync({
-        gateway_order_id: intent.gateway_order_id,
-        gateway_payment_id: 'pay_mock_' + Date.now(),
-        gateway_signature: 'sig_mock_' + Date.now(),
-      });
-
-      // Step 4: Unlock content
-      await unlockContent.mutateAsync(contentId);
-
-      setStatus('success');
-      toast.success('Content unlocked successfully!');
-
-      // Redirect to content page after 1 second
-      setTimeout(() => {
-      router.push(`/content/${contentId}`);
-      onClose();
-      }, 1000);
-      } catch (error: unknown) {
+      // Step 2: Open Direct UPI checkout modal
+      setCheckoutIntent(intent);
+      setShowCheckoutModal(true);
+      setStatus('idle');
+    } catch (error: unknown) {
       setStatus('error');
-      const errorMessage = (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Payment failed';
+      const errorMessage =
+        (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message ||
+        (error as Error)?.message ||
+        'Payment failed';
       toast.error(errorMessage);
-      }
-      };
+    }
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <Card className="w-full max-w-md">
@@ -139,6 +118,20 @@ export function PaymentModal({ contentId, amount, title, onClose }: PaymentModal
           )}
         </CardFooter>
       </Card>
+
+      <DirectUpiCheckoutModal
+        isOpen={showCheckoutModal}
+        intent={checkoutIntent}
+        itemName={`Content: ${title}`}
+        onClose={() => setShowCheckoutModal(false)}
+        onSuccess={() => {
+          setShowCheckoutModal(false);
+          setStatus('success');
+          toast.success('Content unlocked successfully!');
+          onSuccess?.();
+          onClose();
+        }}
+      />
     </div>
   );
 }

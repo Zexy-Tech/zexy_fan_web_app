@@ -652,7 +652,7 @@ export function SignupModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[420px] animate-in fade-in zoom-in-95 duration-200"
+        className="w-full max-w-[420px]"
         onClick={(e) => e.stopPropagation()}
       >
         <Card className="border-zinc-800 bg-zinc-900/95 text-white backdrop-blur-xl shadow-2xl overflow-hidden rounded-2xl relative">
@@ -712,10 +712,10 @@ export function SignupModal({
                   onClick={() => {
                     navigateTo('mobile_input');
                   }}
-                  className="w-full group flex items-center justify-between p-4 rounded-xl border border-zinc-800 bg-zinc-800/40 hover:bg-zinc-800 hover:border-purple-500/50 transition-all duration-200 active:scale-[0.99] text-left"
+                  className="w-full group flex items-center justify-between p-4 rounded-xl border border-zinc-800 bg-zinc-800/40 hover:bg-zinc-800 hover:border-purple-500/50 text-left"
                 >
                   <div className="flex items-center gap-3.5">
-                    <div className="size-11 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                    <div className="size-11 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white">
                       <Smartphone className="size-5" />
                     </div>
                     <div>
@@ -723,7 +723,7 @@ export function SignupModal({
                       <div className="text-[11px] text-zinc-400">Mobile number & PIN verification</div>
                     </div>
                   </div>
-                  <span className="text-xs font-semibold text-purple-400 group-hover:translate-x-0.5 transition-transform">
+                  <span className="text-xs font-semibold text-purple-400">
                     →
                   </span>
                 </button>
@@ -733,10 +733,10 @@ export function SignupModal({
                   <button
                     type="button"
                     onClick={() => navigateTo('truecaller_auth')}
-                    className="w-full group flex items-center justify-between p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 hover:bg-blue-950/40 hover:border-blue-500/60 transition-all duration-200 active:scale-[0.99] text-left"
+                    className="w-full group flex items-center justify-between p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 hover:bg-blue-950/40 hover:border-blue-500/60 text-left"
                   >
                     <div className="flex items-center gap-3.5">
-                      <div className="size-11 rounded-xl bg-[#0087FF]/20 border border-[#0087FF]/40 flex items-center justify-center text-[#0087FF] group-hover:bg-[#0087FF] group-hover:text-white transition-colors">
+                      <div className="size-11 rounded-xl bg-[#0087FF]/20 border border-[#0087FF]/40 flex items-center justify-center text-[#0087FF] group-hover:bg-[#0087FF] group-hover:text-white">
                         <PhoneCall className="size-5" />
                       </div>
                       <div>
@@ -749,7 +749,7 @@ export function SignupModal({
                         <div className="text-[11px] text-zinc-400">Instant verified mobile identity</div>
                       </div>
                     </div>
-                    <span className="text-xs font-semibold text-[#0087FF] group-hover:translate-x-0.5 transition-transform">
+                    <span className="text-xs font-semibold text-[#0087FF]">
                       →
                     </span>
                   </button>
@@ -760,7 +760,7 @@ export function SignupModal({
                   type="button"
                   onClick={handleGmailAuthSubmit}
                   disabled={isCheckingMobile}
-                  className="w-full group flex items-center justify-between p-4 rounded-xl border border-zinc-800 bg-zinc-800/40 hover:bg-zinc-800 hover:border-zinc-600 transition-all duration-200 active:scale-[0.99] text-left disabled:opacity-60"
+                  className="w-full group flex items-center justify-between p-4 rounded-xl border border-zinc-800 bg-zinc-800/40 hover:bg-zinc-800 hover:border-zinc-600 text-left disabled:opacity-60"
                 >
                   <div className="flex items-center gap-3.5">
                     <div className="size-11 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center">
@@ -791,7 +791,7 @@ export function SignupModal({
                   {isCheckingMobile ? (
                     <Loader2 className="size-4 animate-spin text-purple-400" />
                   ) : (
-                    <span className="text-xs font-semibold text-zinc-400 group-hover:text-white group-hover:translate-x-0.5 transition-transform">
+                    <span className="text-xs font-semibold text-zinc-400 group-hover:text-white">
                       →
                     </span>
                   )}
@@ -868,7 +868,7 @@ export function SignupModal({
 
                 <Button
                   type="submit"
-                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white transition-all active:scale-[0.98] hover:bg-purple-500 mt-4"
+                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 mt-4"
                   disabled={isCheckingMobile || mobile.length < 10 || !name.trim()}
                 >
                   {isCheckingMobile ? (
@@ -904,7 +904,7 @@ export function SignupModal({
                   <button
                     type="button"
                     onClick={handleGoToLogin}
-                    className="inline-flex items-center gap-1.5 text-sm font-bold text-purple-400 hover:text-purple-300 underline underline-offset-4 transition-colors"
+                    className="inline-flex items-center gap-1.5 text-sm font-bold text-purple-400 hover:text-purple-300 underline underline-offset-4"
                   >
                     Go to Login →
                   </button>
@@ -975,7 +975,7 @@ export function SignupModal({
                           handleDigitKeyDown(e, idx, loginPin, loginPinRefs)
                         }
                         className={cn(
-                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800/50 text-center text-2xl font-bold outline-none transition-all focus:border-purple-500 focus:bg-zinc-800 text-white',
+                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800/50 text-center text-2xl font-bold outline-none focus:border-purple-500 focus:bg-zinc-800 text-white',
                           digit && 'border-purple-500 bg-zinc-800'
                         )}
                       />
@@ -995,7 +995,7 @@ export function SignupModal({
 
                 <Button
                   type="submit"
-                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white transition-all active:scale-[0.98] hover:bg-purple-500 mt-3"
+                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 mt-3"
                   disabled={loginPin.join('').length < 4}
                 >
                   Log In
@@ -1053,7 +1053,7 @@ export function SignupModal({
                         }
                         onKeyDown={(e) => handleDigitKeyDown(e, idx, pin, pinRefs)}
                         className={cn(
-                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800/50 text-center text-2xl font-bold outline-none transition-all focus:border-purple-500 focus:bg-zinc-800 text-white',
+                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800/50 text-center text-2xl font-bold outline-none focus:border-purple-500 focus:bg-zinc-800 text-white',
                           digit && 'border-purple-500 bg-zinc-800'
                         )}
                       />
@@ -1090,7 +1090,7 @@ export function SignupModal({
                           handleDigitKeyDown(e, idx, confirmPin, confirmPinRefs)
                         }
                         className={cn(
-                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800/50 text-center text-2xl font-bold outline-none transition-all focus:border-purple-500 focus:bg-zinc-800 text-white',
+                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800/50 text-center text-2xl font-bold outline-none focus:border-purple-500 focus:bg-zinc-800 text-white',
                           digit && 'border-purple-500 bg-zinc-800'
                         )}
                       />
@@ -1113,7 +1113,7 @@ export function SignupModal({
 
                 <Button
                   type="submit"
-                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white transition-all active:scale-[0.98] hover:bg-purple-500 mt-2"
+                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 mt-2"
                   disabled={
                     pin.join('').length < 4 ||
                     confirmPin.join('').length < 4 ||
@@ -1198,7 +1198,7 @@ export function SignupModal({
                         type="button"
                         onClick={() => setGender(item.id)}
                         className={cn(
-                          'h-11 rounded-xl border border-zinc-700 bg-zinc-800/50 flex items-center justify-center gap-1.5 text-xs font-semibold transition-all active:scale-[0.98]',
+                          'h-11 rounded-xl border border-zinc-700 bg-zinc-800/50 flex items-center justify-center gap-1.5 text-xs font-semibold',
                           gender === item.id
                             ? 'border-purple-500 bg-purple-600/20 text-purple-300 ring-1 ring-purple-500'
                             : 'text-zinc-300 hover:bg-zinc-800'
@@ -1213,7 +1213,7 @@ export function SignupModal({
 
                 <Button
                   type="submit"
-                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white transition-all active:scale-[0.98] hover:bg-purple-500 mt-2"
+                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 mt-2"
                   disabled={!city.trim() || !dob.trim() || !gender}
                 >
                   Complete Registration & Log In
@@ -1241,7 +1241,7 @@ export function SignupModal({
                   {isWaitingTruecaller ? (
                     <div className="p-5 rounded-xl border border-blue-500/40 bg-blue-950/20 text-center space-y-3">
                       <div className="relative size-14 mx-auto flex items-center justify-center">
-                        <div className="absolute inset-0 rounded-full bg-[#0087FF]/20 animate-ping" />
+                        <div className="absolute inset-0 rounded-full bg-[#0087FF]/20" />
                         <div className="size-11 rounded-full bg-[#0087FF] text-white flex items-center justify-center shadow-lg shadow-blue-500/40">
                           <PhoneCall className="size-5" />
                         </div>
@@ -1285,7 +1285,7 @@ export function SignupModal({
                       <Button
                         type="button"
                         onClick={handleTruecallerOneTap}
-                        className="h-12 w-full rounded-xl bg-gradient-to-r from-[#0087FF] to-[#0066CC] hover:from-[#0077e6] hover:to-[#0055b3] font-bold text-white shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                        className="h-12 w-full rounded-xl bg-gradient-to-r from-[#0087FF] to-[#0066CC] hover:from-[#0077e6] hover:to-[#0055b3] font-bold text-white shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
                       >
                         <PhoneCall className="size-4" />
                         <span>Launch Truecaller 1-Tap</span>
@@ -1338,7 +1338,7 @@ export function SignupModal({
                   type="button"
                   onClick={handleGmailAuthSubmit}
                   disabled={isCheckingMobile}
-                  className="h-12 w-full rounded-xl bg-white text-zinc-900 hover:bg-zinc-100 font-bold transition-all active:scale-[0.98] mt-2 flex items-center justify-center gap-2"
+                  className="h-12 w-full rounded-xl bg-white text-zinc-900 hover:bg-zinc-100 font-bold mt-2 flex items-center justify-center gap-2"
                 >
                   {isCheckingMobile ? (
                     <>
@@ -1409,7 +1409,7 @@ export function SignupModal({
 
                 <Button
                   type="submit"
-                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white transition-all active:scale-[0.98] hover:bg-purple-500 mt-2"
+                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 mt-2"
                   disabled={isCheckingMobile || mobile.length < 10}
                 >
                   {isCheckingMobile ? (

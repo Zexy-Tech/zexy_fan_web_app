@@ -166,7 +166,7 @@ export function VideoPlayer({
       {/* Controls */}
       <div
         className={cn(
-          "absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12 transition-opacity duration-300",
+          "absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12",
           showControls ? "opacity-100" : "opacity-0"
         )}
         onClick={(e) => e.stopPropagation()}
@@ -180,7 +180,7 @@ export function VideoPlayer({
             step="0.1"
             value={progress}
             onChange={handleSeek}
-            className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-pink-500 hover:h-1.5 transition-all"
+            className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-pink-500 hover:h-1.5"
           />
         </div>
 
@@ -212,7 +212,7 @@ export function VideoPlayer({
                   <Volume2 className="size-5" />
                 )}
               </Button>
-              <div className="w-0 overflow-hidden group-hover/volume:w-20 transition-all duration-300">
+              <div className="w-0 overflow-hidden group-hover/volume:w-20">
                 <input
                   type="range"
                   min="0"

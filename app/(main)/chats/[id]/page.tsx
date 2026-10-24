@@ -83,7 +83,7 @@ function MediaBubble({ msg, onImageClick }: { msg: Message; onImageClick: (url: 
         <img 
           src={signedUrl} 
           alt="Shared photo" 
-          className="h-full w-full object-cover cursor-pointer hover:opacity-90 active:scale-[0.99] transition-all" 
+          className="h-full w-full object-cover cursor-pointer hover:opacity-90" 
           onClick={() => onImageClick(signedUrl)}
         />
       </div>
@@ -294,7 +294,7 @@ export default function ChatThreadPage() {
           <button
             type="button"
             onClick={() => partner.username && push(`/creator/${encodeURIComponent(partner.username)}`)}
-            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left transition-colors hover:bg-muted active:bg-accent sm:-ml-1 sm:px-1"
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left hover:bg-muted active:bg-accent sm:-ml-1 sm:px-1"
             aria-label={`Open ${partnerDisplayName}'s profile`}
           >
             <div className="size-9 shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center font-semibold overflow-hidden border border-white/5">
@@ -366,7 +366,7 @@ export default function ChatThreadPage() {
                 <button
                   type="button"
                   onClick={() => handleDeleteMessage(msg.id)}
-                  className="mr-2 self-center text-muted-foreground hover:text-destructive transition-colors"
+                  className="mr-2 self-center text-muted-foreground hover:text-destructive"
                   aria-label="Delete message"
                 >
                   <Trash2 className="size-4" />
@@ -374,7 +374,7 @@ export default function ChatThreadPage() {
               )}
               <div
                 className={cn(
-                  'max-w-[85%] rounded-2xl px-1 py-1 overflow-hidden transition-all',
+                  'max-w-[85%] rounded-2xl px-1 py-1 overflow-hidden',
                   isMe
                     ? 'bg-purple-600 text-white rounded-br-md shadow-sm'
                     : isTipDemand ? 'bg-amber-500/15 border border-amber-500/30 text-foreground rounded-bl-md' : 'bg-card border border-border text-foreground rounded-bl-md shadow-sm',

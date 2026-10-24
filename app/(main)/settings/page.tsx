@@ -155,7 +155,7 @@ export default function SettingsPage() {
           <button 
             type="button"
             onClick={() => { setIsChangingPIN(false); setStep('new'); }}
-            className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="p-2 -ml-2 text-muted-foreground hover:text-foreground"
             aria-label="Back to settings"
           >
             <ArrowLeft className="size-5" />
@@ -177,7 +177,7 @@ export default function SettingsPage() {
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   aria-label={`Digit ${index + 1}`}
                   className={cn(
-                    "w-full h-14 bg-muted border border-input rounded-xl text-center text-lg font-bold text-foreground focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
+                    "w-full h-14 bg-muted border border-input rounded-xl text-center text-lg font-bold text-foreground focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none",
                     digit && "border-purple-500 bg-purple-500/10"
                   )}
                   disabled={setupPIN.isPending}
@@ -246,7 +246,7 @@ export default function SettingsPage() {
                       toast.success(`Theme set to ${opt.label}`);
                     }}
                     className={cn(
-                      'flex items-center sm:flex-col sm:items-start gap-3 p-3.5 rounded-xl border text-left transition-all',
+                      'flex items-center sm:flex-col sm:items-start gap-3 p-3.5 rounded-xl border text-left',
                       isSelected
                         ? 'border-purple-500 bg-purple-500/10 text-purple-600 dark:text-purple-300 ring-1 ring-purple-500/40 shadow-sm'
                         : 'border-border bg-background hover:bg-muted/70 text-muted-foreground hover:text-foreground'
@@ -254,7 +254,7 @@ export default function SettingsPage() {
                   >
                     <div
                       className={cn(
-                        'p-2 rounded-lg transition-colors shrink-0',
+                        'p-2 rounded-lg shrink-0',
                         isSelected
                           ? 'bg-purple-600 text-white'
                           : 'bg-muted text-muted-foreground'
@@ -304,7 +304,7 @@ export default function SettingsPage() {
                     type="button"
                     onClick={() => setFontSize(size)}
                     className={cn(
-                      "py-2 px-3 rounded-lg text-xs font-semibold capitalize transition-all border",
+                      "py-2 px-3 rounded-lg text-xs font-semibold capitalize border",
                       fontSize === size 
                         ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20" 
                         : "bg-muted border-border text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -599,7 +599,7 @@ export default function SettingsPage() {
             <button 
               type="button"
               onClick={() => setIsChangingPIN(true)}
-              className="w-full flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/50 transition-colors shadow-sm"
+              className="w-full flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/50 shadow-sm"
               aria-label="Change login PIN"
             >
               <div className="flex items-center gap-3">
@@ -640,7 +640,7 @@ export default function SettingsPage() {
                   toast.error('Network Error: Make sure API server is reachable');
                 }
               }}
-              className="w-full flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/50 transition-colors shadow-sm"
+              className="w-full flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/50 shadow-sm"
               aria-label="Simulate API Error"
             >
               <div className="flex items-center gap-3">
@@ -662,7 +662,7 @@ export default function SettingsPage() {
                   throw new Error('FAN WEB HARD CRASH: Testing Sentry Session Replay');
                 }, 500);
               }}
-              className="w-full flex items-center justify-between p-4 bg-red-500/05 border border-red-500/20 rounded-xl hover:bg-red-500/10 transition-colors"
+              className="w-full flex items-center justify-between p-4 bg-red-500/05 border border-red-500/20 rounded-xl hover:bg-red-500/10"
               aria-label="Force App Crash"
             >
               <div className="flex items-center gap-3">
@@ -678,7 +678,7 @@ export default function SettingsPage() {
 
             <button 
               type="button"
-              className="w-full flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/50 transition-colors shadow-sm"
+              className="w-full flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/50 shadow-sm"
               aria-label="Privacy Policy"
             >
               <div className="flex items-center gap-3">

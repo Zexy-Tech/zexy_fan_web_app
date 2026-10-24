@@ -62,7 +62,7 @@ export default function NotificationsPage() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'creator_live':
-        return <Radio className="size-5 text-rose-500 animate-pulse" />;
+        return <Radio className="size-5 text-rose-500" />;
       case 'creator_content':
         return <Video className="size-5 text-purple-400" />;
       case 'new_message':
@@ -133,7 +133,7 @@ export default function NotificationsPage() {
             type="button"
             onClick={() => setCategory('all')}
             className={cn(
-              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all',
+              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold',
               category === 'all'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -147,7 +147,7 @@ export default function NotificationsPage() {
             type="button"
             onClick={() => setCategory('creator')}
             className={cn(
-              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all',
+              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold',
               category === 'creator'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -161,7 +161,7 @@ export default function NotificationsPage() {
             type="button"
             onClick={() => setCategory('admin')}
             className={cn(
-              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all',
+              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold',
               category === 'admin'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -177,7 +177,7 @@ export default function NotificationsPage() {
           type="button"
           onClick={() => setUnreadOnly((prev) => !prev)}
           className={cn(
-            'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all',
+            'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border',
             unreadOnly
               ? 'bg-purple-500/15 border-purple-500 text-purple-600 dark:text-purple-300'
               : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-border'
@@ -241,7 +241,7 @@ export default function NotificationsPage() {
               key={item.id}
               onClick={() => handleNotificationClick(item)}
               className={cn(
-                'group relative flex items-start gap-4 rounded-xl p-4 transition-all cursor-pointer border',
+                'group relative flex items-start gap-4 rounded-xl p-4 cursor-pointer border',
                 item.is_read
                   ? 'bg-card border-border hover:bg-muted/60'
                   : 'bg-purple-500/10 border-purple-500/25 hover:border-purple-500/40 shadow-sm'
@@ -270,7 +270,7 @@ export default function NotificationsPage() {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-semibold text-foreground truncate">{item.title}</span>
                   {!item.is_read && (
-                    <span className="size-2 rounded-full bg-purple-500 shrink-0 animate-pulse" />
+                    <span className="size-2 rounded-full bg-purple-500 shrink-0" />
                   )}
                   {item.creator?.name ? (
                     <Badge variant="outline" className="border-border text-[10px] text-muted-foreground py-0 h-4">
@@ -304,7 +304,7 @@ export default function NotificationsPage() {
                   e.stopPropagation();
                   deleteNotification.mutate(item.id);
                 }}
-                className="absolute right-3 top-3 p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted hover:text-rose-500 transition-all"
+                className="absolute right-3 top-3 p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted hover:text-rose-500"
                 title="Dismiss"
               >
                 <Trash2 className="size-4" />

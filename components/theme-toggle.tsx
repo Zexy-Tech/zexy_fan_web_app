@@ -93,7 +93,7 @@ export function ThemeSelectorGroup({ className }: { className?: string }) {
             aria-checked={isSelected}
             onClick={() => setTheme(opt.value)}
             className={cn(
-              'flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all',
+              'flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium',
               isSelected
                 ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'

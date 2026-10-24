@@ -341,7 +341,7 @@ export default function EditProfilePage() {
                 <button
                   type="button"
                   onClick={() => setAvatarMenuOpen((v) => !v)}
-                  className="relative size-28 shrink-0 rounded-full bg-muted ring-offset-background transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="relative size-28 shrink-0 rounded-full bg-muted ring-offset-background hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   aria-haspopup="menu"
                   aria-expanded={avatarMenuOpen}
                   aria-label="Change profile photo"
@@ -479,7 +479,7 @@ export default function EditProfilePage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3 p-3.5 rounded-xl border border-purple-500/30 bg-purple-500/5 animate-in fade-in">
+              <div className="space-y-3 p-3.5 rounded-xl border border-purple-500/30 bg-purple-500/5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <ShieldCheck className="size-4 text-purple-400" />

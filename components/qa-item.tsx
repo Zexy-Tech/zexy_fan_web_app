@@ -25,7 +25,7 @@ export function QAItemComponent({ item }: QAItemProps) {
   return (
     <div className="border rounded-lg overflow-hidden">
       <button
-        className="w-full px-4 py-3 flex items-start justify-between gap-3 hover:bg-accent/50 transition-colors text-left"
+        className="w-full px-4 py-3 flex items-start justify-between gap-3 hover:bg-accent/50 text-left"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex-1">

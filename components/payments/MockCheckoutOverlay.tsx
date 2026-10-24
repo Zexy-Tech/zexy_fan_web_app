@@ -22,7 +22,7 @@ export const MockCheckoutOverlay: React.FC<MockCheckoutOverlayProps> = ({
         {/* Header */}
         <div className="bg-zinc-800/50 px-6 py-4 border-b border-zinc-800">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span className="size-2 bg-yellow-500 rounded-full animate-pulse" />
+            <span className="size-2 bg-yellow-500 rounded-full" />
             Payment Simulation
           </h2>
           <p className="text-zinc-400 text-sm mt-1">
@@ -53,19 +53,19 @@ export const MockCheckoutOverlay: React.FC<MockCheckoutOverlayProps> = ({
           <div className="space-y-3 pt-2">
             <button
               onClick={() => onOutcome('success')}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-emerald-900/20"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-900/20"
             >
               Simulate Success
             </button>
             <button
               onClick={() => onOutcome('failure')}
-              className="w-full bg-zinc-800 hover:bg-red-900/40 hover:text-red-400 text-zinc-300 font-bold py-4 rounded-xl transition-all active:scale-[0.98] border border-zinc-700 hover:border-red-900/50"
+              className="w-full bg-zinc-800 hover:bg-red-900/40 hover:text-red-400 text-zinc-300 font-bold py-4 rounded-xl border border-zinc-700 hover:border-red-900/50"
             >
               Simulate Failure
             </button>
             <button
               onClick={() => onOutcome('cancel')}
-              className="w-full bg-transparent hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 font-medium py-3 rounded-xl transition-all"
+              className="w-full bg-transparent hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 font-medium py-3 rounded-xl"
             >
               Cancel Payment
             </button>

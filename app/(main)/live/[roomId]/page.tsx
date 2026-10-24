@@ -214,7 +214,7 @@ export default function MockLiveRoomPage() {
         {/* Overlays */}
         <div className="absolute top-4 left-4 flex gap-2">
           <Badge className={`${connected ? 'bg-red-500' : 'bg-zinc-600'} text-white border-none px-2 py-1 flex items-center gap-1`}>
-            <Radio className={`size-3 ${connected ? 'animate-pulse' : ''}`} />
+            <Radio className={"size-3"} />
             {connected ? 'LIVE' : 'WAITING'}
           </Badge>
           <Badge variant="secondary" className="bg-black/50 text-white border-none backdrop-blur-md flex items-center gap-1">

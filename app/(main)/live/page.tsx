@@ -48,7 +48,7 @@ export default function LiveListingPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold flex items-center gap-2">
-          <Radio className="size-6 text-red-500 animate-pulse" />
+          <Radio className="size-6 text-red-500" />
           Live Now
         </h1>
         <Badge variant="outline" className="text-muted-foreground">
@@ -59,7 +59,7 @@ export default function LiveListingPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {lives.map((live) => (
           <Link key={live.id} href={`/live/${live.room_id}`}>
-            <Card className="overflow-hidden bg-card border-border hover:border-red-500/30 transition-all group shadow-sm">
+            <Card className="overflow-hidden bg-card border-border hover:border-red-500/30 group shadow-sm">
               <CardContent className="p-0">
                 <div className="relative aspect-video bg-muted">
                   {live.creator_avatar ? (
@@ -67,7 +67,7 @@ export default function LiveListingPage() {
                       src={getMediaUrl(live.creator_avatar) || ''}
                       alt={live.creator_name}
                       fill
-                      className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover opacity-60"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-lg font-bold text-zinc-800">
@@ -86,7 +86,7 @@ export default function LiveListingPage() {
                     </Badge>
                   </div>
 
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <div className="bg-red-500 text-white p-3 rounded-full shadow-xl">
                       <PlayCircle className="size-8" />
                     </div>

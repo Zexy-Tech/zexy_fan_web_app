@@ -60,7 +60,7 @@ export function BottomNavigation({ items }: BottomNavigationProps) {
             <button
               key={item.id}
               onClick={() => handleNavigate(item)}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors"
+              className="flex flex-col items-center justify-center gap-1 flex-1 h-full"
             >
               <div
                 className="size-6"

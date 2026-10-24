@@ -75,7 +75,7 @@ export default function BillingPage() {
         ) : (
           <div className="grid gap-3">
             {transactions.map((tx) => (
-              <Card key={tx.id} className="bg-card border-border hover:bg-muted/60 transition-colors group shadow-sm">
+              <Card key={tx.id} className="bg-card border-border hover:bg-muted/60 group shadow-sm">
                 <CardContent className="p-4 flex items-center gap-4">
                   <Link href={`/billing/${tx.id}`} className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -102,7 +102,7 @@ export default function BillingPage() {
                        {formatCurrency(tx.amount || tx.gross_amount || 0)}
                     </p>
                     <div className="flex items-center justify-end gap-2">
-                       <Link href={`/billing/${tx.id}`} className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">Details</Link>
+                       <Link href={`/billing/${tx.id}`} className="text-[10px] text-muted-foreground hover:text-foreground">Details</Link>
                        <span className="text-muted-foreground/40">•</span>
                        <Button 
                         variant="ghost" 

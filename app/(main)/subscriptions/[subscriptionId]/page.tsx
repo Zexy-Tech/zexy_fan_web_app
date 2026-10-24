@@ -104,7 +104,7 @@ export default function SubscriptionDetailPage() {
                 className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200/90 dark:bg-zinc-800/90"
               >
                 <div
-                  className="h-full rounded-full bg-zinc-300 transition-[width] dark:bg-zinc-400"
+                  className="h-full rounded-full bg-zinc-300 dark:bg-zinc-400"
                   style={{ width: `${pct}%` }}
                 />
               </div>

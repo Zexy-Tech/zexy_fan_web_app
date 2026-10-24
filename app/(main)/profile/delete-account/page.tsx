@@ -98,7 +98,7 @@ export default function DeleteAccountPage() {
       <div>
         <Link
           href="/profile"
-          className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white"
         >
           <ArrowLeft className="size-4" />
           Back to Profile
@@ -133,7 +133,7 @@ export default function DeleteAccountPage() {
         <Button
           type="button"
           variant="destructive"
-          className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition-all shadow-lg shadow-red-600/20 active:scale-[0.98]"
+          className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/20"
           onClick={() => setVerificationOpen(true)}
           disabled={isDeleting || deleteAccount.isPending}
         >
@@ -164,9 +164,9 @@ export default function DeleteAccountPage() {
 
       {/* Post-Deletion Confirmation Popup with OK Button */}
       {deletionSuccess?.open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-4 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
           <div
-            className="w-full max-w-[420px] animate-in zoom-in-95 duration-200"
+            className="w-full max-w-[420px]"
             onClick={(e) => e.stopPropagation()}
           >
             <Card className="border-red-500/30 bg-zinc-900/95 text-white backdrop-blur-xl shadow-2xl">
@@ -193,7 +193,7 @@ export default function DeleteAccountPage() {
                 <div className="pt-2">
                   <Button
                     type="button"
-                    className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition-all shadow-lg shadow-red-600/25 active:scale-[0.98]"
+                    className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/25"
                     onClick={handleConfirmOk}
                   >
                     OK

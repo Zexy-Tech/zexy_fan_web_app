@@ -79,7 +79,7 @@ export default function PaymentTestPage() {
           <button
             onClick={startTestPayment}
             disabled={loading || !!activeIntent}
-            className="w-full bg-white text-black font-black py-4 rounded-2xl hover:bg-zinc-200 transition-all disabled:opacity-50"
+            className="w-full bg-white text-black font-black py-4 rounded-2xl hover:bg-zinc-200 disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Test Buy Subscription (₹99)'}
           </button>

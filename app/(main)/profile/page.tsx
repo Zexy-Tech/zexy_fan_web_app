@@ -96,7 +96,7 @@ export default function ProfilePage() {
 
       <Link
         href="/membership"
-        className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-muted/70"
+        className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 hover:bg-muted/70"
       >
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-foreground">
           <Crown className="size-5 text-foreground" aria-hidden />
@@ -109,7 +109,7 @@ export default function ProfilePage() {
 
       <Link
         href="/profile/saved"
-        className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-muted/70"
+        className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 hover:bg-muted/70"
       >
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-foreground">
           <Bookmark className="size-5 text-foreground" aria-hidden />
@@ -122,7 +122,7 @@ export default function ProfilePage() {
 
       <Link
         href="/settings"
-        className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-muted/70"
+        className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 hover:bg-muted/70"
       >
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-foreground">
           <Settings className="size-5 text-foreground" aria-hidden />
@@ -138,7 +138,7 @@ export default function ProfilePage() {
       <div>
         <Link
           href="/profile/edit"
-          className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-muted/70"
+          className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 hover:bg-muted/70"
         >
           <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-foreground">
             <PenLine className="size-5 text-foreground" aria-hidden />
@@ -163,7 +163,7 @@ export default function ProfilePage() {
       ) : (
         <Link
           href="/profile/switch-to-creator"
-          className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-muted/70"
+          className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 hover:bg-muted/70"
         >
           <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-foreground">
             <Sparkles className="size-5 text-foreground" aria-hidden />
@@ -177,7 +177,7 @@ export default function ProfilePage() {
 
       <Link
         href="/profile/delete-account"
-        className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 transition-colors hover:bg-muted/70"
+        className="-mx-1 flex items-center gap-3 rounded-md px-1 py-3 hover:bg-muted/70"
       >
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-foreground">
           <Trash2 className="size-5 text-foreground" aria-hidden />

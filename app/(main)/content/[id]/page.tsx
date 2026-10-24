@@ -79,7 +79,7 @@ export default function ContentDetailPage() {
             {content.is_locked ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md">
                 <div className="p-4 bg-white/10 rounded-full mb-4">
-                   <Bookmark className="size-10 text-white animate-pulse" />
+                   <Bookmark className="size-10 text-white" />
                 </div>
                 <p className="text-white text-lg font-semibold mb-1">Content Locked</p>
                 <p className="text-white/60 text-sm max-w-[200px] text-center">Please join this creator to unlock this premium content.</p>
@@ -110,7 +110,7 @@ export default function ContentDetailPage() {
             <Button
               variant="ghost"
               size="sm"
-              className={cn("flex items-center gap-2 transition-colors", content.is_liked && "text-pink-500 hover:text-pink-600")}
+              className={cn("flex items-center gap-2", content.is_liked && "text-pink-500 hover:text-pink-600")}
               onClick={() => likeMutation.mutate({ contentId: content.id, liked: !content.is_liked })}
               disabled={likeMutation.isPending}
             >
@@ -121,7 +121,7 @@ export default function ContentDetailPage() {
             <Button
               variant="ghost"
               size="sm"
-              className={cn("flex items-center gap-2 transition-colors", content.is_saved && "text-blue-500 hover:text-blue-600")}
+              className={cn("flex items-center gap-2", content.is_saved && "text-blue-500 hover:text-blue-600")}
               onClick={() => saveMutation.mutate({ contentId: content.id, saved: !content.is_saved })}
               disabled={saveMutation.isPending}
             >

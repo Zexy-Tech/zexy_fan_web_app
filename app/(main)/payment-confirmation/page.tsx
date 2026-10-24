@@ -2,39 +2,42 @@
 
 import { useEffect, useState, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useVerifyPayment } from '@/hooks/usePayment';
+import { useVerifyPayment, useOrderStatus } from '@/hooks/usePayment';
+import { queryClient } from '@/lib/queryClient';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 function PaymentConfirmationContent() {
   const searchParams = useSearchParams();
-  const { push, back } = useRouter();
+  const router = useRouter();
   const { mutateAsync: verifyPaymentMutate } = useVerifyPayment();
   
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [errorMsg, setErrorMsg] = useState('');
-  const hasVerified = useRef(false);
+  const [destinationUrl, setDestinationUrl] = useState<string>('/membership');
+  const hasTriggeredInitialVerify = useRef(false);
 
-  const orderId = searchParams.get('order_id');
-  const paymentId = searchParams.get('payment_id');
-  const gatewayStatus = searchParams.get('status');
+  // Extract from query parameters (supports both PhonePe redirect and custom callbacks)
+  const orderId = searchParams.get('order_id') || searchParams.get('merchantTransactionId');
+  const paymentId = searchParams.get('payment_id') || searchParams.get('transactionId') || 'pay_phonepe';
+  const gatewayStatus = searchParams.get('status') || searchParams.get('code');
+
+  // Query authoritative order status from backend with auto-polling for pending transactions
+  const { data: orderData, isLoading: orderLoading } = useOrderStatus(orderId);
 
   useEffect(() => {
-    async function verify() {
-      if (hasVerified.current || status !== 'verifying') return;
-      hasVerified.current = true;
+    // Resolve post-payment redirect destination
+    const stored = typeof window !== 'undefined' ? sessionStorage.getItem('post_payment_redirect') : null;
+    const returnTo = searchParams.get('return_to') || stored || '/membership';
+    setDestinationUrl(returnTo);
 
-      if (!orderId || !paymentId) {
-        setStatus('error');
-        setErrorMsg('Missing payment information.');
-        return;
-      }
+    async function initialVerify() {
+      if (hasTriggeredInitialVerify.current || !orderId) return;
+      hasTriggeredInitialVerify.current = true;
 
-      if (gatewayStatus === 'failure') {
-        setStatus('error');
-        setErrorMsg('Payment was cancelled or failed at the gateway.');
+      if (gatewayStatus === 'failure' || gatewayStatus === 'PAYMENT_ERROR') {
+        setErrorMsg('Payment was cancelled or declined at the UPI gateway.');
         return;
       }
 
@@ -42,19 +45,48 @@ function PaymentConfirmationContent() {
         await verifyPaymentMutate({
           gateway_order_id: orderId,
           gateway_payment_id: paymentId,
-          gateway_signature: 'sig_mock_' + Date.now(), // Mock signature for now
+          gateway_signature: '',
         });
-        setStatus('success');
-        toast.success('Payment verified successfully!');
       } catch (err: unknown) {
-        const errorDetail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
-        setStatus('error');
-        setErrorMsg(errorDetail || 'Failed to verify payment with our servers.');
+        // If initial verify raises error, authoritative status polling will still resolve
+        const detail =
+          (err as { response?: { data?: { detail?: string; error?: { message?: string } } } }).response?.data
+            ?.detail ||
+          (err as { response?: { data?: { error?: { message?: string } } } }).response?.data?.error?.message;
+        if (detail && !detail.includes('PAYMENT_PENDING')) {
+          setErrorMsg(detail);
+        }
       }
     }
 
-    verify();
-  }, [orderId, paymentId, gatewayStatus, verifyPaymentMutate, status]);
+    initialVerify();
+  }, [orderId, paymentId, gatewayStatus, verifyPaymentMutate, searchParams]);
+
+  // When order status resolves to success
+  useEffect(() => {
+    if (orderData?.status === 'success') {
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['subscriptions'] }),
+        queryClient.invalidateQueries({ queryKey: ['creator'] }),
+        queryClient.invalidateQueries({ queryKey: ['feed'] }),
+        queryClient.invalidateQueries({ queryKey: ['content'] }),
+      ]);
+
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('post_payment_redirect');
+      }
+
+      toast.success('Payment verified! Subscription active.');
+
+      const timer = setTimeout(() => {
+        router.push(destinationUrl);
+      }, 2500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [orderData?.status, destinationUrl, router]);
+
+  const currentStatus = orderData?.status || (gatewayStatus === 'PAYMENT_ERROR' || gatewayStatus === 'failure' ? 'failed' : 'pending');
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-4">
@@ -62,34 +94,54 @@ function PaymentConfirmationContent() {
         <CardHeader className="text-center">
           <CardTitle>Payment Confirmation</CardTitle>
           <CardDescription>
-            Order ID: {orderId}
+            {orderId ? `Order ID: ${orderId}` : 'Verifying transaction'}
           </CardDescription>
         </CardHeader>
         <CardContent className="py-8">
-          {status === 'verifying' && (
+          {(orderLoading || currentStatus === 'pending') && (
             <div className="text-center space-y-4">
               <Loader2 className="size-12 animate-spin text-primary mx-auto" />
-              <p className="text-muted-foreground">Verifying your payment, please wait...</p>
+              <p className="font-medium text-foreground">Waiting for UPI Payment Confirmation</p>
+              <p className="text-xs text-muted-foreground">
+                We are checking with your UPI bank app (PhonePe / GPay / Paytm). Please do not close this window...
+              </p>
             </div>
           )}
 
-          {status === 'success' && (
+          {currentStatus === 'success' && (
             <div className="text-center space-y-4">
               <CheckCircle2 className="size-16 text-emerald-500 mx-auto" />
               <p className="text-lg font-bold">Payment Successful!</p>
-              <p className="text-muted-foreground">Your transaction has been verified. You can now access the content.</p>
-              <Button onClick={() => push('/creators')} className="mt-4 w-full">
-                Continue Browsing
+              <p className="text-muted-foreground">
+                Your transaction has been verified. Redirecting you to your creator...
+              </p>
+              <Button onClick={() => router.push(destinationUrl)} className="mt-4 w-full">
+                Continue Now
               </Button>
             </div>
           )}
 
-          {status === 'error' && (
+          {currentStatus === 'failed' && (
             <div className="text-center space-y-4">
               <XCircle className="size-16 text-destructive mx-auto" />
-              <p className="text-lg font-bold">Payment Failed</p>
-              <p className="text-destructive">{errorMsg}</p>
-              <Button onClick={() => back()} variant="outline" className="mt-4 w-full">
+              <p className="text-lg font-bold">Payment Unsuccessful</p>
+              <p className="text-destructive text-sm">
+                {errorMsg || 'The payment could not be completed or was cancelled.'}
+              </p>
+              <Button onClick={() => router.push(destinationUrl)} variant="outline" className="mt-4 w-full">
+                Return to Creator
+              </Button>
+            </div>
+          )}
+
+          {currentStatus === 'expired' && (
+            <div className="text-center space-y-4">
+              <Clock className="size-16 text-amber-500 mx-auto" />
+              <p className="text-lg font-bold">Payment Window Expired</p>
+              <p className="text-muted-foreground text-sm">
+                The payment session has expired. Please initiate a new subscription checkout.
+              </p>
+              <Button onClick={() => router.push(destinationUrl)} variant="outline" className="mt-4 w-full">
                 Try Again
               </Button>
             </div>

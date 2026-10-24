@@ -159,7 +159,7 @@ export function OtpVerificationModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md"
       onClick={onClose}
     >
       <div className="w-full max-w-[380px]" onClick={(e) => e.stopPropagation()}>
@@ -168,7 +168,7 @@ export function OtpVerificationModal({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="absolute top-4 right-4 p-1 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            className="absolute top-4 right-4 p-1 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800"
             aria-label="Close"
           >
             <X className="size-5" />
@@ -216,7 +216,7 @@ export function OtpVerificationModal({
                   aria-label={`Digit ${index + 1}`}
                   className={cn(
                     'w-12 h-14 bg-zinc-900 border border-zinc-800 rounded-xl text-center text-xl font-bold text-white',
-                    'focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all',
+                    'focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none',
                     digit && 'border-purple-500/80 bg-purple-500/5',
                     error && 'border-red-500/80 bg-red-500/5'
                   )}
@@ -226,7 +226,7 @@ export function OtpVerificationModal({
 
             {/* Error Message */}
             {error && (
-              <p className="text-xs text-red-400 font-medium mb-4 px-2 animate-in fade-in">
+              <p className="text-xs text-red-400 font-medium mb-4 px-2">
                 {error}
               </p>
             )}

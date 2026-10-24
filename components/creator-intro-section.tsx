@@ -80,7 +80,7 @@ export function CreatorIntroSection({
         </h1>
         {isLive && (
           <Badge 
-            className="bg-red-500 hover:bg-red-600 text-white cursor-pointer px-3 py-1 flex items-center gap-1.5 animate-pulse"
+            className="bg-red-500 hover:bg-red-600 text-white cursor-pointer px-3 py-1 flex items-center gap-1.5"
             onClick={onLiveClick}
           >
             <Radio className="size-4" />

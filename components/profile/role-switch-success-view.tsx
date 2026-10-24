@@ -7,7 +7,7 @@ import Link from 'next/link';
 export function RoleSwitchSuccessView() {
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black p-4">
-      <div className="w-full max-w-[440px] text-center space-y-8 animate-in fade-in zoom-in duration-500">
+      <div className="w-full max-w-[440px] text-center space-y-8">
         <div className="flex flex-col items-center space-y-4">
           <div className="size-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-lg shadow-lg shadow-purple-500/20">
             ✨
@@ -27,10 +27,10 @@ export function RoleSwitchSuccessView() {
           
           <div className="space-y-4">
             <button 
-              className="w-full h-[60px] bg-black border border-white/20 hover:bg-zinc-900 text-white rounded-xl flex items-center px-6 transition-colors group"
+              className="w-full h-[60px] bg-black border border-white/20 hover:bg-zinc-900 text-white rounded-xl flex items-center px-6 group"
               onClick={() => window.open('#', '_blank')}
             >
-              <Apple className="size-8 fill-current mr-4 group-hover:scale-110 transition-transform" />
+              <Apple className="size-8 fill-current mr-4" />
               <div className="text-left">
                 <p className="text-[10px] font-medium uppercase leading-none opacity-70">Available on the</p>
                 <p className="text-lg font-bold leading-tight">App Store</p>
@@ -38,10 +38,10 @@ export function RoleSwitchSuccessView() {
             </button>
             
             <button 
-              className="w-full h-[60px] bg-black border border-white/20 hover:bg-zinc-900 text-white rounded-xl flex items-center px-6 transition-colors group"
+              className="w-full h-[60px] bg-black border border-white/20 hover:bg-zinc-900 text-white rounded-xl flex items-center px-6 group"
               onClick={() => window.open('#', '_blank')}
             >
-              <div className="mr-4 group-hover:scale-110 transition-transform">
+              <div className="mr-4">
                 <svg viewBox="0 0 24 24" className="size-8 fill-current">
                   <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.61 3,21.09 3,20.5M16.81,15.12L18.66,16.19C19.28,16.55 19.28,17.45 18.66,17.81L14.73,20.08L14.5,12.81L16.81,15.12M14.73,3.92L18.66,6.19C19.28,6.55 19.28,7.45 18.66,7.81L16.81,8.88L14.5,11.19L14.73,3.92M14.28,12L13.91,12.37L4.65,21.62C4.65,21.62 4.65,21.62 4.66,21.62L13.91,12.37L14.28,12Z" />
                 </svg>

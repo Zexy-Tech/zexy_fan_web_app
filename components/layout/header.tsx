@@ -157,7 +157,7 @@ export function Header() {
 
       <div
         className={cn(
-          'fixed inset-0 z-[60] bg-black/40 transition-opacity',
+          'fixed inset-0 z-[60] bg-black/40',
           isDrawerOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         )}
         onClick={() => setIsDrawerOpen(false)}
@@ -165,7 +165,7 @@ export function Header() {
 
       <aside
         className={cn(
-          'fixed right-0 top-0 z-[70] h-full w-72 max-w-[85vw] border-l bg-background shadow-xl transition-transform duration-300',
+          'fixed right-0 top-0 z-[70] h-full w-72 max-w-[85vw] border-l bg-background shadow-xl',
           isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
         )}
         aria-hidden={!isDrawerOpen}
@@ -208,7 +208,7 @@ export function Header() {
                 href={item.href}
                 onClick={() => setIsDrawerOpen(false)}
                 className={cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm',
                   isActive ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                 )}
               >
@@ -244,7 +244,7 @@ export function Header() {
         ) : (
           <div className="border-t px-2 py-3">
             <Button
-              className="w-full justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl text-xs h-10 transition-all active:scale-[0.98]"
+              className="w-full justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl text-xs h-10"
               onClick={() => {
                 setIsDrawerOpen(false);
                 setIsAuthModalOpen(true);

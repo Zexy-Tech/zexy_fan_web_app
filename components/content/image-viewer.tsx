@@ -30,7 +30,7 @@ export function ImageViewer({ src, alt, open, onClose }: ImageViewerProps) {
   const handleZoomOut = () => setScale(s => Math.max(s - 0.25, 0.5));
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-black/95 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-black/95">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/40 backdrop-blur-md">
         <div className="flex-1 min-w-0">
@@ -57,7 +57,7 @@ export function ImageViewer({ src, alt, open, onClose }: ImageViewerProps) {
         onClick={onClose}
       >
         <div 
-          className="transition-transform duration-200 ease-out shadow-2xl"
+          className="shadow-2xl"
           style={{ 
             transform: `scale(${scale})`,
           }}

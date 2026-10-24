@@ -127,17 +127,17 @@ export function NotificationPermissionModal() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="notif-modal-title"
-      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md"
     >
       <div
-        className="relative w-full max-w-md rounded-3xl border border-border bg-card text-card-foreground p-6 shadow-2xl transition-all"
+        className="relative w-full max-w-md rounded-3xl border border-border bg-card text-card-foreground p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           type="button"
           onClick={handleDismiss}
-          className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
           aria-label="Close dialog"
         >
           <X className="size-4" />
@@ -149,7 +149,7 @@ export function NotificationPermissionModal() {
             {/* Header with Glowing Icon */}
             <div className="flex items-center gap-3.5">
               <div className="relative flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 shadow-lg shadow-purple-600/30">
-                <Bell className="size-6 text-white animate-bounce" />
+                <Bell className="size-6 text-white" />
                 <span className="absolute -top-1 -right-1 size-3 rounded-full bg-emerald-400 ring-2 ring-background" />
               </div>
               <div>
@@ -201,7 +201,7 @@ export function NotificationPermissionModal() {
                 type="button"
                 onClick={handleAllow}
                 disabled={isRegistering}
-                className="w-full h-11 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-purple-600/25 transition-all"
+                className="w-full h-11 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-purple-600/25"
               >
                 {isRegistering ? (
                   <>
@@ -249,7 +249,7 @@ export function NotificationPermissionModal() {
               <button
                 type="button"
                 onClick={() => setShowHowTo(!showHowTo)}
-                className="flex items-center justify-between w-full font-semibold text-purple-600 dark:text-purple-400 hover:underline transition-colors"
+                className="flex items-center justify-between w-full font-semibold text-purple-600 dark:text-purple-400 hover:underline"
               >
                 <span>How to Enable in Browser Settings</span>
                 {showHowTo ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}

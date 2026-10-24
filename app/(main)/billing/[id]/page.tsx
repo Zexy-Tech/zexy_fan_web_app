@@ -74,7 +74,7 @@ function InvoiceDetailPageContent() {
   const isFailed = transaction.status === 'failed' || transaction.status === 'error';
 
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-2xl mx-auto p-4 space-y-8">
       <div className="flex items-center gap-4">
         <Button 
           variant="ghost" 
@@ -179,7 +179,7 @@ function InvoiceDetailPageContent() {
           <Button 
             onClick={handleDownload}
             disabled={isDownloading || !isSuccess}
-            className="flex-1 h-12 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl gap-2 transition-all active:scale-[0.98]"
+            className="flex-1 h-12 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl gap-2"
           >
             {isDownloading ? (
               <Loader2 className="size-5 animate-spin" />

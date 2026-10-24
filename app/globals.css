@@ -137,22 +137,4 @@
   --profile-button-style: solid;
 }
 
-/* ContentPopup: Instagram-style double-tap like burst */
-@keyframes content-popup-heart-burst {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  40% {
-    transform: scale(1.15);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
-}
 
-.animate-content-popup-heart-burst {
-  animation: content-popup-heart-burst 0.65s ease-out forwards;
-}

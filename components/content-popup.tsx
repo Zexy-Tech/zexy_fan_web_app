@@ -278,7 +278,7 @@ export function ContentPopup({
                 aria-hidden
               >
                 <Heart
-                  className="animate-content-popup-heart-burst size-24 fill-red-500 text-red-500 drop-shadow-lg"
+                  className="size-24 fill-red-500 text-red-500 drop-shadow-lg"
                   strokeWidth={0}
                 />
               </div>
@@ -325,7 +325,7 @@ export function ContentPopup({
                     type="button"
                     onClick={() => setDescriptionExpanded((v) => !v)}
                     className={cn(
-                      'w-full bg-transparent p-0 text-left text-xs leading-snug text-zinc-300 outline-none ring-offset-zinc-950 transition-colors',
+                      'w-full bg-transparent p-0 text-left text-xs leading-snug text-zinc-300 outline-none ring-offset-zinc-950',
                       'focus-visible:ring-2 focus-visible:ring-pink-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
                       descriptionExpanded
                         ? 'max-h-28 cursor-pointer overflow-y-auto'
@@ -366,7 +366,7 @@ export function ContentPopup({
                       type="button"
                       onClick={() => setDescriptionExpanded((v) => !v)}
                       className={cn(
-                        'w-full bg-transparent p-0 text-left text-xs leading-snug text-zinc-400 outline-none ring-offset-zinc-950 transition-colors',
+                        'w-full bg-transparent p-0 text-left text-xs leading-snug text-zinc-400 outline-none ring-offset-zinc-950',
                         'focus-visible:ring-2 focus-visible:ring-pink-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
                         descriptionExpanded
                           ? 'max-h-28 cursor-pointer overflow-y-auto hover:text-zinc-300'

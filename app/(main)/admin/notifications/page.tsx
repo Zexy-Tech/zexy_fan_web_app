@@ -176,7 +176,7 @@ export default function AdminNotificationsPage() {
                     maxLength={1000}
                     rows={4}
                     required
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500 transition-colors"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
                   />
                   <p className="text-[10px] text-zinc-500 mt-1">{body.length} / 1000 characters</p>
                 </div>
@@ -205,7 +205,7 @@ export default function AdminNotificationsPage() {
                     <button
                       type="button"
                       onClick={() => setAudience('all')}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-3 rounded-xl border text-left ${
                         audience === 'all'
                           ? 'border-purple-500 bg-purple-950/20 text-white'
                           : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700'
@@ -223,7 +223,7 @@ export default function AdminNotificationsPage() {
                     <button
                       type="button"
                       onClick={() => setAudience('custom')}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-3 rounded-xl border text-left ${
                         audience === 'custom'
                           ? 'border-purple-500 bg-purple-950/20 text-white'
                           : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700'

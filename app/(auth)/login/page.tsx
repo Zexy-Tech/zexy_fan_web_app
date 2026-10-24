@@ -52,7 +52,7 @@ function LoginPageContent() {
               width={70}
               height={70}
               priority
-              className="object-contain drop-shadow-[0_0_20px_rgba(140,61,241,0.4)] group-hover:scale-110 transition-transform duration-500"
+              className="object-contain drop-shadow-[0_0_20px_rgba(140,61,241,0.4)]"
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -79,7 +79,7 @@ function LoginPageContent() {
             <Button
               type="button"
               onClick={() => setIsPopupOpen(true)}
-              className="w-full h-13 py-3.5 bg-gradient-to-r from-[#6b21a8] via-[#7e22ce] to-[#9333ea] hover:opacity-95 text-white font-bold rounded-xl transition-all active:scale-[0.98] text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30"
+              className="w-full h-13 py-3.5 bg-gradient-to-r from-[#6b21a8] via-[#7e22ce] to-[#9333ea] hover:opacity-95 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30"
             >
               <LogIn className="size-4" />
               <span>Log In / Sign Up</span>
@@ -89,7 +89,7 @@ function LoginPageContent() {
             <div className="pt-2">
               <Link
                 href="/creators"
-                className="text-xs text-zinc-500 hover:text-purple-400 transition-colors inline-block"
+                className="text-xs text-zinc-500 hover:text-purple-400 inline-block"
               >
                 Browse creators as guest →
               </Link>
@@ -113,7 +113,7 @@ function LoginPageContent() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
-              className="size-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5"
+              className="size-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 hover:bg-[#e789ff]/5"
             >
               <Instagram className="size-4" />
             </a>
@@ -122,7 +122,7 @@ function LoginPageContent() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Twitter"
-              className="size-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5"
+              className="size-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 hover:bg-[#e789ff]/5"
             >
               <Twitter className="size-4" />
             </a>
@@ -131,18 +131,18 @@ function LoginPageContent() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook"
-              className="size-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5"
+              className="size-10 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 hover:bg-[#e789ff]/5"
             >
               <Facebook className="size-4" />
             </a>
           </div>
 
           <div className="flex items-center gap-4 text-[10px] font-bold tracking-widest text-zinc-500 uppercase opacity-60">
-            <a href="https://zexy.live/privacy-policy" className="hover:text-zinc-300 transition-colors">
+            <a href="https://zexy.live/privacy-policy" className="hover:text-zinc-300">
               Privacy
             </a>
             <div className="size-1 rounded-full bg-zinc-800" />
-            <a href="https://zexy.live/terms-of-service" className="hover:text-zinc-300 transition-colors">
+            <a href="https://zexy.live/terms-of-service" className="hover:text-zinc-300">
               Terms
             </a>
             <div className="size-1 rounded-full bg-zinc-800" />

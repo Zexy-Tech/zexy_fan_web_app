@@ -62,7 +62,7 @@ export default function MessageThreadPage() {
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b px-4 py-3 flex items-center gap-3">
         <Link
           href="/messages"
-          className="p-2 -ml-2 rounded-full hover:bg-accent transition-colors"
+          className="p-2 -ml-2 rounded-full hover:bg-accent"
           aria-label="Back to messages"
         >
           <ArrowLeft className="size-5" />

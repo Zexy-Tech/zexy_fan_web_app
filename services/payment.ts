@@ -22,7 +22,10 @@ export interface CreateIntentResponse {
   currency: string;
   key_id: string;
   mock_checkout_url?: string | null;
+  upi_intent_url?: string | null;
+  payee_name?: string | null;
   payment_gateway?: string | null;
+  merchant_upi_id?: string | null;
 }
 
 export type CheckoutSimOutcome = 'success' | 'failure' | 'cancel';
@@ -46,6 +49,17 @@ export interface VerifyPaymentResponse {
   reference_id: number;
 }
 
+export interface OrderStatusResponse {
+  gateway_order_id: string;
+  status: 'success' | 'pending' | 'failed' | 'expired';
+  amount: number;
+  currency: string;
+  purpose: string;
+  reference_id: number | null;
+  transaction_id: number | null;
+  created_at: string;
+}
+
 export interface Transaction {
   id: number;
   amount: number;
@@ -58,6 +72,40 @@ export interface Transaction {
   created_at: string;
   creator_name?: string;
   creator_username?: string;
+}
+
+export interface AdminPendingPaymentItem {
+  id: number;
+  gateway_order_id: string;
+  user_id: number | null;
+  user_name?: string | null;
+  user_username?: string | null;
+  user_mobile?: string | null;
+  purpose: string;
+  reference_id: number | null;
+  item_title?: string | null;
+  amount: number;
+  currency: string;
+  gateway: string;
+  status: string;
+  utr?: string | null;
+  utr_submitted_at?: string | null;
+  extra_data?: Record<string, any> | null;
+  created_at: string;
+  updated_at?: string | null;
+}
+
+export interface AdminPendingPaymentsResponse {
+  payments: AdminPendingPaymentItem[];
+  total_count: number;
+}
+
+export interface AdminVerifyPaymentResponse {
+  success: boolean;
+  status: string;
+  order_id: string;
+  message: string;
+  transaction_id?: number | null;
 }
 
 // ============================================================================
@@ -110,6 +158,56 @@ export const paymentService = {
    */
   verifyPayment: async (data: VerifyPaymentRequest): Promise<VerifyPaymentResponse> => {
     const response = await apiClient.post('/api/v1/fan/payments/verify', data);
+    return response.data.data;
+  },
+
+  /**
+   * Authoritative order status query (polling-safe)
+   */
+  getOrderStatus: async (gatewayOrderId: string): Promise<OrderStatusResponse> => {
+    const response = await apiClient.get(`/api/v1/fan/payments/orders/${gatewayOrderId}/status`);
+    return response.data.data;
+  },
+
+  /**
+   * Submit fan's 12-digit UTR/Bank Reference after paying via UPI app
+   */
+  submitUtr: async (
+    gatewayOrderId: string,
+    utr: string
+  ): Promise<{ success: boolean; message: string; gateway_order_id: string; utr: string; status: string }> => {
+    const response = await apiClient.post(`/api/v1/fan/payments/orders/${gatewayOrderId}/submit-utr`, { utr });
+    return response.data.data;
+  },
+
+  /**
+   * Admin: List pending UPI payments requiring verification
+   */
+  getPendingPayments: async (
+    status: string = 'created',
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<AdminPendingPaymentsResponse> => {
+    const response = await apiClient.get('/api/v1/admin/payments/pending', {
+      params: { status, limit, offset },
+    });
+    return response.data.data;
+  },
+
+  /**
+   * Admin: Approve or Reject a payment order with bank reference/notes
+   */
+  verifyPaymentAdmin: async (
+    gatewayOrderId: string,
+    action: 'approve' | 'reject',
+    bankReference?: string,
+    notes?: string
+  ): Promise<AdminVerifyPaymentResponse> => {
+    const response = await apiClient.post(`/api/v1/admin/payments/orders/${gatewayOrderId}/verify`, {
+      action,
+      bank_reference: bankReference,
+      notes,
+    });
     return response.data.data;
   },
 

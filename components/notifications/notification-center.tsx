@@ -63,7 +63,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'creator_live':
-        return <Radio className="size-4 text-rose-500 animate-pulse" />;
+        return <Radio className="size-4 text-rose-500" />;
       case 'creator_content':
         return <Video className="size-4 text-purple-400" />;
       case 'new_message':
@@ -82,13 +82,13 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Popover / Panel */}
       <div
-        className="fixed right-2 top-16 z-50 w-full max-w-sm sm:max-w-md rounded-2xl border border-border bg-popover text-popover-foreground p-4 shadow-2xl backdrop-blur-xl transition-all"
+        className="fixed right-2 top-16 z-50 w-full max-w-sm sm:max-w-md rounded-2xl border border-border bg-popover text-popover-foreground p-4 shadow-2xl backdrop-blur-xl"
         style={{ maxHeight: 'calc(100vh - 5rem)' }}
       >
         {/* Header */}
@@ -133,7 +133,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               type="button"
               onClick={() => setCategory('all')}
               className={cn(
-                'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
+                'px-2.5 py-1 rounded-lg text-xs font-medium',
                 category === 'all'
                   ? 'bg-purple-600 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'
@@ -145,7 +145,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               type="button"
               onClick={() => setCategory('creator')}
               className={cn(
-                'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
+                'px-2.5 py-1 rounded-lg text-xs font-medium',
                 category === 'creator'
                   ? 'bg-purple-600 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'
@@ -157,7 +157,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               type="button"
               onClick={() => setCategory('admin')}
               className={cn(
-                'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
+                'px-2.5 py-1 rounded-lg text-xs font-medium',
                 category === 'admin'
                   ? 'bg-purple-600 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'
@@ -171,7 +171,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
             type="button"
             onClick={() => setUnreadOnly((prev) => !prev)}
             className={cn(
-              'px-2 py-0.5 rounded-md text-[11px] font-medium border transition-colors',
+              'px-2 py-0.5 rounded-md text-[11px] font-medium border',
               unreadOnly
                 ? 'bg-purple-500/15 border-purple-500/40 text-purple-600 dark:text-purple-300'
                 : 'border-border text-muted-foreground hover:text-foreground'
@@ -209,7 +209,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
                 key={item.id}
                 onClick={() => handleNotificationClick(item)}
                 className={cn(
-                  'group relative flex items-start gap-3 rounded-xl p-3 text-left transition-all cursor-pointer border',
+                  'group relative flex items-start gap-3 rounded-xl p-3 text-left cursor-pointer border',
                   item.is_read
                     ? 'bg-muted/30 border-border/50 hover:bg-muted/70 hover:border-border'
                     : 'bg-purple-500/10 border-purple-500/25 hover:bg-purple-500/15 hover:border-purple-500/40'
@@ -254,7 +254,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
                     e.stopPropagation();
                     deleteNotification.mutate(item.id);
                   }}
-                  className="absolute right-2 top-2 p-1 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-rose-500 transition-opacity"
+                  className="absolute right-2 top-2 p-1 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-rose-500"
                   title="Dismiss notification"
                 >
                   <Trash2 className="size-3.5" />

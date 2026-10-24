@@ -55,7 +55,7 @@ export function SubscribedLatest() {
             href={`/content/${post.id}`}
             className="flex-shrink-0 w-[240px] group relative"
           >
-            <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-xl group-hover:border-purple-500/50 transition-all duration-300">
+            <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-xl group-hover:border-purple-500/50">
               {/* Thumbnail / Placeholder */}
               <div className="size-full bg-gradient-to-br from-purple-900/20 via-zinc-900 to-pink-900/20 flex items-center justify-center">
                 {(post.thumbnail_url || post.url) ? (
@@ -64,7 +64,7 @@ export function SubscribedLatest() {
                     alt={post.title}
                     fill
                     className={cn(
-                      "object-cover transition-transform duration-500 group-hover:scale-110",
+                      "object-cover",
                       post.is_locked && "blur-sm opacity-50"
                     )}
                     sizes="240px"
@@ -115,7 +115,7 @@ export function SubscribedLatest() {
                     {post.creator_name}
                   </span>
                 </div>
-                <h3 className="text-xs font-semibold text-white line-clamp-1 group-hover:text-purple-400 transition-colors">
+                <h3 className="text-xs font-semibold text-white line-clamp-1 group-hover:text-purple-400">
                   {post.title}
                 </h3>
               </div>

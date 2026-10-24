@@ -53,7 +53,7 @@ export default function ActivityPage() {
             const Icon = config.icon;
 
             return (
-              <Card key={item.id} className="bg-card border-border hover:bg-muted/60 transition-colors shadow-sm">
+              <Card key={item.id} className="bg-card border-border hover:bg-muted/60 shadow-sm">
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className={cn("p-2 rounded-xl bg-muted", config.color)}>
                     <Icon className="size-5" />

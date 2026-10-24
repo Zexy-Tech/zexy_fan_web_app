@@ -64,7 +64,7 @@ export function ExclusiveContentCard({
             alt={content.title}
             fill
             className={cn(
-              "object-cover transition-transform duration-500 group-hover:scale-110",
+              "object-cover",
               content.isLocked && "blur-sm opacity-60"
             )}
             sizes="(max-width: 640px) 50vw, 300px"

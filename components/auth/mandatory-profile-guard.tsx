@@ -127,7 +127,7 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
 
       {isMissingDetails && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-lg">
-          <div className="w-full max-w-[420px] animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-full max-w-[420px]">
             <Card className="border-amber-500/30 bg-zinc-900 text-white shadow-2xl rounded-2xl overflow-hidden relative">
               <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-500 via-purple-500 to-amber-500" />
               <CardContent className="p-6">
@@ -233,7 +233,7 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
                           type="button"
                           onClick={() => setGender(item.id)}
                           className={cn(
-                            'h-9 rounded-lg border border-zinc-700 bg-zinc-800/50 text-xs font-medium transition-all',
+                            'h-9 rounded-lg border border-zinc-700 bg-zinc-800/50 text-xs font-medium',
                             gender === item.id
                               ? 'border-purple-500 bg-purple-600/20 text-purple-300 ring-1 ring-purple-500'
                               : 'text-zinc-300 hover:bg-zinc-800'
@@ -247,7 +247,7 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
 
                   <Button
                     type="submit"
-                    className="h-11 w-full rounded-xl bg-purple-600 font-bold text-white transition-all active:scale-[0.98] hover:bg-purple-500 mt-2 text-xs"
+                    className="h-11 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 mt-2 text-xs"
                     disabled={isSaving || !name.trim() || mobile.length < 10 || !city.trim() || !dob.trim() || !gender}
                   >
                     {isSaving ? 'Saving…' : 'Save & Continue to Zexy'}
@@ -257,7 +257,7 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
                     <button
                       type="button"
                       onClick={() => logout()}
-                      className="inline-flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-red-400 transition-colors"
+                      className="inline-flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-red-400"
                     >
                       <LogOut className="size-3" /> Log out instead
                     </button>

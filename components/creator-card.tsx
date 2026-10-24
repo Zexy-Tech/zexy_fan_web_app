@@ -52,7 +52,7 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
 
   return (
     <Card className={cn(
-      'overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer relative',
+      'overflow-hidden hover:shadow-lg cursor-pointer relative',
       className
     )}>
       <CardContent className="p-0">
@@ -80,7 +80,7 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
           {/* Status Badges Overlay */}
           <div className="absolute top-2 right-2 flex flex-col gap-1.5 items-end">
             {creator.is_live && (
-              <Badge className="bg-red-500 hover:bg-red-600 text-white animate-pulse border-none">
+              <Badge className="bg-red-500 hover:bg-red-600 text-white border-none">
                 <Radio className="size-3 mr-1" />
                 LIVE
               </Badge>

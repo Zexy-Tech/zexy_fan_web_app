@@ -56,7 +56,7 @@ export default function ChatsPage() {
         <Link
           key={chat.other_user_id}
           href={`/chats/${chat.other_user_code || toUserCode(chat.other_user_id, 'creator')}`}
-          className="block cursor-pointer px-4 py-3 transition-colors hover:bg-accent/40"
+          className="block cursor-pointer px-4 py-3 hover:bg-accent/40"
         >
           <div className="flex items-center gap-3">
             <div className="size-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden border border-white/5 shadow-sm">

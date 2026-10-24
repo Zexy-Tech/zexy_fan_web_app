@@ -81,7 +81,7 @@ function MockPhonePeContent() {
 
           {status === 'success' && (
             <div className="py-8 text-center space-y-4">
-              <CheckCircle2 className="size-16 text-emerald-500 mx-auto animate-bounce" />
+              <CheckCircle2 className="size-16 text-emerald-500 mx-auto" />
               <p className="font-bold text-lg text-emerald-700">Payment Successful!</p>
               <p className="text-sm text-zinc-500">Redirecting you back to Zexy...</p>
             </div>

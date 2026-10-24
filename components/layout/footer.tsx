@@ -31,7 +31,7 @@ export function Footer() {
             <button
               type="button"
               onClick={() => setIsSignupModalOpen(true)}
-              className="mb-2 text-center text-lg leading-tight tracking-tight text-foreground transition-opacity hover:opacity-85"
+              className="mb-2 text-center text-lg leading-tight tracking-tight text-foreground hover:opacity-85"
             >
               Create Your Profile On Zexy
             </button>
@@ -41,7 +41,7 @@ export function Footer() {
                 href="https://zexy.live/privacy-policy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-colors hover:text-foreground"
+                className="hover:text-foreground"
               >
                 Privacy Policy
               </a>
@@ -50,7 +50,7 @@ export function Footer() {
                 href="https://zexy.live/terms-of-service"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-colors hover:text-foreground"
+                className="hover:text-foreground"
               >
                 Terms
               </a>

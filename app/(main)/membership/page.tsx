@@ -32,7 +32,7 @@ function MembershipRow({
   return (
     <Link
       href={`/subscriptions/${sub.id}`}
-      className="-mx-4 block border-b border-border px-4 py-4 transition-colors last:border-b-0 hover:bg-accent/40 sm:-mx-0 sm:px-0"
+      className="-mx-4 block border-b border-border px-4 py-4 last:border-b-0 hover:bg-accent/40 sm:-mx-0 sm:px-0"
     >
       <div className="flex gap-3">
         <div className="flex size-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
@@ -75,7 +75,7 @@ function MembershipRow({
               className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200/90 dark:bg-zinc-800/90"
             >
               <div
-                className="h-full rounded-full bg-zinc-300 transition-[width] dark:bg-zinc-400"
+                className="h-full rounded-full bg-zinc-300 dark:bg-zinc-400"
                 style={{ width: `${pct}%` }}
               />
             </div>

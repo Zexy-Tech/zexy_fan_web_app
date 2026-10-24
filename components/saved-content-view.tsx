@@ -234,7 +234,7 @@ export function SavedContentView() {
                 type="button"
                 onClick={() => setActiveTab(id)}
                 className={cn(
-                  'flex w-full flex-col items-center justify-center gap-1 px-1 py-2.5 text-xs font-medium transition-colors sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm',
+                  'flex w-full flex-col items-center justify-center gap-1 px-1 py-2.5 text-xs font-medium sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm',
                   active
                     ? 'border-b-2 border-pink-500 text-foreground'
                     : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'

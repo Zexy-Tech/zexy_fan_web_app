@@ -59,7 +59,7 @@ function SubscribedCreatorRow({ sub }: { sub: ActiveSubscription }) {
 
         <Link
           href="/chats"
-          className="flex size-10 shrink-0 items-center justify-center self-start rounded-full border border-border bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="flex size-10 shrink-0 items-center justify-center self-start rounded-full border border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground"
           aria-label={`Chat with ${sub.creator_name}`}
         >
           <MessageCircle className="size-5" strokeWidth={1.75} />

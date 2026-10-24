@@ -7,8 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useCreateSubscriptionIntent, useActivateSubscription } from '@/hooks/useSubscriptions';
-import { useVerifyPayment } from '@/hooks/usePayment';
+import { useCreateSubscriptionIntent } from '@/hooks/useSubscriptions';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,6 +21,8 @@ import { Check, CheckCircle2, Crown, Loader2, X, XCircle } from 'lucide-react';
 import { cn, formatCurrency, getMediaUrl } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { SubscriptionPlan } from '@/services/subscriptions';
+import type { CreateIntentResponse } from '@/services/payment';
+import { DirectUpiCheckoutModal } from '@/components/payments/DirectUpiCheckoutModal';
 import { AxiosError } from 'axios';
 
 interface SubscriptionModalProps {
@@ -43,60 +44,43 @@ export function SubscriptionModal({
   creatorName,
   plans,
   onClose,
-  onSuccess,
   presentation = 'subscribe',
   creatorUsername,
   creatorAvatarUrl,
+  onSuccess,
 }: SubscriptionModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan>(plans[0]);
   const [status, setStatus] = useState<Status>('select');
+  const [checkoutIntent, setCheckoutIntent] = useState<CreateIntentResponse | null>(null);
+  const [showCheckoutModal, setShowCheckoutModal] = useState<boolean>(false);
 
   const createIntent = useCreateSubscriptionIntent();
-  const verifyPayment = useVerifyPayment();
-  const activateSubscription = useActivateSubscription();
 
   const handleSubscribe = async () => {
     setStatus('processing');
     try {
-      // Step 1: Create payment intent
+      // Step 1: Create payment intent on backend
       const intent = await createIntent.mutateAsync(selectedPlan.id);
 
-      if (intent.mock_checkout_url) {
-        let targetUrl = intent.mock_checkout_url;
-        if (targetUrl.startsWith('mock://')) {
-          const urlParams = targetUrl.replace('mock://checkout?', '');
-          targetUrl = `/mock-pg?${urlParams}`;
-        }
-        window.location.href = targetUrl;
-        return;
+      // Save post-payment redirect target so the fan returns directly to this creator's profile
+      if (creatorUsername && typeof window !== 'undefined') {
+        const handle = creatorUsername.replace(/^@+/, '');
+        sessionStorage.setItem('post_payment_redirect', `/creator/${handle}`);
       }
 
-      // Step 2: Simulate Razorpay (in real app, open Razorpay modal here)
-      await new Promise((r) => setTimeout(r, 1500));
-
-      // Step 3: Verify payment
-      await verifyPayment.mutateAsync({
-        gateway_order_id: intent.gateway_order_id,
-        gateway_payment_id: 'pay_mock_' + Date.now(),
-        gateway_signature: 'sig_mock_' + Date.now(),
-      });
-
-      // Step 4: Activate subscription
-      await activateSubscription.mutateAsync({
-        planId: selectedPlan.id,
-        gatewayOrderId: intent.gateway_order_id,
-      });
-
-      setStatus('success');
-      toast.success(`Subscribed to ${creatorName}!`);
-      setTimeout(() => {
-        onClose();
-        onSuccess?.();
-      }, 1500);
+      // Step 2: Open Direct UPI checkout modal (shows PhonePe, GPay, Paytm, QR, Copy UPI ID, and UTR entry)
+      setCheckoutIntent(intent);
+      setShowCheckoutModal(true);
+      setStatus('select');
     } catch (err: unknown) {
       setStatus('error');
-      const axiosError = err as AxiosError<{ error?: { message?: string } }>;
-      toast.error(axiosError.response?.data?.error?.message || 'Subscription failed. Please try again.');
+      const axiosError = err as AxiosError<{ error?: { message?: string }; detail?: string }>;
+      const msg =
+        axiosError.response?.data?.error?.message ||
+        axiosError.response?.data?.detail ||
+        (err as Error)?.message ||
+        'Subscription failed. Please try again.';
+      toast.error(msg);
     }
   };
 
@@ -177,7 +161,7 @@ export function SubscriptionModal({
                     key={plan.id}
                     onClick={() => setSelectedPlan(plan)}
                     className={cn(
-                      'w-full text-left transition-all',
+                      'w-full text-left',
                       isMembership
                         ? cn(
                             'px-4 py-3.5',
@@ -275,6 +259,20 @@ export function SubscriptionModal({
           )}
         </CardFooter>
       </Card>
+
+      <DirectUpiCheckoutModal
+        isOpen={showCheckoutModal}
+        intent={checkoutIntent}
+        itemName={`Subscription: ${selectedPlan?.name || 'Plan'}`}
+        onClose={() => setShowCheckoutModal(false)}
+        onSuccess={() => {
+          setShowCheckoutModal(false);
+          setStatus('success');
+          toast.success('Subscription activated successfully!');
+          onSuccess?.();
+          onClose();
+        }}
+      />
     </div>
   );
 }

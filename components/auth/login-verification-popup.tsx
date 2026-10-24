@@ -261,7 +261,7 @@ export function LoginVerificationPopup({
                 </div>
                 <Button
                   type="submit"
-                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white transition-all hover:bg-purple-700 active:scale-[0.98]"
+                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-700"
                   disabled={sendOTP.isPending || mobile.length < 10}
                 >
                   {sendOTP.isPending ? (
@@ -303,7 +303,7 @@ export function LoginVerificationPopup({
                         onChange={(e) => handleCodeChange(e.target.value, index)}
                         onKeyDown={(e) => handleKeyDown(e, index)}
                         className={cn(
-                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800 text-center text-lg font-bold outline-none transition-all focus:border-purple-500 focus:ring-1 focus:ring-purple-500',
+                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800 text-center text-lg font-bold outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500',
                           digit && 'border-purple-500 bg-zinc-800/80'
                         )}
                         disabled={isVerifying || isSubmitting}
@@ -314,7 +314,7 @@ export function LoginVerificationPopup({
                 </div>
                 <Button
                   type="submit"
-                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white transition-all hover:bg-purple-700 active:scale-[0.98]"
+                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-700"
                   disabled={isVerifying || isSubmitting || code.join('').length < 4}
                 >
                   {isVerifying || isSubmitting ? (

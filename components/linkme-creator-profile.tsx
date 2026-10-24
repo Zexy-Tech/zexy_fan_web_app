@@ -302,7 +302,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
       {/* Profile bar overlay (hidden until hero fully disappears) */}
       <div
         className={[
-          'fixed inset-x-0 top-0 z-50 transition-all duration-300',
+          'fixed inset-x-0 top-0 z-50',
           showStickyProfileBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none',
         ].join(' ')}
       >
@@ -387,7 +387,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
 
             {config?.is_live && (
               <Badge 
-                className="mt-4 bg-red-500 hover:bg-red-600 text-white cursor-pointer px-3 py-1.5 flex items-center gap-2 animate-pulse rounded-full border-none"
+                className="mt-4 bg-red-500 hover:bg-red-600 text-white cursor-pointer px-3 py-1.5 flex items-center gap-2 rounded-full border-none"
                 onClick={(e) => {
                   e.stopPropagation();
                   router.push(`/live/${config.active_room_id}`);
@@ -411,7 +411,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                       setIsMembershipOpen(true);
                     }
                   }}
-                  className="rounded-full bg-pink-500 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition-all hover:bg-pink-600 active:scale-95"
+                  className="rounded-full bg-pink-500 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 hover:bg-pink-600"
                 >
                   Subscribe
                 </button>
@@ -423,7 +423,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                     if (creator?.id) {
                       router.push(`/chats/${creator.id}`);
                     }
-                  }}                  className="rounded-full bg-white/10 border border-white/10 px-8 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-white/20 active:scale-95"
+                  }}                  className="rounded-full bg-white/10 border border-white/10 px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20"
                 >
                   Message
                 </button>
@@ -441,8 +441,8 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                     type="button"
                     aria-label={label || (isZexy ? 'Zexy' : kind)}
                     className={[
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] border border-white/10 text-white transition-all',
-                      'hover:bg-white/15 active:scale-95',
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] border border-white/10 text-white',
+                      'hover:bg-white/15',
                       !isEnabled ? 'opacity-50 pointer-events-none' : '',
                     ].join(' ')}
                     onClick={
@@ -710,7 +710,7 @@ function ExclusiveMediaGrid({
 
 function EmptyState({ icon: Icon, message }: { icon: LucideIcon; message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in duration-700">
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="mb-4 rounded-full bg-white/[0.02] p-5 border border-white/5 shadow-inner">
         <Icon className="size-8 text-zinc-700" strokeWidth={1} />
       </div>
@@ -869,7 +869,7 @@ function CreatorMediaBlocks({
               type="button"
               onClick={() => setActiveTab(id)}
               className={cn(
-                'flex w-full flex-col items-center justify-center gap-1 px-1 py-2.5 text-xs font-medium transition-colors sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm',
+                'flex w-full flex-col items-center justify-center gap-1 px-1 py-2.5 text-xs font-medium sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm',
                 active
                   ? 'border-b-2 border-pink-500 text-white'
                   : 'border-b-2 border-transparent text-zinc-500 hover:text-zinc-300'

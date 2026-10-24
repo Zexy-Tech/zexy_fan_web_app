@@ -93,7 +93,7 @@ export function TipModal({
                     type="button"
                     onClick={() => onAmountChange(preset)}
                     className={[
-                      'min-w-0 flex-1 rounded-xl border px-2 py-3 text-center text-sm font-semibold transition-colors sm:px-3 sm:text-sm',
+                      'min-w-0 flex-1 rounded-xl border px-2 py-3 text-center text-sm font-semibold sm:px-3 sm:text-sm',
                       active
                         ? 'border-pink-500 bg-pink-500/20 text-pink-600 dark:text-pink-300 font-bold'
                         : 'border-border bg-muted text-muted-foreground hover:bg-accent hover:text-foreground',

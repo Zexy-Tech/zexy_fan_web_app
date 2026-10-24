@@ -100,7 +100,7 @@ export default function CategoriesPage() {
           <Link
             key={category.slug}
             href={`/categories/${category.slug}`}
-            className="-mx-4 flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/40 sm:-mx-0 sm:px-0"
+            className="-mx-4 flex items-center gap-3 px-4 py-3.5 hover:bg-accent/40 sm:-mx-0 sm:px-0"
           >
             <div
               className={cn(

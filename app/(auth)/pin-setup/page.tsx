@@ -86,7 +86,7 @@ function PinSetupPageContent() {
               width={80} 
               height={80} 
               priority
-              className="object-contain drop-shadow-[0_0_15px_rgba(140,61,241,0.3)] group-hover:scale-110 transition-transform duration-500"
+              className="object-contain drop-shadow-[0_0_15px_rgba(140,61,241,0.3)]"
             />
           </div>
           <div className="flex flex-col gap-3">
@@ -98,7 +98,7 @@ function PinSetupPageContent() {
         </div>
 
         <Card className="border-zinc-800/50 bg-[#121214]/80 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden relative group">
-          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#8c3df1] to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
+          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#8c3df1] to-transparent opacity-50 group-hover:opacity-100" />
           <CardContent className="p-8">
             <div className="flex flex-col gap-8">
               <div className="flex justify-between gap-3">
@@ -113,7 +113,7 @@ function PinSetupPageContent() {
                     onChange={(e) => handlePinChange(e.target.value, index)}
                     onKeyDown={(e) => handleKeyDown(e, index)}
                     className={cn(
-                      "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none transition-all",
+                      "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none",
                       digit && "border-[#8c3df1] bg-[#1c1c1f]"
                     )}
                     disabled={setupPIN.isPending}
@@ -125,7 +125,7 @@ function PinSetupPageContent() {
               <div className="flex flex-col gap-4 pt-2">
                 <Button 
                   onClick={step === 'create' ? () => pin.join('').length === 4 && setStep('confirm') : () => handleFinish()}
-                  className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl transition-all active:scale-[0.98] text-base" 
+                  className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl text-base" 
                   disabled={setupPIN.isPending || (step === 'create' ? pin.join('').length < 4 : confirmPin.join('').length < 4)}
                 >
                   {setupPIN.isPending ? (
@@ -138,7 +138,7 @@ function PinSetupPageContent() {
                 {step === 'confirm' && (
                   <button 
                     type="button" 
-                    className="w-full text-center text-sm text-zinc-500 hover:text-purple-400 transition-colors" 
+                    className="w-full text-center text-sm text-zinc-500 hover:text-purple-400" 
                     onClick={() => { setStep('create'); setConfirmPin(['','','','']); }}
                   >
                     Change PIN
@@ -150,7 +150,7 @@ function PinSetupPageContent() {
         </Card>
 
         {/* Social Media Links */}
-        <div className="flex flex-col items-center gap-6 pt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+        <div className="flex flex-col items-center gap-6 pt-4">
           <div className="flex items-center gap-4 w-full">
             <div className="h-px flex-1 bg-zinc-800/50" />
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">Connect with us</span>
@@ -162,32 +162,32 @@ function PinSetupPageContent() {
               href="https://instagram.com/zexy.live" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5 group"
+              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 hover:bg-[#e789ff]/5 group"
             >
-              <Instagram className="size-5 group-hover:scale-110 transition-transform" />
+              <Instagram className="size-5" />
             </a>
             <a 
               href="https://twitter.com/zexylive" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5 group"
+              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 hover:bg-[#e789ff]/5 group"
             >
-              <Twitter className="size-5 group-hover:scale-110 transition-transform" />
+              <Twitter className="size-5" />
             </a>
             <a 
               href="https://facebook.com/zexylive" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 transition-all hover:bg-[#e789ff]/5 group"
+              className="size-12 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-[#e789ff] hover:border-[#e789ff]/30 hover:bg-[#e789ff]/5 group"
             >
-              <Facebook className="size-5 group-hover:scale-110 transition-transform" />
+              <Facebook className="size-5" />
             </a>
           </div>
 
           <div className="flex items-center gap-4 text-[10px] font-bold tracking-widest text-zinc-500 uppercase opacity-60">
-             <a href="https://zexy.live/privacy-policy" className="hover:text-zinc-300 transition-colors">Privacy</a>
+             <a href="https://zexy.live/privacy-policy" className="hover:text-zinc-300">Privacy</a>
              <div className="size-1 rounded-full bg-zinc-800" />
-             <a href="https://zexy.live/terms-of-service" className="hover:text-zinc-300 transition-colors">Terms</a>
+             <a href="https://zexy.live/terms-of-service" className="hover:text-zinc-300">Terms</a>
              <div className="size-1 rounded-full bg-zinc-800" />
              <span className="cursor-default">© 2026 ZEXY</span>
           </div>
