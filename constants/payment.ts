@@ -120,25 +120,37 @@ export function buildUpiUrl(params: BuildUpiUrlParams): string {
     pn: payeeName,
     am: formattedAmount,
     cu: currency,
-    tr: safeTr,
     tn: truncatedNote,
   };
 
   // CRITICAL FIX FOR BANK LIMIT EXCEEDED ERROR:
-  // Only include merchant category code (mc) and merchant mode (mode=02)
-  // if explicitly confirmed as an authorized merchant account.
-  // Passing 'mc=5815' or 'mode=02' to an individual/personal UPI ID (e.g. lalitspatil03@okhdfcbank)
+  // Only include merchant category code (mc), merchant mode (mode=02),
+  // and transaction reference (tr) if explicitly confirmed as an authorized merchant account.
+  // Passing 'mc=5815', 'mode=02', or 'tr=...' to an individual/personal UPI ID (e.g. lalitspatil03@okhdfcbank)
   // causes PhonePe, Google Pay, and issuing banks to treat the intent as an unauthorized P2M
   // merchant transaction, setting the allowed limit to 0 and failing with:
   // "You have exceeded the bank limit for this payment, retry with smaller amount."
   const isMerchant = params.isMerchant ?? UPI_CONFIG.isMerchant;
   const merchantCode = params.merchantCode || (isMerchant ? UPI_CONFIG.merchantCategoryCode : undefined);
 
-  if (isMerchant && merchantCode) {
-    queryParams.mc = merchantCode;
+  if (isMerchant) {
+    if (safeTr) {
+      queryParams.tr = safeTr;
+    }
+    if (merchantCode) {
+      queryParams.mc = merchantCode;
+    }
     queryParams.mode = params.mode || '02';
-  } else if (params.mode && params.mode !== '02') {
-    queryParams.mode = params.mode;
+  } else {
+    // For personal accounts: preserve transaction reference inside transaction note (tn)
+    // so it appears on bank statements and UPI receipts without triggering merchant enforcement.
+    if (safeTr && !rawNote.includes(safeTr.slice(0, 8))) {
+      const compactRef = safeTr.slice(-10);
+      queryParams.tn = `${truncatedNote.slice(0, 36)} ref:${compactRef}`;
+    }
+    if (params.mode && params.mode !== '02') {
+      queryParams.mode = params.mode;
+    }
   }
 
   // Construct query string: preserve '@' in payee VPA to avoid regex mismatch in some UPI intent handlers
@@ -252,6 +264,9 @@ export function inspectUpiUrl(uri: string): {
   if (!params.am) warnings.push('Missing amount (am)');
   if (params.cu !== 'INR') warnings.push('Currency (cu) should be INR');
   if (params.tr && params.tr.length > 35) warnings.push('Transaction reference (tr) exceeds 35 characters');
+  if (params.tr && !UPI_CONFIG.isMerchant) {
+    warnings.push('Transaction reference (tr) included on a non-merchant/personal UPI account');
+  }
   if (params.mc && !UPI_CONFIG.isMerchant) {
     warnings.push('Merchant category code (mc) included on a non-merchant/personal UPI account');
   }

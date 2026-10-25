@@ -434,25 +434,25 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
                 {showBankLimitHelp && (
                   <div className="p-4 pt-1 border-t border-zinc-800/60 space-y-3 text-xs text-zinc-400">
                     <p className="font-semibold text-amber-300">
-                      Google Pay: &quot;You can pay up to ₹2,000 with QR codes via gallery&quot;
+                      PhonePe: &quot;You can pay up to ₹2,000 with QR codes via gallery&quot;
                     </p>
                     <p className="text-[11px] text-zinc-300 leading-relaxed">
-                      That message means the payment was started from a <strong className="text-zinc-200">saved QR image</strong> (Gallery),
-                      not from the <strong className="text-zinc-200">Pay with UPI App</strong> button. Tap that button above, or scan this QR
-                      with the in-app <strong className="text-zinc-200">camera scanner</strong> while this page is open on your screen.
+                      That message appears when a payment is started from a <strong className="text-zinc-200">saved QR screenshot (Gallery)</strong>.
+                      Instead, tap the <strong className="text-zinc-200">Pay with UPI App</strong> button above to launch directly via app link,
+                      or scan this QR live using the camera scanner on another device.
                     </p>
                     <p className="font-semibold text-amber-300 pt-1">
-                      &quot;Bank limit exceeded&quot; or transaction failed?
+                      Google Pay: &quot;Bank limit exceeded&quot; or transaction failed?
                     </p>
                     <ul className="list-disc pl-4 space-y-1.5 text-[11px] text-zinc-300 leading-relaxed">
+                      <li>
+                        <strong className="text-zinc-200">Direct P2P Routing Active:</strong> Merchant tracking parameters (`mc`, `mode=02`, `tr`) have been removed for personal accounts so Google Pay and PhonePe process payments as clean peer-to-peer transfers.
+                      </li>
                       <li>
                         <strong className="text-zinc-200">Bank 24-Hour Cooling Limit:</strong> If you recently registered on PhonePe/Google Pay, swapped SIM cards, or reset your UPI PIN, your bank caps transfers for 24–72 hours.
                       </li>
                       <li>
-                        <strong className="text-zinc-200">Daily Frequency Cap:</strong> Most Indian banks restrict the number of UPI transfers (typically 10–20 daily) regardless of payment amount.
-                      </li>
-                      <li>
-                        <strong className="text-zinc-200">Intent Parameters Fixed:</strong> Commercial merchant category tags (`mc` / `mode=02`) on personal UPI accounts have been removed by Zexy to ensure clean peer-to-peer routing.
+                        <strong className="text-zinc-200">Direct UPI ID Option:</strong> You can always copy the UPI ID directly at the top, pay in your UPI app, and enter your 12-digit UTR below.
                       </li>
                     </ul>
 
