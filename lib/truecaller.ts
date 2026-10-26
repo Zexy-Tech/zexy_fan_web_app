@@ -124,13 +124,14 @@ export function isTruecallerSupported(): boolean {
   // Must have Truecaller Partner Key configured
   if (!ENV.TRUECALLER_PARTNER_KEY) return false;
 
-  // Check if previously flagged as not installed or unavailable on this device
+  // Check if previously flagged as not installed or unavailable in this session
   try {
-    if (
-      sessionStorage.getItem(UNAVAILABLE_STORAGE_KEY) === 'true' ||
-      localStorage.getItem(UNAVAILABLE_STORAGE_KEY) === 'true'
-    ) {
+    if (sessionStorage.getItem(UNAVAILABLE_STORAGE_KEY) === 'true') {
       return false;
+    }
+    // Clean up any stale legacy localStorage block
+    if (localStorage.getItem(UNAVAILABLE_STORAGE_KEY)) {
+      localStorage.removeItem(UNAVAILABLE_STORAGE_KEY);
     }
   } catch {
     // Ignore storage errors
@@ -148,7 +149,6 @@ export function markTruecallerUnavailable(): void {
   if (typeof window === 'undefined') return;
   try {
     sessionStorage.setItem(UNAVAILABLE_STORAGE_KEY, 'true');
-    localStorage.setItem(UNAVAILABLE_STORAGE_KEY, 'true');
   } catch {
     // Ignore storage errors
   }

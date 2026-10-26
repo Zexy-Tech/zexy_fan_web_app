@@ -107,6 +107,8 @@ export async function registerMessagingServiceWorker(): Promise<ServiceWorkerReg
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
       scope: '/',
     });
+    // Ensure service worker is activated and ready on mobile browsers before token request
+    await navigator.serviceWorker.ready.catch(() => null);
     return registration;
   } catch (error) {
     console.error('[Firebase Messaging] Service Worker registration failed:', error);
@@ -176,7 +178,9 @@ export async function getFCMRegistrationToken(): Promise<string | null> {
     return null;
   }
 
-  const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+  const DEFAULT_VAPID_KEY =
+    'BDoA0AAPB73ev9HrcD0e1np5S-ek2YZBStV_qXCp-tSkvP7ot1mM-sQ2kshxFPfLt-gpnJnAUi0wAq5VcvyL-uQ';
+  const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || DEFAULT_VAPID_KEY;
 
   try {
     const token = await getToken(messaging, {

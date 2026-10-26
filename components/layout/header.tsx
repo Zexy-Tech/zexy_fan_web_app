@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { ArrowLeft, Bell, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid, Radio, LogIn } from 'lucide-react';
 import { SignupModal } from '@/components/auth/signup-modal';
 import { NotificationBell } from '@/components/notifications/notification-bell';
-import { ThemeToggle, ThemeSelectorGroup } from '@/components/theme-toggle';
+import { ThemeSelectorGroup } from '@/components/theme-toggle';
 
 const navItems = [
   { href: '/creators', label: 'Creators', icon: Users },
@@ -108,7 +108,6 @@ export function Header() {
               </div>
 
               <div className="flex items-center gap-1">
-                <ThemeToggle />
                 <NotificationBell />
                 <Button
                   variant="ghost"
@@ -139,7 +138,6 @@ export function Header() {
               </div>
 
               <div className="flex items-center gap-1">
-                <ThemeToggle />
                 <NotificationBell />
                 <Button
                   variant="ghost"
