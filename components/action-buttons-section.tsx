@@ -9,7 +9,7 @@
 import { ActionButton } from '@/types/creator-profile';
 import { Button } from '@/components/ui/button';
 import { useActionButton } from '@/hooks/useActionButton';
-import { Mail, MessageCircle, ExternalLink, Send } from 'lucide-react';
+import { Mail, MessageCircle, ExternalLink, Send } from '@/components/ui/icons';
 
 const DEFAULT_CHAT_BUTTON: ActionButton = {
   id: 'message-creator-subscribed',

@@ -1,10 +1,11 @@
 'use client';
 
+import { url } from '@/lib/validation/fields';
 import { useParams } from 'next/navigation';
 import { useContentDetail, useLikeContent, useSaveContent } from '@/hooks/useContent';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Heart, Bookmark, MessageCircle, Share2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Heart, Bookmark, MessageCircle, Share2 } from '@/components/ui/icons';
 import { formatCurrency, formatDate, cn, getMediaUrl } from '@/lib/utils';
 import { toUserCode } from '@/lib/userCode';
 import Link from 'next/link';
@@ -13,7 +14,8 @@ import { VideoPlayer } from '@/components/content/video-player';
 
 export default function ContentDetailPage() {
   const params = useParams();
-  const contentId = parseInt(params.id as string);
+  // Strict positive integer; "42abc"/"1e3" no longer slip through parseInt. 0 disables the query.
+  const contentId = url.id(params.id) ?? 0;
 
   const { data: content, isLoading, error } = useContentDetail(contentId);
   const likeMutation = useLikeContent();

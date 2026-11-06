@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useFeed, useCreators } from '@/hooks/useFeed';
 import { getMediaUrl, cn } from '@/lib/utils';
-import { Lock, Play, Image as ImageIcon, Music } from 'lucide-react';
+import { Lock, Play, Image as ImageIcon, Music } from '@/components/ui/icons';
 import { Content } from '@/services/feed';
 
 export function SubscribedLatest() {

@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { useCreatePaymentIntent } from '@/hooks/usePayment';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle } from '@/components/ui/icons';
 import { formatCurrency } from '@/lib/utils';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import type { CreateIntentResponse } from '@/services/payment';
 import { DirectUpiCheckoutModal } from '@/components/payments/DirectUpiCheckoutModal';
 

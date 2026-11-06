@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { paymentService, Transaction } from '@/services/payment';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Download, CreditCard, Receipt } from 'lucide-react';
+import { Loader2, Download, CreditCard, Receipt } from '@/components/ui/icons';
 import { format } from 'date-fns';
 import { formatCurrency, cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export default function BillingPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);

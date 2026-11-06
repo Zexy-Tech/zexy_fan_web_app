@@ -1,44 +1,45 @@
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getFirestore, type Firestore } from 'firebase/firestore';
-import { getAuth, signInWithPopup, GoogleAuthProvider, type Auth } from 'firebase/auth';
+// The Firebase SDK is loaded on demand (dynamic import) so it never weighs down page bundles:
+// Firestore only when a chat screen subscribes, Auth only when "Continue with Google" is tapped.
+import type { FirebaseApp } from 'firebase/app';
+import type { Firestore } from 'firebase/firestore';
+import type { Auth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyCTmTaDAfYUU_ALZRp8Px0HDCD8KaEY2d4',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'zexy-dev.firebaseapp.com',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'zexy-dev',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'zexy-dev.firebasestorage.app',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '292392470573',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:292392470573:web:de0a09aa42288aec4690a4',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
 };
 
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 let auth: Auth | null = null;
 
-export function getFirebaseApp(): FirebaseApp | null {
+export async function getFirebaseApp(): Promise<FirebaseApp | null> {
   if (typeof window === 'undefined') return null;
   if (!firebaseConfig.projectId) {
     return null;
   }
-  if (!getApps().length) {
-    try {
-      app = initializeApp(firebaseConfig);
-    } catch (err) {
-      console.warn('[Firebase] Initialization error:', err);
-      return null;
-    }
-  } else {
-    app = getApp();
+  if (app) return app;
+  const { initializeApp, getApps, getApp } = await import('firebase/app');
+  try {
+    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  } catch (err) {
+    console.warn('[Firebase] Initialization error:', err);
+    return null;
   }
   return app;
 }
 
-export function getFirestoreDb(): Firestore | null {
+export async function getFirestoreDb(): Promise<Firestore | null> {
   if (typeof window === 'undefined') return null;
   if (db) return db;
-  const firebaseApp = getFirebaseApp();
+  const firebaseApp = await getFirebaseApp();
   if (!firebaseApp) return null;
   try {
+    const { getFirestore } = await import('firebase/firestore');
     db = getFirestore(firebaseApp);
     return db;
   } catch (err) {
@@ -47,12 +48,13 @@ export function getFirestoreDb(): Firestore | null {
   }
 }
 
-export function getFirebaseAuth(): Auth | null {
+export async function getFirebaseAuth(): Promise<Auth | null> {
   if (typeof window === 'undefined') return null;
   if (auth) return auth;
-  const firebaseApp = getFirebaseApp();
+  const firebaseApp = await getFirebaseApp();
   if (!firebaseApp) return null;
   try {
+    const { getAuth } = await import('firebase/auth');
     auth = getAuth(firebaseApp);
     return auth;
   } catch (err) {
@@ -69,11 +71,12 @@ export interface GoogleSignInResult {
 }
 
 export async function signInWithGoogle(): Promise<GoogleSignInResult> {
-  const firebaseAuth = getFirebaseAuth();
+  const firebaseAuth = await getFirebaseAuth();
   if (!firebaseAuth) {
     throw new Error('Firebase Auth is not initialized. Please verify your Firebase configuration in .env.local.');
   }
 
+  const { GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -91,4 +94,14 @@ export async function signInWithGoogle(): Promise<GoogleSignInResult> {
     email: result.user.email,
     photoUrl: result.user.photoURL,
   };
+}
+
+/**
+ * Eager-load the Auth SDK code while the sign-in UI is open, so the tap on "Continue with Google"
+ * opens the popup immediately (browsers block popups that open long after the tap).
+ * Only the modules are fetched: calling getAuth() here would also boot Google's ~150 KB auth iframe.
+ */
+export function preloadGoogleSignIn(): void {
+  void import('firebase/app');
+  void import('firebase/auth');
 }

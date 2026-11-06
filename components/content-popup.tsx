@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, MouseEvent, TouchEvent } from 'react';
-import { X, Heart, Bookmark, Music } from 'lucide-react';
+import { X, Heart, Bookmark, Music } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { cn, formatCurrency } from '@/lib/utils';
 import { contentEngagementService } from '@/services/contentEngagement';
@@ -60,7 +60,7 @@ export interface ContentPopupProps {
 
 const DEFAULT_MAX_W = '100vw';
 const DEFAULT_MAX_H = 'min(88dvh, 780px)';
-const DEFAULT_RADIUS = '1rem';
+const DEFAULT_RADIUS = '1.25rem';
 
 /**
  * Instagram-style peek overlay: rounded card, title + close, image, like + save.
@@ -208,10 +208,11 @@ export function ContentPopup({
         onClick={onClose}
       />
 
-      <div className="pointer-events-none absolute inset-0 flex w-full items-center justify-center px-0 py-3 sm:px-0 sm:py-6">
+      {/* 5.5px side gap so the rounded, bordered card never touches the screen edges */}
+      <div className="pointer-events-none absolute inset-0 flex w-full items-center justify-center px-[5.5px] py-3 sm:py-6">
         <div
           className={cn(
-            'pointer-events-auto flex min-h-0 max-h-full w-full flex-col overflow-hidden border-x-0 border-white/12 bg-zinc-950 shadow-[0_25px_80px_-12px_rgba(0,0,0,0.85)] sm:border-x',
+            'pointer-events-auto flex min-h-0 max-h-full w-full flex-col overflow-hidden border border-white/20 bg-zinc-950 shadow-[0_25px_80px_-12px_rgba(0,0,0,0.85)]',
             panelClassName
           )}
           style={panelStyle}

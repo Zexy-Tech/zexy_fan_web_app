@@ -1,7 +1,8 @@
 'use client';
 
+import { clean } from '@/lib/validation/fields';
 import { useMemo, useState } from 'react';
-import type { LucideIcon } from 'lucide-react';
+import type { IconComponent } from '@/components/ui/icons';
 import {
   Image as LucideImage,
   Loader2,
@@ -9,7 +10,7 @@ import {
   Package,
   Search,
   Video,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ContentPopup } from '@/components/content-popup';
@@ -34,7 +35,7 @@ type SavedItem = {
   tags?: string[];
 };
 
-const CONTENT_TABS: { id: SavedTabId; label: string; icon: LucideIcon }[] = [
+const CONTENT_TABS: { id: SavedTabId; label: string; icon: IconComponent }[] = [
   { id: 'images', label: 'Images', icon: LucideImage },
   { id: 'videos', label: 'Videos', icon: Video },
   { id: 'audios', label: 'Audios', icon: Music },
@@ -217,7 +218,10 @@ export function SavedContentView() {
         <Input
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => setQuery(clean.search(e.target.value))}
+          maxLength={50}
+          enterKeyHint="search"
+          autoComplete="off"
           placeholder="Search saved…"
           className="pl-9"
           aria-label="Search saved content"

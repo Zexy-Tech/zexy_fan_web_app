@@ -15,16 +15,14 @@ import {
   Trash2,
   ExternalLink,
   Loader2,
-  Settings,
   Users,
   ShieldCheck,
   Clock,
-} from 'lucide-react';
-import Link from 'next/link';
+} from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
 import {
   useFanNotifications,
   useMarkNotificationRead,
@@ -79,51 +77,20 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Top Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-bold tracking-tight text-foreground">Notifications</h1>
-            {unreadCount > 0 && (
-              <Badge className="bg-purple-600 hover:bg-purple-600 text-white font-semibold">
-                {unreadCount} unread
-              </Badge>
-            )}
-            <Badge variant="outline" className="border-border bg-muted text-muted-foreground text-[10px] hidden sm:inline-flex">
-              Latest 20 kept
-            </Badge>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Displaying the 20 most recent notifications. Older notifications are automatically deleted.
-          </p>
+      {unreadCount > 0 && (
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => markAllAsRead.mutate()}
+            disabled={markAllAsRead.isPending}
+            className="border-border bg-card text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <CheckCheck className="size-3.5 mr-1.5" />
+            Mark all as read ({unreadCount})
+          </Button>
         </div>
-
-        <div className="flex items-center gap-2">
-          {unreadCount > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => markAllAsRead.mutate()}
-              disabled={markAllAsRead.isPending}
-              className="border-border bg-card text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <CheckCheck className="size-3.5 mr-1.5" />
-              Mark all as read
-            </Button>
-          )}
-
-          <Link href="/settings">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Settings className="size-3.5 mr-1.5" />
-              Settings
-            </Button>
-          </Link>
-        </div>
-      </div>
+      )}
 
       {/* Filter Tabs: All, Creator, Admin + Unread Filter */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-card border border-border p-2 rounded-2xl shadow-sm">
@@ -133,7 +100,7 @@ export default function NotificationsPage() {
             type="button"
             onClick={() => setCategory('all')}
             className={cn(
-              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold',
+              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold',
               category === 'all'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -147,7 +114,7 @@ export default function NotificationsPage() {
             type="button"
             onClick={() => setCategory('creator')}
             className={cn(
-              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold',
+              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold',
               category === 'creator'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -161,7 +128,7 @@ export default function NotificationsPage() {
             type="button"
             onClick={() => setCategory('admin')}
             className={cn(
-              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold',
+              'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold',
               category === 'admin'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -177,7 +144,7 @@ export default function NotificationsPage() {
           type="button"
           onClick={() => setUnreadOnly((prev) => !prev)}
           className={cn(
-            'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border',
+            'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border',
             unreadOnly
               ? 'bg-purple-500/15 border-purple-500 text-purple-600 dark:text-purple-300'
               : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-border'
@@ -252,7 +219,7 @@ export default function NotificationsPage() {
                 {item.creator?.avatar_url ? (
                   <div className="relative size-11 rounded-full overflow-hidden border border-border shadow-inner">
                     <Image
-                      src={item.creator.avatar_url}
+                      src={getMediaUrl(item.creator.avatar_url) ?? ''}
                       alt={item.creator.name || 'Creator'}
                       fill
                       className="object-cover"
@@ -304,7 +271,7 @@ export default function NotificationsPage() {
                   e.stopPropagation();
                   deleteNotification.mutate(item.id);
                 }}
-                className="absolute right-3 top-3 p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted hover:text-rose-500"
+                className="absolute right-3 top-3 p-1.5 rounded-full text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted hover:text-rose-500"
                 title="Dismiss"
               >
                 <Trash2 className="size-4" />

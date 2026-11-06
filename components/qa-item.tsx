@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { QAItem } from '@/types/creator-profile';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from '@/components/ui/icons';
 
 interface QAItemProps {
   item: QAItem;

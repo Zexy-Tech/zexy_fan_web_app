@@ -16,7 +16,7 @@ import { ActionButtonsSection } from '@/components/action-buttons-section';
 import { ExclusivesGridSection } from '@/components/exclusives-grid-section';
 import { SubscriptionCardSection } from '@/components/subscription-card-section';
 import { BottomNavigation } from '@/components/bottom-navigation';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/components/ui/icons';
 import { Card, CardContent } from '@/components/ui/card';
 import { getDefaultTheme } from '@/lib/validation/profile-config';
 import { getMediaUrl } from '@/lib/utils';

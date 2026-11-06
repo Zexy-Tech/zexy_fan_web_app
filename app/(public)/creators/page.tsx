@@ -11,7 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteCreators } from '@/hooks/useFeed';
 import { CreatorsGrid } from '@/components/creators-grid';
 import { CreatorSearchFilters } from '@/components/creator-search-filters';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/components/ui/icons';
 import { Creator, CreatorFilters } from '@/services/feed';
 
 export default function CreatorsPage() {

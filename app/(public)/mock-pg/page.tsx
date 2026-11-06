@@ -1,9 +1,10 @@
 'use client';
 
+import { url } from '@/lib/validation/fields';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Smartphone, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
+import { Smartphone, CheckCircle2, ShieldCheck, Loader2 } from '@/components/ui/icons';
 import { useState, Suspense } from 'react';
 import Image from 'next/image';
 
@@ -11,10 +12,12 @@ function MockPhonePeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  const orderId = searchParams.get('order_id') || 'order_mock_12345';
-  const amountPaise = searchParams.get('amount_paise') || '49900';
-  const currency = searchParams.get('currency') || 'INR';
-  const amount = (parseInt(amountPaise) / 100).toFixed(2);
+  // Validate every query value: order_id is copied into the callback URL, amount/currency are displayed.
+  const orderId = url.reference(searchParams.get('order_id')) || 'order_mock_12345';
+  const amountPaise = url.paise(searchParams.get('amount_paise')) ?? 49900;
+  const rawCurrency = (searchParams.get('currency') || 'INR').toUpperCase();
+  const currency = /^[A-Z]{3}$/.test(rawCurrency) ? rawCurrency : 'INR';
+  const amount = (amountPaise / 100).toFixed(2);
 
   const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
 
@@ -25,7 +28,7 @@ function MockPhonePeContent() {
       setStatus('success');
       // After success, redirect back to the app's confirmation/verification page
       setTimeout(() => {
-        const callbackUrl = `/payment-confirmation?order_id=${orderId}&payment_id=pay_mock_${Date.now()}&status=success`;
+        const callbackUrl = `/payment-confirmation?order_id=${encodeURIComponent(orderId)}&payment_id=pay_mock_${Date.now()}&status=success`;
         router.push(callbackUrl);
       }, 1500);
     }, 2000);
@@ -91,7 +94,7 @@ function MockPhonePeContent() {
         <CardFooter className="pb-8">
           {status === 'idle' && (
             <Button 
-              className="w-full bg-[#5f259f] hover:bg-[#4d1e82] text-white h-12 rounded-lg text-lg font-bold"
+              className="w-full bg-[#5f259f] hover:bg-[#4d1e82] text-white h-12 rounded-full text-lg font-bold"
               onClick={handlePay}
             >
               Pay Now

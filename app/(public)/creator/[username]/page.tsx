@@ -8,14 +8,16 @@
 
 'use client';
 
+import { url } from '@/lib/validation/fields';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LinkMeCreatorProfile } from '@/components/linkme-creator-profile';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/components/ui/icons';
 
 export default function PublicCreatorProfilePage() {
   const params = useParams();
-  const username = params.username as string;
+  // Profiles are linked by username, user code (ZX-CR-0042) or numeric id; anything else is not a creator.
+  const username = url.username(params.username) ?? url.userRef(params.username) ?? '';
   const [isMounted, setIsMounted] = useState(false);
   
   useEffect(() => {
@@ -31,6 +33,14 @@ export default function PublicCreatorProfilePage() {
     );
   }
   
+  if (!username) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center px-4 text-center text-sm text-muted-foreground">
+        Creator not found.
+      </div>
+    );
+  }
+
   // Render mobile profile for mobile/tablet users
   return <LinkMeCreatorProfile username={username} />;
 }

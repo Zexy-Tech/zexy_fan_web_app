@@ -12,8 +12,9 @@ import { CreatorCard } from '@/components/creator-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyStatePlaceholder } from '@/components/ui/empty-state-placeholder';
-import { AlertCircle, Users } from 'lucide-react';
+import { AlertCircle, Users } from '@/components/ui/icons';
 import { toUserCode } from '@/lib/userCode';
+import { prefetchCreatorProfile } from '@/hooks/useFeed';
 
 interface CreatorsGridProps {
   creators?: Creator[];
@@ -102,15 +103,22 @@ export function CreatorsGrid({ creators, isLoading, error, refetch }: CreatorsGr
   // Success state - render grid
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {creators.map((creator) => (
+      {creators.map((creator) => {
+        const ref = creator.username || creator.user_code || toUserCode(creator.id, 'creator');
+        const warm = () => prefetchCreatorProfile(ref);
+        return (
         <Link
           key={creator.id}
-          href={`/creator/${creator.username || creator.user_code || toUserCode(creator.id, 'creator')}`}
+          href={`/creator/${ref}`}
           className="block"
+          onPointerDown={warm}
+          onMouseEnter={warm}
+          onFocus={warm}
         >
           <CreatorCard creator={creator} />
         </Link>
-      ))}
+        );
+      })}
     </div>
   );
 }

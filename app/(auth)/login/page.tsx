@@ -1,10 +1,11 @@
 'use client';
 
+import { url } from '@/lib/validation/fields';
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Loader2, LogIn, ArrowRight, Instagram, Twitter, Facebook } from 'lucide-react';
+import { Loader2, LogIn, ArrowRight, Instagram, Twitter, Facebook } from '@/components/ui/icons';
 import { useAuthContext } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,16 +17,10 @@ const SignupModal = dynamic(
   { ssr: false }
 );
 
-function safeInternalPath(raw: string | null): string | null {
-  if (!raw || !raw.startsWith('/')) return null;
-  if (raw.startsWith('//')) return null;
-  return raw;
-}
-
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextUrl = safeInternalPath(searchParams.get('next')) || '/creators';
+  const nextUrl = url.internalPath(searchParams.get('next')) || '/creators'; // blocks //evil, /\\evil, https://
 
   const { isAuthenticated, user, isLoading } = useAuthContext();
   const [isPopupOpen, setIsPopupOpen] = useState(true);
@@ -38,7 +33,7 @@ function LoginPageContent() {
   }, [isAuthenticated, user, isLoading, router, nextUrl]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4 font-inter relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4 relative overflow-hidden">
       {/* Background radial glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
 
@@ -79,7 +74,7 @@ function LoginPageContent() {
             <Button
               type="button"
               onClick={() => setIsPopupOpen(true)}
-              className="w-full h-13 py-3.5 bg-gradient-to-r from-[#6b21a8] via-[#7e22ce] to-[#9333ea] hover:opacity-95 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30"
+              className="w-full h-13 py-3.5 bg-gradient-to-r from-[#6b21a8] via-[#7e22ce] to-[#9333ea] hover:opacity-95 text-white font-bold rounded-full text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30"
             >
               <LogIn className="size-4" />
               <span>Log In / Sign Up</span>
@@ -89,9 +84,9 @@ function LoginPageContent() {
             <div className="pt-2">
               <Link
                 href="/creators"
-                className="text-xs text-zinc-500 hover:text-purple-400 inline-block"
+                className="text-xs text-zinc-500 hover:text-purple-400 inline-flex items-center gap-1"
               >
-                Browse creators as guest →
+                Browse creators as guest <ArrowRight className="size-3" aria-hidden />
               </Link>
             </div>
           </CardContent>

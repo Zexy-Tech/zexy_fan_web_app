@@ -9,7 +9,7 @@
 import { useAuthContext } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { ActionButton } from '@/types/creator-profile';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export interface UseActionButtonOptions {
   /** When set, chat buttons open `/messages/{creatorId}` instead of raw `action`. */

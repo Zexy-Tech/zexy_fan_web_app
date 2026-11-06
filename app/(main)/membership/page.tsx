@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useResolvedSubscriptionRows } from '@/hooks/useResolvedSubscriptionRows';
-import { Loader2 } from 'lucide-react';
+import { CreditCard, Loader2 } from '@/components/ui/icons';
+import { EmptyStatePlaceholder } from '@/components/ui/empty-state-placeholder';
 import { formatCurrency } from '@/lib/utils';
 import {
   daysLeftLabel,
@@ -108,9 +109,12 @@ export default function MembershipPage() {
   return (
     <div className="-mt-2 space-y-0">
       {rows.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          You don&apos;t have any active subscriptions yet.
-        </p>
+        <EmptyStatePlaceholder
+          icon={CreditCard}
+          title="You don't have any active subscriptions yet."
+          description="Subscribe to a creator to unlock their exclusive posts and chat with them."
+          action={{ label: 'Find creators to subscribe', href: '/creators' }}
+        />
       ) : (
         <div>
           {rows.map((sub) => (

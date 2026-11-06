@@ -7,7 +7,7 @@
 'use client';
 
 import { NavItem } from '@/types/creator-profile';
-import { Home, MessageCircle, Lock, User } from 'lucide-react';
+import { Home, MessageCircle, Lock, User } from '@/components/ui/icons';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthContext } from '@/hooks/useAuth';
 

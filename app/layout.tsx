@@ -1,17 +1,16 @@
-import * as Sentry from '@sentry/nextjs';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import './globals.css';
+import { lato, latoBlack } from './fonts';
 import { Providers } from './providers';
 
-const inter = Inter({ subsets: ['latin'] });
+// Styles are imported above; stop FA injecting them again at runtime.
+faConfig.autoAddCss = false;
 
 export const metadata: Metadata = {
   title: 'Zexy - Support Your Favorite Creators',
   description: 'Exclusive content, live sessions, and direct connection with creators',
-  other: {
-    ...Sentry.getTraceData()
-  }
 };
 
 export default function RootLayout({
@@ -20,9 +19,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`${lato.variable} ${latoBlack.variable}`} suppressHydrationWarning>
       <body
-        className={`${inter.className} bg-background text-foreground antialiased`}
+        className={`${lato.className} bg-background text-foreground antialiased`}
         style={{
           margin: 0,
           minHeight: '100vh',

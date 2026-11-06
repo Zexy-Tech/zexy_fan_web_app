@@ -153,6 +153,17 @@ export const commonProfileService = {
     return { ...data, user_code };
   },
 
+  /** Stores the image on the server (POST /common/profile/avatar) and returns its /media/avatars/... path. */
+  uploadAvatar: async (file: File): Promise<string> => {
+    const form = new FormData();
+    form.append('file', file);
+    const response = await apiClient.post<{ success: boolean; data: { avatar_url: string } }>(
+      '/api/v1/common/profile/avatar',
+      form
+    );
+    return response.data.data.avatar_url;
+  },
+
   switchToCreator: async (): Promise<{ status: string; message: string; role: string }> => {
     const response = await apiClient.post<{ success: boolean; data: { status: string; message: string; role: string } }>(
       '/api/v1/common/profile/role/creator'

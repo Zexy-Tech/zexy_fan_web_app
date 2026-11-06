@@ -6,7 +6,7 @@
  */
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Smartphone } from 'lucide-react';
+import { Smartphone } from '@/components/ui/icons';
 
 export default function DesktopBlockPage() {
   return (

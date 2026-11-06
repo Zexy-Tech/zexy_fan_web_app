@@ -3,7 +3,7 @@
 import React from 'react';
 import { useActivity } from '@/hooks/useActivity';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, CreditCard, Lock, Package, MessageSquare, Heart, Shield, LogIn, Key, Mail, LogOut } from 'lucide-react';
+import { Loader2, CreditCard, Lock, Package, MessageSquare, Heart, Shield, LogIn, Key, Mail, LogOut } from '@/components/ui/icons';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 

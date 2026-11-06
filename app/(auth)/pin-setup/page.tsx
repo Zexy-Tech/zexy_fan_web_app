@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useSetupPIN } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { Loader2, Instagram, Twitter, Facebook } from 'lucide-react';
+import { toast } from '@/lib/toast';
+import { Loader2, Instagram, Twitter, Facebook } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 import { AxiosError } from 'axios';
 import Image from 'next/image';
@@ -76,7 +76,7 @@ function PinSetupPageContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4 font-inter">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4">
       <div className="w-full max-w-[400px] space-y-10">
         <div className="flex flex-col items-center text-center gap-4">
           <div className="size-24 flex items-center justify-center mb-2 relative overflow-hidden group">
@@ -113,7 +113,7 @@ function PinSetupPageContent() {
                     onChange={(e) => handlePinChange(e.target.value, index)}
                     onKeyDown={(e) => handleKeyDown(e, index)}
                     className={cn(
-                      "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none",
+                      "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-full text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none",
                       digit && "border-[#8c3df1] bg-[#1c1c1f]"
                     )}
                     disabled={setupPIN.isPending}
@@ -125,7 +125,7 @@ function PinSetupPageContent() {
               <div className="flex flex-col gap-4 pt-2">
                 <Button 
                   onClick={step === 'create' ? () => pin.join('').length === 4 && setStep('confirm') : () => handleFinish()}
-                  className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl text-base" 
+                  className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-full text-base" 
                   disabled={setupPIN.isPending || (step === 'create' ? pin.join('').length < 4 : confirmPin.join('').length < 4)}
                 >
                   {setupPIN.isPending ? (

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import type { LucideIcon } from 'lucide-react';
+import type { IconComponent } from '@/components/ui/icons';
 import {
   ChevronRight,
   Dumbbell,
@@ -17,12 +17,12 @@ import {
   Palette,
   Laptop,
   Trophy,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 import { useCategories } from '@/hooks/useCategories';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/components/ui/icons';
 
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
+const CATEGORY_ICONS: Record<string, IconComponent> = {
   fitness: Dumbbell,
   music: Music,
   comedy: Users,

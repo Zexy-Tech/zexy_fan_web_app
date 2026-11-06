@@ -1,18 +1,19 @@
 'use client';
 
+import { url } from '@/lib/validation/fields';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { CreatorCard } from '@/components/creator-card';
 import { useInfiniteCreators } from '@/hooks/useFeed';
 import { useCategories } from '@/hooks/useCategories';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/components/ui/icons';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { toUserCode } from '@/lib/userCode';
 
 export default function CategoryCreatorsPage() {
   const params = useParams();
-  const slug = typeof params.slug === 'string' ? params.slug : '';
+  const slug = url.slug(params.slug) ?? '';
   
   const { data: categories } = useCategories();
   const category = categories?.find(c => c.slug === slug);

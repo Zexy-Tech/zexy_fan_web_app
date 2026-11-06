@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { ENV } from '@/constants/env';
-import * as Sentry from '@sentry/nextjs';
 
 // Create axios instance
 if (typeof window !== 'undefined') {
@@ -22,6 +21,11 @@ apiClient.interceptors.request.use(
       if (token) {
         config.headers.set('Authorization', `Bearer ${token}`);
       }
+    }
+    // File uploads: the client-wide JSON Content-Type would make axios serialize FormData to JSON.
+    // Drop it so the browser sends multipart/form-data with the correct boundary.
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      config.headers.delete('Content-Type');
     }
     return config;
   },
@@ -74,6 +78,7 @@ apiClient.interceptors.response.use(
     const isAuthOrDeleteEndpoint =
       originalRequest?.url?.includes('/api/v1/auth/pin/login') ||
       originalRequest?.url?.includes('/api/v1/auth/login') ||
+      originalRequest?.url?.includes('/api/v1/auth/identify') ||
       originalRequest?.url?.includes('/api/v1/auth/signup') ||
       originalRequest?.url?.includes('/api/v1/auth/mobile') ||
       originalRequest?.url?.includes('/api/v1/auth/google') ||
@@ -166,17 +171,6 @@ apiClient.interceptors.response.use(
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
-    }
-
-    // 3. Log server errors (5xx) to Sentry
-    if (!status || status >= 500) {
-      Sentry.captureException(error, {
-        extra: {
-          url: originalRequest?.url,
-          method: originalRequest?.method,
-          status: status || 'NETWORK_ERROR',
-        }
-      });
     }
 
     return Promise.reject(error);

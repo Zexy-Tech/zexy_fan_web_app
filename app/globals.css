@@ -61,6 +61,11 @@
 }
 
 @layer utilities {
+  /* Weight 900 comes from the separately loaded Lato Black family (app/fonts.ts). */
+  .font-black {
+    font-family: var(--font-lato-black), var(--font-lato), sans-serif;
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -132,7 +137,7 @@
   --profile-secondary: #3f3f46;
   --profile-gradient-start: #9333ea;
   --profile-gradient-end: #ec4899;
-  --profile-font-family: 'Inter';
+  --profile-font-family: var(--font-lato);
   --profile-border-radius: 0.5rem;
   --profile-button-style: solid;
 }

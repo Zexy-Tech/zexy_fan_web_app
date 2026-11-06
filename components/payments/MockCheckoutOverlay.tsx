@@ -53,19 +53,19 @@ export const MockCheckoutOverlay: React.FC<MockCheckoutOverlayProps> = ({
           <div className="space-y-3 pt-2">
             <button
               onClick={() => onOutcome('success')}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-900/20"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-full shadow-lg shadow-emerald-900/20"
             >
               Simulate Success
             </button>
             <button
               onClick={() => onOutcome('failure')}
-              className="w-full bg-zinc-800 hover:bg-red-900/40 hover:text-red-400 text-zinc-300 font-bold py-4 rounded-xl border border-zinc-700 hover:border-red-900/50"
+              className="w-full bg-zinc-800 hover:bg-red-900/40 hover:text-red-400 text-zinc-300 font-bold py-4 rounded-full border border-zinc-700 hover:border-red-900/50"
             >
               Simulate Failure
             </button>
             <button
               onClick={() => onOutcome('cancel')}
-              className="w-full bg-transparent hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 font-medium py-3 rounded-xl"
+              className="w-full bg-transparent hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 font-medium py-3 rounded-full"
             >
               Cancel Payment
             </button>

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ShieldAlert, MapPin, Calendar, User as UserIcon, LogOut } from 'lucide-react';
-import { toast } from 'sonner';
+import { ShieldAlert, MapPin, Calendar, User as UserIcon, LogOut } from '@/components/ui/icons';
+import { toast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { useAuthContext } from '@/hooks/useAuth';
 import { authService } from '@/services/auth';
 import { hasAllMandatoryDetails, saveMockUser, MockRegisteredUser } from '@/lib/mockAuth';
 import { toUserCode } from '@/lib/userCode';
+import { check, clean, dobBounds } from '@/lib/validation/fields';
 
 type GenderOption = 'male' | 'female' | 'other';
 
@@ -36,33 +37,19 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
     }
   }, [user]);
 
-  const validateMobile = (phone: string) => /^[6-9]\d{9}$/.test(phone);
+  const dobLimits = dobBounds();
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) {
-      toast.error('Full Name is mandatory');
-      return;
-    }
-
-    if (!validateMobile(mobile)) {
-      toast.error('Valid 10-digit Mobile Number starting with 6-9 is mandatory');
-      return;
-    }
-
-    if (!city.trim()) {
-      toast.error('City is mandatory');
-      return;
-    }
-
-    if (!dob.trim()) {
-      toast.error('Date of Birth (DOB) is mandatory');
-      return;
-    }
-
-    if (!gender) {
-      toast.error('Gender selection is mandatory');
+    const firstError =
+      check.name(name, 'Full name') ||
+      check.mobile(mobile) ||
+      check.place(city, 'City') ||
+      check.dob(dob) ||
+      (gender ? null : 'Please select your gender');
+    if (firstError) {
+      toast.error(firstError);
       return;
     }
 
@@ -95,7 +82,8 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
         user_code: user?.user_code || toUserCode(userId, user?.role || 'fan'),
         name: name.trim(),
         mobile: mobile.trim(),
-        username: user?.username || name.toLowerCase().replace(/[^a-z0-9]/g, '') + '123',
+        // Random suffix: a fixed "123" collided for every second user with the same name.
+        username: user?.username || clean.username(name.replace(/\s+/g, '')).slice(0, 26) + String(Math.floor(100 + Math.random() * 900)),
         avatar: user?.avatar || null,
         role: user?.role || 'fan',
         has_completed_onboarding: true,
@@ -155,7 +143,9 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
                         type="text"
                         placeholder="Enter your name"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => setName(clean.name(e.target.value))}
+                        autoComplete="name"
+                        maxLength={50}
                         className="h-10 pl-9 border-zinc-700 bg-zinc-800/60 text-xs focus:border-purple-500 text-white"
                       />
                     </div>
@@ -168,13 +158,16 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
                     </label>
                     <div className="flex gap-2">
                       <div className="flex items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/80 px-2.5 text-xs font-semibold text-zinc-300">
-                        🇮🇳 +91
+                        +91
                       </div>
                       <Input
                         type="tel"
                         placeholder="9876543210"
                         value={mobile}
-                        onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        onChange={(e) => setMobile(clean.mobile(e.target.value))}
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        maxLength={10}
                         className="h-10 flex-1 border-zinc-700 bg-zinc-800/60 text-xs tracking-wider focus:border-purple-500 text-white"
                       />
                     </div>
@@ -191,7 +184,9 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
                         type="text"
                         placeholder="e.g. Mumbai, Delhi, Bengaluru"
                         value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        onChange={(e) => setCity(clean.place(e.target.value))}
+                        autoComplete="address-level2"
+                        maxLength={50}
                         className="h-10 pl-9 border-zinc-700 bg-zinc-800/60 text-xs focus:border-purple-500 text-white"
                       />
                     </div>
@@ -207,7 +202,8 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
                       <Input
                         type="date"
                         value={dob}
-                        max={new Date().toISOString().split('T')[0]}
+                        min={dobLimits.min}
+                        max={dobLimits.max}
                         onChange={(e) => setDob(e.target.value)}
                         className="h-10 pl-9 border-zinc-700 bg-zinc-800/60 text-xs focus:border-purple-500 text-white block w-full"
                         style={{ colorScheme: 'dark' }}
@@ -233,7 +229,7 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
                           type="button"
                           onClick={() => setGender(item.id)}
                           className={cn(
-                            'h-9 rounded-lg border border-zinc-700 bg-zinc-800/50 text-xs font-medium',
+                            'h-9 rounded-full border border-zinc-700 bg-zinc-800/50 text-xs font-medium',
                             gender === item.id
                               ? 'border-purple-500 bg-purple-600/20 text-purple-300 ring-1 ring-purple-500'
                               : 'text-zinc-300 hover:bg-zinc-800'
@@ -247,7 +243,7 @@ export function MandatoryProfileGuard({ children }: { children: React.ReactNode 
 
                   <Button
                     type="submit"
-                    className="h-11 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 mt-2 text-xs"
+                    className="h-11 w-full rounded-full bg-purple-600 font-bold text-white hover:bg-purple-500 mt-2 text-xs"
                     disabled={isSaving || !name.trim() || mobile.length < 10 || !city.trim() || !dob.trim() || !gender}
                   >
                     {isSaving ? 'Saving…' : 'Save & Continue to Zexy'}

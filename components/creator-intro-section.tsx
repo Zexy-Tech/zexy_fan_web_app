@@ -12,7 +12,7 @@ import { Creator } from '@/services/feed';
 import { getMediaUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Radio } from 'lucide-react';
+import { Radio } from '@/components/ui/icons';
 
 interface CreatorIntroSectionProps {
   creator: Creator;

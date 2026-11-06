@@ -1,11 +1,5 @@
-import {
-  getMessaging,
-  getToken,
-  onMessage,
-  isSupported,
-  type Messaging,
-  type MessagePayload,
-} from 'firebase/messaging';
+// firebase/messaging is imported on demand (it ships in the header's notification bell on every page).
+import type { Messaging, MessagePayload } from 'firebase/messaging';
 import { getFirebaseApp } from '@/lib/firebase';
 
 let messagingInstance: Messaging | null = null;
@@ -21,7 +15,7 @@ export async function isFirebaseMessagingSupported(): Promise<boolean> {
     return false;
   }
   if (!messagingSupportedPromise) {
-    messagingSupportedPromise = isSupported().catch((err) => {
+    messagingSupportedPromise = import('firebase/messaging').then(({ isSupported }) => isSupported()).catch((err) => {
       console.warn('[Firebase Messaging] isSupported() check failed:', err);
       return false;
     });
@@ -127,10 +121,11 @@ export async function getFirebaseMessaging(): Promise<Messaging | null> {
 
   if (messagingInstance) return messagingInstance;
 
-  const app = getFirebaseApp();
+  const app = await getFirebaseApp();
   if (!app) return null;
 
   try {
+    const { getMessaging } = await import('firebase/messaging');
     messagingInstance = getMessaging(app);
     return messagingInstance;
   } catch (error) {
@@ -183,6 +178,7 @@ export async function getFCMRegistrationToken(): Promise<string | null> {
   const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || DEFAULT_VAPID_KEY;
 
   try {
+    const { getToken } = await import('firebase/messaging');
     const token = await getToken(messaging, {
       vapidKey: vapidKey || undefined,
       serviceWorkerRegistration: swRegistration,
@@ -211,6 +207,7 @@ export async function onForegroundMessageListener(
   if (!messaging) return null;
 
   try {
+    const { onMessage } = await import('firebase/messaging');
     const unsubscribe = onMessage(messaging, (payload) => {
       callback(payload);
     });

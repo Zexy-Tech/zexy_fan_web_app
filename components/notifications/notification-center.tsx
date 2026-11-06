@@ -18,10 +18,10 @@ import {
   ExternalLink,
   X,
   Loader2,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
 import {
   useFanNotifications,
   useMarkNotificationRead,
@@ -133,7 +133,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               type="button"
               onClick={() => setCategory('all')}
               className={cn(
-                'px-2.5 py-1 rounded-lg text-xs font-medium',
+                'px-2.5 py-1 rounded-full text-xs font-medium',
                 category === 'all'
                   ? 'bg-purple-600 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'
@@ -145,7 +145,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               type="button"
               onClick={() => setCategory('creator')}
               className={cn(
-                'px-2.5 py-1 rounded-lg text-xs font-medium',
+                'px-2.5 py-1 rounded-full text-xs font-medium',
                 category === 'creator'
                   ? 'bg-purple-600 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'
@@ -157,7 +157,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               type="button"
               onClick={() => setCategory('admin')}
               className={cn(
-                'px-2.5 py-1 rounded-lg text-xs font-medium',
+                'px-2.5 py-1 rounded-full text-xs font-medium',
                 category === 'admin'
                   ? 'bg-purple-600 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground'
@@ -171,7 +171,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
             type="button"
             onClick={() => setUnreadOnly((prev) => !prev)}
             className={cn(
-              'px-2 py-0.5 rounded-md text-[11px] font-medium border',
+              'px-2 py-0.5 rounded-full text-[11px] font-medium border',
               unreadOnly
                 ? 'bg-purple-500/15 border-purple-500/40 text-purple-600 dark:text-purple-300'
                 : 'border-border text-muted-foreground hover:text-foreground'
@@ -220,7 +220,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
                   {item.creator?.avatar_url ? (
                     <div className="relative size-9 rounded-full overflow-hidden border border-border">
                       <Image
-                        src={item.creator.avatar_url}
+                        src={getMediaUrl(item.creator.avatar_url) ?? ''}
                         alt={item.creator.name || 'Creator'}
                         fill
                         className="object-cover"

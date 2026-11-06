@@ -1,10 +1,11 @@
 'use client';
 
+import { url } from '@/lib/validation/fields';
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useResolvedSubscriptionRows } from '@/hooks/useResolvedSubscriptionRows';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/components/ui/icons';
 import { formatCurrency } from '@/lib/utils';
 import {
   daysLeftLabel,
@@ -15,7 +16,7 @@ import {
 
 export default function SubscriptionDetailPage() {
   const params = useParams();
-  const subscriptionId = Number(params.subscriptionId);
+  const subscriptionId = url.id(params.subscriptionId) ?? NaN;
   const { rows, isLoading, error } = useResolvedSubscriptionRows();
 
   const sub = useMemo(

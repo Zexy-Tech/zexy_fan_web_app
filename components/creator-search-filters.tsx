@@ -1,8 +1,9 @@
 import { useMemo, useState, useEffect } from 'react';
+import { clean } from '@/lib/validation/fields';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Creator, CreatorFilters } from '@/services/feed';
-import { Check, ChevronDown, Search, X } from 'lucide-react';
+import { Check, ChevronDown, Search, X } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 import indianCities from '@/constants/indianCities.json';
 import { useCategories } from '@/hooks/useCategories';
@@ -130,7 +131,10 @@ export function CreatorSearchFilters({
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => setSearchQuery(clean.search(e.target.value))}
+          maxLength={50}
+          enterKeyHint="search"
+          autoComplete="off"
           placeholder="Search creators..."
           className="pl-9"
         />
@@ -164,7 +168,7 @@ export function CreatorSearchFilters({
           onClick={() => setOpenFilter(null)}
         >
           <div
-            className="w-full max-w-sm rounded-xl border bg-background shadow-lg"
+            className="w-full max-w-sm rounded-3xl border bg-background shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b px-4 py-3">
@@ -182,7 +186,10 @@ export function CreatorSearchFilters({
                       <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         value={citySearchQuery}
-                        onChange={(e) => setCitySearchQuery(e.target.value)}
+                        onChange={(e) => setCitySearchQuery(clean.search(e.target.value))}
+          maxLength={50}
+          enterKeyHint="search"
+          autoComplete="off"
                         placeholder="Search city..."
                         className="pl-9"
                       />
@@ -192,7 +199,7 @@ export function CreatorSearchFilters({
                     <button
                       key={city}
                       className={cn(
-                        'flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-accent',
+                        'flex w-full items-center justify-between rounded-full px-3 py-2 text-left text-sm hover:bg-accent',
                         selectedCity === city && 'bg-accent'
                       )}
                       onClick={() => {
@@ -213,7 +220,7 @@ export function CreatorSearchFilters({
                     <button
                       key={gender}
                       className={cn(
-                        'flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-accent',
+                        'flex w-full items-center justify-between rounded-full px-3 py-2 text-left text-sm hover:bg-accent',
                         selectedGender === gender && 'bg-accent'
                       )}
                       onClick={() => {
@@ -235,7 +242,10 @@ export function CreatorSearchFilters({
                       <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         value={categorySearchQuery}
-                        onChange={(e) => setCategorySearchQuery(e.target.value)}
+                        onChange={(e) => setCategorySearchQuery(clean.search(e.target.value))}
+          maxLength={50}
+          enterKeyHint="search"
+          autoComplete="off"
                         placeholder="Search category..."
                         className="pl-9"
                       />
@@ -245,7 +255,7 @@ export function CreatorSearchFilters({
                     <button
                       key={category}
                       className={cn(
-                        'flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-accent',
+                        'flex w-full items-center justify-between rounded-full px-3 py-2 text-left text-sm hover:bg-accent',
                         selectedCategory === category && 'bg-accent'
                       )}
                       onClick={() => {

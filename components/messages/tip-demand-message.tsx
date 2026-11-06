@@ -4,8 +4,8 @@ import type { Message } from '@/services/messages';
 import { Button } from '@/components/ui/button';
 import { cn, formatCurrency } from '@/lib/utils';
 import { usePayTipDemand } from '@/hooks/useMessages';
-import { CheckCircle2, Coins, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { CheckCircle2, Coins, Loader2 } from '@/components/ui/icons';
+import { toast } from '@/lib/toast';
 
 interface TipDemandMessageProps {
   message: Message;
@@ -93,7 +93,7 @@ export function TipDemandMessage({
         {!paid && !mine ? (
           <Button
             type="button"
-            className="mt-4 w-full font-semibold rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            className="mt-4 w-full font-semibold rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             disabled={payTip.isPending || amount <= 0}
             onClick={() => void handlePay()}
           >

@@ -6,7 +6,7 @@ export const UPI_CONFIG = {
   /**
    * Default fallback UPI ID if not returned dynamically from server order.
    */
-  upiId: (process.env.NEXT_PUBLIC_UPI_ID || 'lalitspatil03@okhdfcbank') as string,
+  upiId: (process.env.NEXT_PUBLIC_UPI_ID || '') as string,
 
   /**
    * Merchant display name shown in UPI apps

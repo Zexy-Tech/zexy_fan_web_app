@@ -36,6 +36,14 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Public media (no auth) can go through next/image's optimizer: resized per screen, AVIF/WebP, cached.
+ * Protected media needs the viewer's token, so it must keep loading directly (`unoptimized`).
+ */
+export function isPublicMedia(src: string | null | undefined): boolean {
+  return !!src && /\/media\/(public|avatars)\//.test(src);
+}
+
 export function getMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zexy.live').replace(/\/+$/, '');

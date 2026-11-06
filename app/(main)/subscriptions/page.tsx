@@ -1,10 +1,12 @@
 'use client';
 
+import { clean } from '@/lib/validation/fields';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useResolvedSubscriptionRows } from '@/hooks/useResolvedSubscriptionRows';
 import { Input } from '@/components/ui/input';
-import { Loader2, MessageCircle, Image as ImageIcon, Video, Music, Package, Search } from 'lucide-react';
+import { Loader2, MessageCircle, Image as ImageIcon, Video, Music, Package, Search, Users } from '@/components/ui/icons';
+import { EmptyStatePlaceholder } from '@/components/ui/empty-state-placeholder';
 import { subscriptionAvatarSrc } from '@/lib/subscriptionUi';
 import { toUserCode } from '@/lib/userCode';
 import type { ActiveSubscription } from '@/services/subscriptions';
@@ -39,7 +41,7 @@ function SubscribedCreatorRow({ sub }: { sub: ActiveSubscription }) {
           <div className="flex size-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-semibold text-white">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+              <img src={avatarUrl} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />
             ) : (
               <span className="grid h-full w-full place-items-center">{sub.creator_name?.[0] || 'C'}</span>
             )}
@@ -109,17 +111,25 @@ export default function MyCreatorsPage() {
         <Input
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => setQuery(clean.search(e.target.value))}
+          maxLength={50}
+          enterKeyHint="search"
+          autoComplete="off"
           placeholder="Search creators…"
           className="pl-9"
           aria-label="Search subscribed creators"
         />
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          {query.trim() ? 'No creators match your search.' : 'You are not subscribed to any creators yet.'}
-        </p>
+      {filtered.length === 0 && query.trim() ? (
+        <p className="py-8 text-center text-sm text-muted-foreground">No creators match your search.</p>
+      ) : filtered.length === 0 ? (
+        <EmptyStatePlaceholder
+          icon={Users}
+          title="You are not subscribed to any creators yet."
+          description="Subscribe to a creator to unlock their exclusive posts and chat with them."
+          action={{ label: 'Find creators to subscribe', href: '/creators' }}
+        />
       ) : (
         <div>
           {filtered.map((sub) => (

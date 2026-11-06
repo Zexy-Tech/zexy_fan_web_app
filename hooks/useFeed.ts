@@ -1,5 +1,19 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { CreatorFilters, feedService } from '@/services/feed';
+import { creatorProfileService } from '@/services/creatorProfile';
+import { queryClient } from '@/lib/queryClient';
+
+/**
+ * Eager-load a creator profile's data the moment its card is touched/hovered, so the profile page
+ * renders from cache on arrival. Same keys/fetchers as the hooks below; fresh data is not refetched.
+ */
+export function prefetchCreatorProfile(username: string) {
+  if (!username) return;
+  void queryClient.prefetchQuery({ queryKey: ['creator', 'username', username], queryFn: () => feedService.getCreatorByUsername(username) });
+  void queryClient.prefetchQuery({ queryKey: ['creator', 'profile-config', username], queryFn: () => creatorProfileService.getProfileConfig(username) });
+  void queryClient.prefetchQuery({ queryKey: ['creator', 'username', username, 'content'], queryFn: () => feedService.getCreatorContentByUsername(username) });
+  void queryClient.prefetchQuery({ queryKey: ['creator', 'username', username, 'products'], queryFn: () => feedService.getCreatorProductsByUsername(username) });
+}
 
 export function useCreators() {
   return useQuery({

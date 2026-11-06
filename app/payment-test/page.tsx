@@ -5,8 +5,8 @@ import { paymentService, CreateIntentResponse, CheckoutSimOutcome } from '@/serv
 import { MockCheckoutOverlay } from '@/components/payments/MockCheckoutOverlay';
 import { DirectUpiCheckoutModal } from '@/components/payments/DirectUpiCheckoutModal';
 import { buildUpiUrl, inspectUpiUrl, UPI_CONFIG } from '@/constants/payment';
-import { toast } from 'react-hot-toast';
-import { Smartphone, CheckCircle, AlertTriangle } from 'lucide-react';
+import { toast } from '@/lib/toast';
+import { Smartphone, CheckCircle, AlertTriangle } from '@/components/ui/icons';
 
 export default function PaymentTestPage() {
   const [loading, setLoading] = useState(false);
@@ -153,7 +153,7 @@ export default function PaymentTestPage() {
                   key={amt}
                   type="button"
                   onClick={() => setTestAmount(amt)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition ${
                     testAmount === amt
                       ? 'bg-pink-500 text-white shadow-md shadow-pink-500/20'
                       : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
@@ -169,7 +169,7 @@ export default function PaymentTestPage() {
             <button
               onClick={() => startDirectUpiTest(testAmount)}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-pink-500/20 transition flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3.5 px-4 rounded-full shadow-lg shadow-pink-500/20 transition flex items-center justify-center gap-2 text-sm disabled:opacity-50"
             >
               <Smartphone className="w-4 h-4" />
               {loading ? 'Creating Intent...' : `Test Direct UPI Modal (₹${testAmount.toFixed(2)})`}
@@ -178,7 +178,7 @@ export default function PaymentTestPage() {
             <button
               onClick={startSimulatedTest}
               disabled={loading}
-              className="w-full bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 font-semibold py-2.5 px-4 rounded-2xl transition text-xs disabled:opacity-50"
+              className="w-full bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 font-semibold py-2.5 px-4 rounded-full transition text-xs disabled:opacity-50"
             >
               Test Gateway Simulation (Overlay)
             </button>

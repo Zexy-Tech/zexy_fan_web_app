@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Loader2, ShieldCheck, Smartphone, X } from 'lucide-react';
+import { Loader2, ShieldCheck, Smartphone, X } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -215,7 +215,7 @@ export function OtpVerificationModal({
                   disabled={isLoading}
                   aria-label={`Digit ${index + 1}`}
                   className={cn(
-                    'w-12 h-14 bg-zinc-900 border border-zinc-800 rounded-xl text-center text-xl font-bold text-white',
+                    'w-12 h-14 bg-zinc-900 border border-zinc-800 rounded-full text-center text-xl font-bold text-white',
                     'focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none',
                     digit && 'border-purple-500/80 bg-purple-500/5',
                     error && 'border-red-500/80 bg-red-500/5'

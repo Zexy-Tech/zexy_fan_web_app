@@ -1,9 +1,10 @@
 'use client';
 
+import { LIMITS, clean } from '@/lib/validation/fields';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import {
   ShieldCheck,
   ShieldAlert,
@@ -18,7 +19,7 @@ import {
   Phone,
   FileText,
   Loader2,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { useAuthContext } from '@/hooks/useAuth';
 import { usePendingPayments, useVerifyPaymentAdmin } from '@/hooks/usePayment';
 import { AdminPendingPaymentItem } from '@/services/payment';
@@ -86,8 +87,8 @@ export default function AdminPaymentsPage() {
   const handleSubmitVerification = async () => {
     if (!selectedOrder || !actionType) return;
 
-    if (actionType === 'approve' && !bankRefInput.trim()) {
-      toast.error('Bank Reference Number / UTR is required to approve payment');
+    if (actionType === 'approve' && !/^[A-Za-z0-9]{6,30}$/.test(bankRefInput.trim())) {
+      toast.error('Enter the bank reference / UTR (6–30 letters or digits) to approve');
       return;
     }
 
@@ -175,7 +176,7 @@ export default function AdminPaymentsPage() {
             <button
               key={tab.id}
               onClick={() => setStatusFilter(tab.id)}
-              className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
+              className={`flex-1 sm:flex-none px-4 py-1.5 rounded-full text-xs font-semibold transition ${
                 statusFilter === tab.id
                   ? 'bg-pink-600 text-white shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200'
@@ -191,9 +192,12 @@ export default function AdminPaymentsPage() {
           <Search className="absolute left-3 top-2.5 size-4 text-zinc-500" />
           <Input
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(clean.search(e.target.value))}
+          maxLength={50}
+          enterKeyHint="search"
+          autoComplete="off"
             placeholder="Search fan, order ID, UTR..."
-            className="pl-9 bg-zinc-900 border-zinc-800 text-xs text-white placeholder-zinc-500 rounded-xl"
+            className="pl-9 bg-zinc-900 border-zinc-800 text-xs text-white placeholder-zinc-500 rounded-full"
           />
         </div>
       </div>
@@ -333,7 +337,7 @@ export default function AdminPaymentsPage() {
                           <Button
                             size="sm"
                             onClick={() => handleOpenModal(p, 'approve')}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-950/40"
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-full shadow-md shadow-emerald-950/40"
                           >
                             <CheckCircle2 className="size-3.5 mr-1" />
                             Approve
@@ -342,7 +346,7 @@ export default function AdminPaymentsPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleOpenModal(p, 'reject')}
-                            className="border-zinc-800 hover:bg-rose-950/30 hover:border-rose-800 text-zinc-400 hover:text-rose-400 text-xs rounded-xl"
+                            className="border-zinc-800 hover:bg-rose-950/30 hover:border-rose-800 text-zinc-400 hover:text-rose-400 text-xs rounded-full"
                           >
                             <XCircle className="size-3.5 mr-1" />
                             Reject
@@ -412,7 +416,9 @@ export default function AdminPaymentsPage() {
                   </label>
                   <Input
                     value={bankRefInput}
-                    onChange={(e) => setBankRefInput(e.target.value)}
+                    onChange={(e) => setBankRefInput(e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 30))}
+                    maxLength={30}
+                    autoComplete="off"
                     placeholder="Enter 12-digit UTR from your bank statement"
                     className="bg-zinc-900 border-zinc-700 text-xs font-mono text-white"
                   />
@@ -425,7 +431,8 @@ export default function AdminPaymentsPage() {
                   <label className="text-xs font-semibold text-zinc-300">Admin Notes (Optional)</label>
                   <Input
                     value={notesInput}
-                    onChange={(e) => setNotesInput(e.target.value)}
+                    onChange={(e) => setNotesInput(clean.text(e.target.value, LIMITS.note.max))}
+                    maxLength={LIMITS.note.max}
                     placeholder="e.g. HDFC statement match verified"
                     className="bg-zinc-900 border-zinc-700 text-xs text-white"
                   />
@@ -439,7 +446,8 @@ export default function AdminPaymentsPage() {
                   </label>
                   <Input
                     value={notesInput}
-                    onChange={(e) => setNotesInput(e.target.value)}
+                    onChange={(e) => setNotesInput(clean.text(e.target.value, LIMITS.note.max))}
+                    maxLength={LIMITS.note.max}
                     placeholder="e.g. Payment not received in bank statement"
                     className="bg-zinc-900 border-zinc-700 text-xs text-white"
                   />

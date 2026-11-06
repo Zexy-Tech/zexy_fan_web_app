@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useActiveLives } from '@/hooks/useLive';
-import { Radio, Loader2, Users, PlayCircle } from 'lucide-react';
+import { Radio, Loader2, Users, PlayCircle } from '@/components/ui/icons';
 import Image from 'next/image';
 import { getMediaUrl } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';

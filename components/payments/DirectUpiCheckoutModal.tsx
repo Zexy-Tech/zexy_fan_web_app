@@ -1,8 +1,9 @@
 'use client';
 
+import { check, clean } from '@/lib/validation/fields';
 import React, { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { toast } from 'react-hot-toast';
+import { toast } from '@/lib/toast';
 import {
   ShieldCheck,
   X,
@@ -18,7 +19,7 @@ import {
   RotateCcw,
   ChevronDown,
   ChevronUp,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { CreateIntentResponse } from '@/services/payment';
 import {
   SUPPORTED_UPI_APPS,
@@ -189,22 +190,23 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
 
   const handleSubmitUtr = async (e: React.FormEvent) => {
     e.preventDefault();
-    const clean = utrInput.trim();
-    if (!clean || clean.length < 6) {
-      toast.error('Please enter a valid 12-digit UPI reference number / UTR');
+    const utr = utrInput.trim();
+    const utrError = check.utr(utr); // UPI UTRs are exactly 12 digits
+    if (utrError) {
+      toast.error(utrError);
       return;
     }
 
     try {
       console.info('[Direct UPI] Submitting fan UTR reference for verification:', {
         orderId: intent.gateway_order_id,
-        utrLength: clean.length,
-        maskedUtr: clean.slice(0, 4) + '****' + clean.slice(-4),
+        utrLength: utr.length,
+        maskedUtr: utr.slice(0, 4) + '****' + utr.slice(-4),
       });
 
       await submitUtrMutation.mutateAsync({
         gatewayOrderId: intent.gateway_order_id,
-        utr: clean,
+        utr,
       });
       setUtrSubmitted(true);
       toast.success('UTR submitted! Waiting for authoritative verification.');
@@ -407,7 +409,7 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleLaunchUpi(selectedScheme)}
-                className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-lg shadow-pink-500/25 transition active:scale-[0.99] flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-4 rounded-full font-bold text-sm bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-lg shadow-pink-500/25 transition active:scale-[0.99] flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 Pay ₹{intent.amount.toFixed(2)} with UPI App
@@ -470,7 +472,7 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
                       <button
                         type="button"
                         onClick={handleRetryFreshAttempt}
-                        className="flex-1 min-w-[140px] py-2 px-3 rounded-xl text-[11px] font-semibold bg-zinc-800 hover:bg-zinc-700 text-white flex items-center justify-center gap-1.5 transition border border-zinc-700"
+                        className="flex-1 min-w-[140px] py-2 px-3 rounded-full text-[11px] font-semibold bg-zinc-800 hover:bg-zinc-700 text-white flex items-center justify-center gap-1.5 transition border border-zinc-700"
                       >
                         <RotateCcw className="w-3.5 h-3.5 text-pink-400" />
                         Retry Fresh Attempt
@@ -479,7 +481,7 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
                         type="button"
                         onClick={handleReportBankLimit}
                         disabled={limitReported}
-                        className="py-2 px-3 rounded-xl text-[11px] font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white transition border border-zinc-800 disabled:opacity-50"
+                        className="py-2 px-3 rounded-full text-[11px] font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white transition border border-zinc-800 disabled:opacity-50"
                       >
                         {limitReported ? 'Limit Logged' : 'Log Diagnostic Report'}
                       </button>
@@ -501,15 +503,17 @@ export const DirectUpiCheckoutModal: React.FC<DirectUpiCheckoutModalProps> = ({
                   <input
                     type="text"
                     value={utrInput}
-                    onChange={(e) => setUtrInput(e.target.value)}
+                    onChange={(e) => setUtrInput(clean.utr(e.target.value))}
+                    inputMode="numeric"
+                    autoComplete="off"
                     placeholder="Enter 12-digit UTR (e.g. 4028...)"
-                    maxLength={24}
-                    className="flex-1 bg-zinc-900/90 border border-zinc-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500 transition font-mono"
+                    maxLength={12}
+                    className="flex-1 bg-zinc-900/90 border border-zinc-700/80 rounded-full px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500 transition font-mono"
                   />
                   <button
                     type="submit"
                     disabled={submitUtrMutation.isPending || !utrInput.trim()}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-white border border-zinc-700 transition shrink-0"
+                    className="px-4 py-2 rounded-full text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-white border border-zinc-700 transition shrink-0"
                   >
                     {submitUtrMutation.isPending ? 'Submitting...' : utrSubmitted ? 'Updated' : 'Submit UTR'}
                   </button>

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, ArrowLeft, Loader2, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { AlertTriangle, ArrowLeft, Loader2, Trash2 } from '@/components/ui/icons';
+import { toast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { LoginVerificationPopup } from '@/components/auth/login-verification-popup';
@@ -133,7 +133,7 @@ export default function DeleteAccountPage() {
         <Button
           type="button"
           variant="destructive"
-          className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/20"
+          className="w-full h-12 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/20"
           onClick={() => setVerificationOpen(true)}
           disabled={isDeleting || deleteAccount.isPending}
         >
@@ -193,7 +193,7 @@ export default function DeleteAccountPage() {
                 <div className="pt-2">
                   <Button
                     type="button"
-                    className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/25"
+                    className="w-full h-12 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/25"
                     onClick={handleConfirmOk}
                   >
                     OK

@@ -10,7 +10,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Crown, Clock } from 'lucide-react';
+import { Check, Crown, Clock } from '@/components/ui/icons';
 import { formatCurrency } from '@/lib/utils';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
@@ -166,7 +166,13 @@ export function SubscriptionCardSection({
                 }
           }
         >
-          {isSubscribed ? '✓ Already Subscribed' : 'Subscribe Now'}
+          {isSubscribed ? (
+            <>
+              <Check className="mr-2 size-4" aria-hidden /> Already Subscribed
+            </>
+          ) : (
+            'Subscribe Now'
+          )}
         </Button>
       </div>
 

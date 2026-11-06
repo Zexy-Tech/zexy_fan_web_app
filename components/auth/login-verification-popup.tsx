@@ -1,14 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Loader2, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { Loader2, X } from '@/components/ui/icons';
+import { toast } from '@/lib/toast';
 import { useSendOTP, useVerifyOTPOnly, useVerifyPINOnly } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { isValidIndianMobileTen, normalizeToIndianMobileTen } from '@/lib/indianMobile';
+import { check, clean } from '@/lib/validation/fields';
 
 export interface LoginVerificationPopupProps {
   open: boolean;
@@ -53,6 +54,7 @@ export function LoginVerificationPopup({
   const hasTriggeredRef = useRef(false);
 
   const sendOTP = useSendOTP();
+  const sendOtpAsync = sendOTP.mutateAsync;
   const verifyOTPOnly = useVerifyOTPOnly();
   const verifyPINOnly = useVerifyPINOnly();
 
@@ -67,7 +69,7 @@ export function LoginVerificationPopup({
       }
 
       try {
-        const response = await sendOTP.mutateAsync({ mobile: targetMobile });
+        const response = await sendOtpAsync({ mobile: targetMobile });
         if (response.auth_method === 'pin') {
           setStep('pin');
           toast.success(response.message || 'PIN login required');
@@ -80,7 +82,8 @@ export function LoginVerificationPopup({
         setStep('phone');
       }
     },
-    [sendOTP]
+    // mutateAsync is stable; the useMutation result object is new every render and made this effect loop forever.
+    [sendOtpAsync]
   );
 
   useEffect(() => {
@@ -141,8 +144,9 @@ export function LoginVerificationPopup({
       return;
     }
 
-    if (!isValidIndianMobileTen(mobile)) {
-      toast.error('Invalid mobile number.');
+    const mobileError = check.mobile(mobile);
+    if (mobileError) {
+      toast.error(mobileError);
       return;
     }
 
@@ -251,7 +255,10 @@ export function LoginVerificationPopup({
                         type="tel"
                         placeholder="9876543210"
                         value={mobile}
-                        onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        onChange={(e) => setMobile(clean.mobile(e.target.value))}
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        maxLength={10}
                         disabled={sendOTP.isPending}
                         className="h-12 flex-1 border-zinc-700 bg-zinc-800 text-lg tracking-wider focus:border-purple-500"
                         autoFocus
@@ -261,7 +268,7 @@ export function LoginVerificationPopup({
                 </div>
                 <Button
                   type="submit"
-                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-700"
+                  className="h-12 w-full rounded-full bg-purple-600 font-bold text-white hover:bg-purple-700"
                   disabled={sendOTP.isPending || mobile.length < 10}
                 >
                   {sendOTP.isPending ? (
@@ -303,7 +310,7 @@ export function LoginVerificationPopup({
                         onChange={(e) => handleCodeChange(e.target.value, index)}
                         onKeyDown={(e) => handleKeyDown(e, index)}
                         className={cn(
-                          'h-14 w-full rounded-xl border border-zinc-700 bg-zinc-800 text-center text-lg font-bold outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500',
+                          'h-14 w-full rounded-full border border-zinc-700 bg-zinc-800 text-center text-lg font-bold outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500',
                           digit && 'border-purple-500 bg-zinc-800/80'
                         )}
                         disabled={isVerifying || isSubmitting}
@@ -314,7 +321,7 @@ export function LoginVerificationPopup({
                 </div>
                 <Button
                   type="submit"
-                  className="h-12 w-full rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-700"
+                  className="h-12 w-full rounded-full bg-purple-600 font-bold text-white hover:bg-purple-700"
                   disabled={isVerifying || isSubmitting || code.join('').length < 4}
                 >
                   {isVerifying || isSubmitting ? (

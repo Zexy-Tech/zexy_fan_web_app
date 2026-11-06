@@ -1,19 +1,20 @@
 'use client';
 
+import { url } from '@/lib/validation/fields';
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { paymentService, Transaction } from '@/services/payment';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Download, ArrowLeft, Receipt, CheckCircle2, Clock, XCircle, ShieldCheck } from 'lucide-react';
+import { Loader2, Download, ArrowLeft, Receipt, CheckCircle2, Clock, XCircle, ShieldCheck } from '@/components/ui/icons';
 import { format } from 'date-fns';
 import { formatCurrency, cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 function InvoiceDetailPageContent() {
   const params = useParams();
   const router = useRouter();
-  const id = Number(params.id);
+  const id = url.id(params.id) ?? NaN;
 
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +34,8 @@ function InvoiceDetailPageContent() {
   useEffect(() => {
     if (Number.isFinite(id)) {
       loadDetail();
+    } else {
+      setIsLoading(false); // invalid id in the URL: show "Invoice not found" instead of spinning forever
     }
   }, [id, loadDetail]);
 
@@ -179,7 +182,7 @@ function InvoiceDetailPageContent() {
           <Button 
             onClick={handleDownload}
             disabled={isDownloading || !isSuccess}
-            className="flex-1 h-12 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl gap-2"
+            className="flex-1 h-12 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-full gap-2"
           >
             {isDownloading ? (
               <Loader2 className="size-5 animate-spin" />
@@ -191,7 +194,7 @@ function InvoiceDetailPageContent() {
           <Button 
             variant="outline"
             onClick={() => router.push('/creators')}
-            className="flex-1 h-12 border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted font-bold rounded-xl"
+            className="flex-1 h-12 border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted font-bold rounded-full"
           >
             Browse Creators
           </Button>

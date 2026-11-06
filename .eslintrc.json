@@ -2,5 +2,16 @@
   "extends": [
     "next/core-web-vitals",
     "next/typescript"
+  ],
+  "rules": {
+    "no-restricted-imports": ["error", {
+      "paths": [
+        { "name": "sonner", "importNames": ["toast"], "message": "Use `toast` from '@/lib/toast' (auto-closes after 3/5 s)." },
+        { "name": "react-hot-toast", "message": "Use `toast` from '@/lib/toast'." }
+      ]
+    }]
+  },
+  "overrides": [
+    { "files": ["lib/toast.ts"], "rules": { "no-restricted-imports": "off" } }
   ]
 }

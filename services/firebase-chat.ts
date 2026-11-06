@@ -1,6 +1,31 @@
-import { collection, query, orderBy, limit, onSnapshot, type Unsubscribe } from 'firebase/firestore';
+import type { Unsubscribe, Firestore } from 'firebase/firestore';
 import { getFirestoreDb } from '@/lib/firebase';
 import type { Message } from './messages';
+
+type FirestoreSdk = typeof import('firebase/firestore');
+
+/**
+ * Loads Firestore on first use (keeps the SDK out of page bundles) and returns a cleanup function
+ * right away, so callers' effects can unsubscribe whether or not the listener has attached yet.
+ */
+function lazySubscribe(
+  attach: (fs: FirestoreSdk, db: Firestore) => Unsubscribe,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  let unsub: Unsubscribe | null = null;
+  let cancelled = false;
+  Promise.all([import('firebase/firestore'), getFirestoreDb()])
+    .then(([fs, db]) => {
+      if (!cancelled && db) unsub = attach(fs, db);
+    })
+    .catch((err) => {
+      if (onError && err instanceof Error) onError(err);
+    });
+  return () => {
+    cancelled = true;
+    unsub?.();
+  };
+}
 
 export function getThreadId(uid1: number, uid2: number): string {
   const smaller = Math.min(uid1, uid2);
@@ -18,16 +43,13 @@ export function subscribeToThread(
   onUpdate: (messages: Message[]) => void,
   onError?: (error: Error) => void,
   limitCount = 100
-): Unsubscribe | null {
-  const db = getFirestoreDb();
-  if (!db) return null;
-
-  try {
+): Unsubscribe {
+  return lazySubscribe((fs, db) => {
     const threadId = getThreadId(currentUid, otherUid);
-    const messagesRef = collection(db, 'chats', threadId, 'messages');
-    const q = query(messagesRef, orderBy('created_at', 'asc'), limit(limitCount));
+    const messagesRef = fs.collection(db, 'chats', threadId, 'messages');
+    const q = fs.query(messagesRef, fs.orderBy('created_at', 'asc'), fs.limit(limitCount));
 
-    return onSnapshot(
+    return fs.onSnapshot(
       q,
       (snapshot) => {
         const msgs: Message[] = [];
@@ -65,10 +87,7 @@ export function subscribeToThread(
         else console.warn('[Firestore] subscribeToThread error:', error);
       }
     );
-  } catch (err) {
-    if (onError && err instanceof Error) onError(err);
-    return null;
-  }
+  }, onError);
 }
 
 /**
@@ -79,15 +98,12 @@ export function subscribeToConversations(
   currentUid: number,
   onUpdate: (conversations: Message[]) => void,
   onError?: (error: Error) => void
-): Unsubscribe | null {
-  const db = getFirestoreDb();
-  if (!db) return null;
+): Unsubscribe {
+  return lazySubscribe((fs, db) => {
+    const inboxRef = fs.collection(db, 'user_inboxes', currentUid.toString(), 'conversations');
+    const q = fs.query(inboxRef, fs.orderBy('updated_at', 'desc'));
 
-  try {
-    const inboxRef = collection(db, 'user_inboxes', currentUid.toString(), 'conversations');
-    const q = query(inboxRef, orderBy('updated_at', 'desc'));
-
-    return onSnapshot(
+    return fs.onSnapshot(
       q,
       (snapshot) => {
         const convos: Message[] = [];
@@ -128,8 +144,5 @@ export function subscribeToConversations(
         else console.warn('[Firestore] subscribeToConversations error:', error);
       }
     );
-  } catch (err) {
-    if (onError && err instanceof Error) onError(err);
-    return null;
-  }
+  }, onError);
 }

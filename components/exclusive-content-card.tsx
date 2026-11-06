@@ -7,7 +7,7 @@
 'use client';
 
 import { ExclusiveContent } from '@/types/creator-profile';
-import { Lock, Play, Image as ImageIcon, Music } from 'lucide-react';
+import { Lock, Play, Image as ImageIcon, Music } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { getMediaUrl, cn } from '@/lib/utils';

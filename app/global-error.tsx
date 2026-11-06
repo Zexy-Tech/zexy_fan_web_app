@@ -1,7 +1,7 @@
 'use client';
 
-import * as Sentry from "@sentry/nextjs";
 import { useEffect } from 'react';
+import { lato } from './fonts';
 
 export default function GlobalError({
   error,
@@ -11,8 +11,6 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to Sentry
-    Sentry.captureException(error);
     console.error('Global error:', error);
   }, [error]);
 
@@ -25,7 +23,7 @@ export default function GlobalError({
           alignItems: 'center',
           justifyContent: 'center',
           padding: '1rem',
-          fontFamily: 'system-ui, sans-serif',
+          fontFamily: lato.style.fontFamily,
         }}>
           <div style={{
             maxWidth: '28rem',

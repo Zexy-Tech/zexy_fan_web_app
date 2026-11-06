@@ -25,7 +25,8 @@ export function middleware(request: NextRequest) {
   // Tablet check usually included in the mobile pattern above.
 
   // 3. Block Desktop: If NOT identified as mobile/tablet, redirect to block page
-  if (!isMobileUA) {
+  // ALLOW_DESKTOP=true (e.g. in .env.local) disables the lock for local testing.
+  if (!isMobileUA && process.env.ALLOW_DESKTOP !== 'true') {
     const url = request.nextUrl.clone();
     url.pathname = '/desktop-block';
     return NextResponse.redirect(url);

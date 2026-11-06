@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Lock, Play, Image as ImageIcon, Heart, Bookmark } from 'lucide-react';
+import { Lock, Play, Image as ImageIcon, Heart, Bookmark } from '@/components/ui/icons';
 import { formatDate, getMediaUrl } from '@/lib/utils';
 import { toUserCode } from '@/lib/userCode';
 import type { Content } from '@/services/feed';

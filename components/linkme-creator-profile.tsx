@@ -16,18 +16,16 @@ import { useCreatorByUsername, useCreatorContentByUsername, useCreatorProductsBy
 import { useCreatorProfileConfig } from '@/hooks/useCreatorProfile';
 import { useCreatorPlans, useMySubscriptions } from '@/hooks/useSubscriptions';
 import { useAuthContext } from '@/hooks/useAuth';
-import { cn, formatCurrency, getMediaUrl } from '@/lib/utils';
-import { toUserCode } from '@/lib/userCode';
+import { cn, formatCurrency, getMediaUrl, isPublicMedia } from '@/lib/utils';
 import { isCreatorMemberForFan } from '@/lib/creatorMembership';
 import { queryClient } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { useActionButton } from '@/hooks/useActionButton';
 import dynamic from 'next/dynamic';
+// Static on purpose: the header already bundles SignupModal on this page, and Turbopack (Next 14)
+// fails when one module is imported both statically and via next/dynamic on the same page.
+import { SignupModal } from '@/components/auth/signup-modal';
 
-const SignupModal = dynamic(
-  () => import('@/components/auth/signup-modal').then((mod) => mod.SignupModal),
-  { ssr: false }
-);
 const MembershipPopup = dynamic(
   () => import('@/components/membership-popup').then((mod) => mod.MembershipPopup),
   { ssr: false }
@@ -38,7 +36,7 @@ const ContentPopup = dynamic(
 );
 import type { ActionButton } from '@/types/creator-profile';
 import type { Content, Product } from '@/services/feed';
-import type { LucideIcon } from 'lucide-react';
+import type { IconComponent } from '@/components/ui/icons';
 import {
   Instagram,
   Facebook,
@@ -49,19 +47,21 @@ import {
   Package,
   Video,
   Music,
-  Send,
-  AtSign,
   Flag,
   Globe,
   Linkedin,
-  MessageSquare,
-  HelpCircle,
   Flame,
   PlayCircle,
-  Ghost,
   Radio,
-} from 'lucide-react';
-import { toast } from 'sonner';
+  XTwitter,
+  Snapchat,
+  Telegram,
+  Threads,
+  Reddit,
+  Discord,
+  Quora,
+} from '@/components/ui/icons';
+import { toast } from '@/lib/toast';
 import { Badge } from '@/components/ui/badge';
 
 
@@ -70,7 +70,7 @@ interface LinkMeCreatorProfileProps {
 }
 
 type SocialKind = 
-  | 'instagram' | 'facebook' | 'x' | 'youtube' | 'link' | 'zexy'
+  | 'instagram' | 'facebook' | 'x' | 'youtube' | 'link'
   | 'snapchat' | 'telegram' | 'threads' | 'facebook_page' | 'website' 
   | 'linkedin' | 'reddit' | 'discord' | 'quora' | 'takatak' | 'chingari' | 'josh';
 
@@ -103,35 +103,20 @@ function SocialIcon({ kind, className }: { kind: SocialKind; className?: string 
     case 'instagram': return <Instagram className={cn(cls, "text-[#E1306C]")} />;
     case 'facebook': return <Facebook className={cn(cls, "text-[#1877F2]")} />;
     case 'facebook_page': return <Flag className={cn(cls, "text-[#1877F2]")} />;
-    case 'x':
-      return (
-        <svg viewBox="0 0 24 24" aria-hidden="true" className={cn(cls, "fill-current")}>
-          <path d="M18.901 1.153h3.68l-8.039 9.189L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.932Zm-1.29 19.493h2.039L6.486 3.24H4.298L17.611 20.646Z" />
-        </svg>
-      );
+    case 'x': return <XTwitter className={cn(cls, "text-current")} />;
     case 'youtube': return <Youtube className={cn(cls, "text-[#FF0000]")} />;
-    case 'snapchat': return <Ghost className={cn(cls, "text-[#FFFC00]")} />;
-    case 'telegram': return <Send className={cn(cls, "text-[#0088cc]")} />;
-    case 'threads': return <AtSign className={cn(cls, "text-current")} />;
+    case 'snapchat': return <Snapchat className={cn(cls, "text-[#FFFC00]")} />;
+    case 'telegram': return <Telegram className={cn(cls, "text-[#0088cc]")} />;
+    case 'threads': return <Threads className={cn(cls, "text-current")} />;
     case 'website': return <Globe className={cn(cls, "text-zinc-400")} />;
     case 'linkedin': return <Linkedin className={cn(cls, "text-[#0a66c2]")} />;
-    case 'reddit': return <MessageSquare className={cn(cls, "text-[#ff4500]")} />;
-    case 'discord': return <MessageSquare className={cn(cls, "text-[#5865f2]")} />;
-    case 'quora': return <HelpCircle className={cn(cls, "text-[#b92b27]")} />;
+    case 'reddit': return <Reddit className={cn(cls, "text-[#ff4500]")} />;
+    case 'discord': return <Discord className={cn(cls, "text-[#5865f2]")} />;
+    case 'quora': return <Quora className={cn(cls, "text-[#b92b27]")} />;
     case 'takatak': return <Video className={cn(cls, "text-pink-500")} />;
     case 'chingari': return <Flame className={cn(cls, "text-orange-500")} />;
     case 'josh': return <PlayCircle className={cn(cls, "text-red-500")} />;
     case 'link': return <ExternalLink className={cn(cls, "text-zinc-400")} />;
-    case 'zexy':
-      return (
-        <Image
-          src="/zexy_z_letter_logo_nobg.png"
-          alt="Zexy"
-          width={16}
-          height={16}
-          className={cn(cls, "object-contain")}
-        />
-      );
   }
 }
 
@@ -171,9 +156,6 @@ function buildFixedSocialRow(actionButtons: ActionButton[] | undefined): SocialE
        return { kind, label: button?.label || label, button };
     })
     .filter(entry => !!entry.button);
-  
-  // Zexy icon always present at the end
-  result.push({ kind: 'zexy', label: 'Zexy' });
 
   return result;
 }
@@ -184,7 +166,7 @@ function clamp01(v: number) {
 
 type ContentTabId = 'images' | 'videos' | 'audios' | 'products';
 
-const CONTENT_TABS: { id: ContentTabId; label: string; icon: LucideIcon }[] = [
+const CONTENT_TABS: { id: ContentTabId; label: string; icon: IconComponent }[] = [
   { id: 'images', label: 'Images', icon: LucideImage },
   { id: 'videos', label: 'Videos', icon: Video },
   { id: 'audios', label: 'Audios', icon: Music },
@@ -252,9 +234,9 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
     };
   }, []);
 
-  const creatorCode = creator?.user_code || toUserCode(creator?.id || username, 'creator');
-  const displayName = creator?.name || creator?.username || creatorCode || 'Creator';
-  const handle = creator?.username || (username && !/^\d+$/.test(username) ? username : creatorCode);
+  // User codes (ZX-CR-…) are internal — never shown to fans.
+  const displayName = creator?.name || creator?.username || 'Creator';
+  const handle = creator?.username || '';
   const bio = config?.intro?.bio?.trim() || '';
 
   const coverUrl = useMemo(() => {
@@ -317,14 +299,14 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
                     fill
                     sizes="32px"
                     className="object-cover"
-                    unoptimized
+                    unoptimized={!isPublicMedia(coverUrl)}
                   />
                 ) : null}
               </div>
 
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold">{displayName}</div>
-                <div className="truncate text-xs text-zinc-400">@{handle}</div>
+                {handle && <div className="truncate text-xs text-zinc-400">@{handle}</div>}
               </div>
             </div>
             <div className="size-9" />
@@ -364,7 +346,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
               sizes="100vw"
               className="absolute inset-0 h-full w-full object-cover"
               priority
-              unoptimized
+              unoptimized={!isPublicMedia(coverUrl)}
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-950" />
@@ -378,12 +360,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
         <div className="absolute inset-x-0 bottom-10 px-4">
           <div className="mx-auto max-w-md text-center flex flex-col items-center">
             <h1 className="text-lg font-semibold tracking-tight drop-shadow-sm">{displayName}</h1>
-            <p className="mt-1 text-sm text-zinc-300">@{handle}</p>
-            {creatorCode && (
-              <span className="mt-1.5 inline-block rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-2.5 py-0.5 font-mono text-[11px] font-medium text-purple-200">
-                {creatorCode}
-              </span>
-            )}
+            {handle && <p className="mt-1 text-sm text-zinc-300">@{handle}</p>}
 
             {config?.is_live && (
               <Badge 
@@ -433,29 +410,24 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
             {/* Social icons row */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
               {social.map(({ button, kind, label }, idx) => {
-                const isZexy = kind === 'zexy';
-                const isEnabled = isZexy || Boolean(button);
+                const isEnabled = Boolean(button);
                 return (
                   <button
                     key={(button?.id || kind) + idx}
                     type="button"
-                    aria-label={label || (isZexy ? 'Zexy' : kind)}
+                    aria-label={label || kind}
                     className={[
                       'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] border border-white/10 text-white',
                       'hover:bg-white/15',
                       !isEnabled ? 'opacity-50 pointer-events-none' : '',
                     ].join(' ')}
                     onClick={
-                      isZexy
+                      button
                         ? (e) => {
                             e.stopPropagation();
-                            router.push('/creators');
-                          }                        : button
-                          ? (e) => {
-                              e.stopPropagation();
-                              handleButtonClick(button);
-                            }
-                          : undefined
+                            handleButtonClick(button);
+                          }
+                        : undefined
                     }
                   >
                     <SocialIcon kind={kind} />
@@ -537,7 +509,7 @@ function MediaImageTile({
   alt: string;
   sizes: string;
   isLocked?: boolean;
-  fallbackIcon: LucideIcon;
+  fallbackIcon: IconComponent;
   isExclusive?: boolean;
 }) {
   const [hasError, setHasError] = useState(false);
@@ -558,7 +530,7 @@ function MediaImageTile({
       sizes={sizes}
       className={cn("h-full w-full object-cover", isLocked && "blur-sm opacity-60")} 
       loading="lazy" 
-      unoptimized
+      unoptimized={!isPublicMedia(src)}
       onError={() => setHasError(true)}
     />
   );
@@ -708,7 +680,7 @@ function ExclusiveMediaGrid({
   );
 }
 
-function EmptyState({ icon: Icon, message }: { icon: LucideIcon; message: string }) {
+function EmptyState({ icon: Icon, message }: { icon: IconComponent; message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="mb-4 rounded-full bg-white/[0.02] p-5 border border-white/5 shadow-inner">
@@ -947,7 +919,7 @@ function CreatorMediaBlocks({
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 33vw, 200px"
-                    unoptimized
+                    unoptimized={!isPublicMedia(getMediaUrl(p.image_urls[0]) || '')}
                   />
                 )}
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">

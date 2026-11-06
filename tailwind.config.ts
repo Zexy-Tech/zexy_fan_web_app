@@ -2,6 +2,8 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   darkMode: ['class'],
+  // hover: styles only on devices that can hover, so taps on phones don't leave elements stuck "hovered".
+  future: { hoverOnlyWhenSupported: true },
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -17,6 +19,12 @@ const config: Config = {
       },
     },
     extend: {
+      // Lato everywhere: every font-* family utility resolves to it.
+      fontFamily: {
+        sans: ['var(--font-lato)', 'sans-serif'],
+        serif: ['var(--font-lato)', 'sans-serif'],
+        mono: ['var(--font-lato)', 'sans-serif'],
+      },
       fontSize: {
         xs: ['var(--fs-xs)', 'var(--lh-xs)'],
         sm: ['var(--fs-sm)', 'var(--lh-sm)'],

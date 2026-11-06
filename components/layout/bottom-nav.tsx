@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, MessageCircle, CreditCard, User } from 'lucide-react';
+import { Users, MessageCircle, CreditCard, User } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 const navItems = [

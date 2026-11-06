@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2 } from '@/components/ui/icons';
 import { authService } from '@/services/auth';
 import { getPendingTruecallerNonce, clearPendingTruecallerNonce } from '@/lib/truecaller';
 import { hasAllMandatoryDetails } from '@/lib/mockAuth';
@@ -20,12 +20,15 @@ function TruecallerCallbackContent() {
     async function handleVerification() {
       try {
         // Extract parameters from URL or hash
-        const urlAccessToken = searchParams.get('access_token') || searchParams.get('accessToken');
-        const urlRequestId = searchParams.get('request_id') || searchParams.get('requestId') || searchParams.get('requestNonce');
+        // Tokens/ids: OAuth-safe characters only, bounded length. Anything else is treated as missing.
+        const token = (v: string | null) => (v && /^[A-Za-z0-9._~+/=-]{1,4096}$/.test(v) ? v : null);
+        const urlAccessToken = token(searchParams.get('access_token') || searchParams.get('accessToken'));
+        const urlRequestId = token(searchParams.get('request_id') || searchParams.get('requestId') || searchParams.get('requestNonce'));
         const error = searchParams.get('error') || searchParams.get('error_description');
 
         if (error) {
-          throw new Error(error || 'Truecaller authorization was cancelled or declined.');
+          // Never echo ?error= text: a crafted link could put any message on this trusted page.
+          throw new Error('Truecaller authorization was cancelled or declined.');
         }
 
         // Check hash fragment as well (some OAuth / Truecaller flows pass token in hash)
@@ -33,8 +36,8 @@ function TruecallerCallbackContent() {
         let hashRequestId: string | null = null;
         if (typeof window !== 'undefined' && window.location.hash) {
           const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-          hashAccessToken = hashParams.get('access_token') || hashParams.get('accessToken');
-          hashRequestId = hashParams.get('request_id') || hashParams.get('requestId');
+          hashAccessToken = token(hashParams.get('access_token') || hashParams.get('accessToken'));
+          hashRequestId = token(hashParams.get('request_id') || hashParams.get('requestId'));
         }
 
         const accessToken = urlAccessToken || hashAccessToken;
@@ -118,7 +121,7 @@ function TruecallerCallbackContent() {
           <Button
             type="button"
             onClick={() => router.replace('/login')}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 rounded-xl text-sm"
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 rounded-full text-sm"
           >
             Back to Login
           </Button>

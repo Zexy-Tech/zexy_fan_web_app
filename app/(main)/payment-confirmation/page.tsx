@@ -1,13 +1,14 @@
 'use client';
 
+import { url } from '@/lib/validation/fields';
 import { useEffect, useState, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useVerifyPayment, useOrderStatus } from '@/hooks/usePayment';
 import { queryClient } from '@/lib/queryClient';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, Clock } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 function PaymentConfirmationContent() {
   const searchParams = useSearchParams();
@@ -19,8 +20,8 @@ function PaymentConfirmationContent() {
   const hasTriggeredInitialVerify = useRef(false);
 
   // Extract from query parameters (supports both PhonePe redirect and custom callbacks)
-  const orderId = searchParams.get('order_id') || searchParams.get('merchantTransactionId');
-  const paymentId = searchParams.get('payment_id') || searchParams.get('transactionId') || 'pay_phonepe';
+  const orderId = url.reference(searchParams.get('order_id') || searchParams.get('merchantTransactionId'));
+  const paymentId = url.reference(searchParams.get('payment_id') || searchParams.get('transactionId')) || 'pay_phonepe';
   const gatewayStatus = searchParams.get('status') || searchParams.get('code');
 
   // Query authoritative order status from backend with auto-polling for pending transactions
@@ -29,7 +30,8 @@ function PaymentConfirmationContent() {
   useEffect(() => {
     // Resolve post-payment redirect destination
     const stored = typeof window !== 'undefined' ? sessionStorage.getItem('post_payment_redirect') : null;
-    const returnTo = searchParams.get('return_to') || stored || '/membership';
+    // Same-site paths only: return_to=https://evil.example used to be router.push()-ed (open redirect).
+    const returnTo = url.internalPath(searchParams.get('return_to')) || url.internalPath(stored) || '/membership';
     setDestinationUrl(returnTo);
 
     async function initialVerify() {

@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Bell, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid, Radio, LogIn } from 'lucide-react';
+import { ArrowLeft, Bell, CreditCard, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt, LayoutGrid, Radio, LogIn } from '@/components/ui/icons';
 import { SignupModal } from '@/components/auth/signup-modal';
 import { NotificationBell } from '@/components/notifications/notification-bell';
 import { ThemeSelectorGroup } from '@/components/theme-toggle';
@@ -206,7 +206,7 @@ export function Header() {
                 href={item.href}
                 onClick={() => setIsDrawerOpen(false)}
                 className={cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm',
+                  'flex items-center gap-3 rounded-full px-3 py-2 text-sm',
                   isActive ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                 )}
               >
@@ -242,7 +242,7 @@ export function Header() {
         ) : (
           <div className="border-t px-2 py-3">
             <Button
-              className="w-full justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl text-xs h-10"
+              className="w-full justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-full text-xs h-10"
               onClick={() => {
                 setIsDrawerOpen(false);
                 setIsAuthModalOpen(true);

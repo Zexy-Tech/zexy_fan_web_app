@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useUnreadNotificationsCount, usePushNotificationSetup } from '@/hooks/useNotifications';

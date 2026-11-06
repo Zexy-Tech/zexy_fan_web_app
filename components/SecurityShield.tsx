@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useAuthContext } from '@/hooks/useAuth';
 import { toUserCode } from '@/lib/userCode';
-import { useSecurity } from '@/hooks/useSecurity';
 
 export function SecurityShield() {
   useEffect(() => {
@@ -53,11 +52,11 @@ export function SecurityShield() {
   return null;
 }
 
+/** Always on for signed-in users (not user-toggleable): traces screenshots/recordings back to the account. */
 export function Watermark() {
   const { user } = useAuthContext();
-  const { watermarkEnabled } = useSecurity();
 
-  if (!user || !watermarkEnabled) return null;
+  if (!user) return null;
 
   const userCode = user.user_code || toUserCode(user.id, user.role);
   const watermarkText = `ZEXY | ${user.username || userCode} | ${new Date().toLocaleDateString()}`;

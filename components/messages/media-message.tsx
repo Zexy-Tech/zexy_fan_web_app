@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Message } from '@/services/messages';
 import { messageService } from '@/services/messages';
 import { cn } from '@/lib/utils';
-import { Loader2, Play, Volume2, X } from 'lucide-react';
+import { Loader2, Play, Volume2, X } from '@/components/ui/icons';
 
 interface MediaMessageProps {
   message: Message;

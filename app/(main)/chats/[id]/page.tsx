@@ -1,19 +1,20 @@
 'use client';
 
+import { LIMITS, clean, url } from '@/lib/validation/fields';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, MoreVertical, Send, Smile, Trash2, Loader2, MessageCircle } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Send, Smile, Trash2, Loader2, MessageCircle, IndianRupee } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import dynamic from 'next/dynamic';
-import type { Theme } from 'emoji-picker-react';
+import type { EmojiStyle, Theme } from 'emoji-picker-react';
 import { useMessageThread, useSendMessage, useMarkAsRead, useClearChat, useDeleteMessage } from '@/hooks/useMessages';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useCreatorByIdentifier } from '@/hooks/useFeed';
 import { useTheme } from '@/hooks/useTheme';
 import { getMediaUrl, cn } from '@/lib/utils';
 import { messageService, Message } from '@/services/messages';
-import { toUserCode, fromUserCode } from '@/lib/userCode';
+import { fromUserCode } from '@/lib/userCode';
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 const TipModal = dynamic(() => import('@/components/tip-modal').then((mod) => mod.TipModal), { ssr: false });
@@ -118,8 +119,9 @@ function MediaBubble({ msg, onImageClick }: { msg: Message; onImageClick: (url: 
 export default function ChatThreadPage() {
   const { push } = useRouter();
   const params = useParams();
-  const rawId = typeof params.id === 'string' ? params.id : String(params.id ?? '');
-  const id = fromUserCode(rawId) ?? Number(rawId);
+  const rawId = url.userRef(params.id) ?? '';
+  // Empty (invalid) must stay NaN: Number('') is 0, which would look like a real user id.
+  const id = rawId ? (fromUserCode(rawId) ?? Number(rawId)) : NaN;
   const { user: me } = useAuthContext();
   const { resolvedTheme } = useTheme();
 
@@ -184,14 +186,19 @@ export default function ChatThreadPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages]);
 
+  // mutate is stable (the mutation object is not), and each message is marked once — depending on the whole
+  // mutation object re-ran this every render and re-sent the mark-read request until the thread refetched.
+  const markAsRead = markAsReadMutation.mutate;
+  const markedReadRef = useRef<number | null>(null);
   useEffect(() => {
     if (messages && messages.length > 0) {
         const lastMsg = messages[messages.length - 1];
-        if (lastMsg.receiver_uid === me?.id && !lastMsg.read_at) {
-            markAsReadMutation.mutate(lastMsg.id);
+        if (lastMsg.receiver_uid === me?.id && !lastMsg.read_at && markedReadRef.current !== lastMsg.id) {
+            markedReadRef.current = lastMsg.id;
+            markAsRead(lastMsg.id);
         }
     }
-  }, [messages, me?.id, markAsReadMutation]);
+  }, [messages, me?.id, markAsRead]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -260,6 +267,22 @@ export default function ChatThreadPage() {
     setTipOpen(true);
   };
 
+  // Malformed /chats/<id>: nothing was requested (hooks are disabled for NaN) — say so instead of a blank screen.
+  if (!Number.isFinite(id)) {
+    return (
+      <div className="fixed inset-0 z-[80] h-dvh bg-background flex flex-col items-center justify-center gap-4 px-6 text-center text-foreground">
+        <p className="text-sm text-muted-foreground">Chat not found.</p>
+        <button
+          type="button"
+          onClick={() => push('/chats')}
+          className="rounded-full border border-border px-5 py-2 text-sm font-medium hover:bg-accent"
+        >
+          Back to Chats
+        </button>
+      </div>
+    );
+  }
+
   if (messagesLoading || creatorLoading) {
     return (
       <div className="fixed inset-0 z-[80] h-dvh bg-background flex items-center justify-center text-foreground">
@@ -313,7 +336,7 @@ export default function ChatThreadPage() {
             <div className="min-w-0">
               <p className="font-semibold leading-tight truncate text-foreground">{partnerDisplayName}</p>
               <p className="text-xs text-muted-foreground truncate">
-                {partner.username ? `@${partner.username}` : creator?.user_code || toUserCode(id, 'creator')}
+                {partner.username ? `@${partner.username}` : ''}
               </p>
             </div>
           </button>
@@ -333,7 +356,7 @@ export default function ChatThreadPage() {
               <div className="absolute right-0 top-10 z-30 min-w-[160px] rounded-md border border-border bg-popover p-1 shadow-lg">
                 <button
                   type="button"
-                  className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-sm text-destructive hover:bg-muted"
+                  className="flex w-full items-center gap-2 rounded-full px-3 py-2 text-left text-sm text-destructive hover:bg-muted"
                   onClick={handleDeleteChat}
                 >
                   <Trash2 className="size-4 shrink-0" />
@@ -429,7 +452,7 @@ export default function ChatThreadPage() {
           <button
             type="button"
             onClick={openRequestedTipPopup}
-            className="rounded-xl border border-amber-500/40 bg-amber-500/15 px-3 py-2 text-left text-xs font-medium text-amber-700 dark:text-amber-200 whitespace-nowrap sm:text-sm"
+            className="rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-2 text-left text-xs font-medium text-amber-700 dark:text-amber-200 whitespace-nowrap sm:text-sm"
           >
             {creatorTipRequest.message}
             <span className="text-amber-600 dark:text-amber-200/80"> · Tap to pay</span>
@@ -442,13 +465,13 @@ export default function ChatThreadPage() {
           className="grid size-10 shrink-0 place-items-center rounded-full bg-pink-600 text-sm font-bold text-white shadow-md hover:bg-pink-500"
           aria-label="Send tip"
         >
-          ₹
+          <IndianRupee className="size-4" aria-hidden />
         </button>
       </div>
 
           {showEmoji && (
           <div className="absolute bottom-16 left-2 z-50">
-            <EmojiPicker onEmojiClick={(e) => setDraft(prev => prev + e.emoji)} theme={(resolvedTheme === 'dark' ? 'dark' : 'light') as unknown as Theme} />
+            <EmojiPicker emojiStyle={'native' as EmojiStyle} onEmojiClick={(e) => setDraft(prev => clean.text(prev + e.emoji))} theme={(resolvedTheme === 'dark' ? 'dark' : 'light') as unknown as Theme} />
           </div>
           )}
         <div className="relative flex items-center gap-2">
@@ -469,7 +492,8 @@ export default function ChatThreadPage() {
             spellCheck={false}
             className="flex-1 border-input bg-muted text-foreground placeholder:text-muted-foreground selection:bg-pink-500/40"
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => setDraft(clean.text(e.target.value))}
+            maxLength={LIMITS.message.max}
             onBlur={handleMessageInputBlur}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {

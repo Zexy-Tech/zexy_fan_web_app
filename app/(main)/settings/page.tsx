@@ -3,26 +3,22 @@
 import { useState, useRef } from 'react';
 import { useSetupPIN } from '@/hooks/useAuth';
 import { useTypography } from '@/hooks/useTypography';
-import { useSecurity } from '@/hooks/useSecurity';
 import { useTheme } from '@/hooks/useTheme';
 import {
   useNotificationPreferences,
   useUserDevices,
   usePushNotificationSetup,
 } from '@/hooks/useNotifications';
-import * as Sentry from '@sentry/nextjs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import {
   Loader2,
-  ShieldCheck,
   ChevronRight,
   KeyRound,
   ArrowLeft,
   Type,
-  Eye,
   Bell,
   Smartphone,
   Laptop,
@@ -32,19 +28,17 @@ import {
   Sparkles,
   CreditCard,
   Share2,
-  CheckCircle2,
   AlertCircle,
   Trash2,
   Sun,
   Moon,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import { ENV } from '@/constants/env';
+import type { IconComponent } from '@/components/ui/icons';
 
 export default function SettingsPage() {
   const { fontSize, setFontSize } = useTypography();
-  const { watermarkEnabled, setWatermarkEnabled } = useSecurity();
   const { theme, setTheme } = useTheme();
   const [isChangingPIN, setIsChangingPIN] = useState(false);
   const [step, setStep] = useState<'new' | 'confirm'>('new');
@@ -57,19 +51,19 @@ export default function SettingsPage() {
   const themeOptions = [
     {
       value: 'light' as const,
-      label: 'Light Mode',
+      label: 'Light',
       description: 'Clean, high-clarity light theme',
       icon: Sun,
     },
     {
       value: 'dark' as const,
-      label: 'Dark Mode',
+      label: 'Dark',
       description: 'Reduced eye strain in low-light',
       icon: Moon,
     },
     {
       value: 'system' as const,
-      label: 'Use System Settings',
+      label: 'System',
       description: 'Matches operating system theme',
       icon: Laptop,
     },
@@ -177,7 +171,7 @@ export default function SettingsPage() {
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   aria-label={`Digit ${index + 1}`}
                   className={cn(
-                    "w-full h-14 bg-muted border border-input rounded-xl text-center text-lg font-bold text-foreground focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none",
+                    "w-full h-14 bg-muted border border-input rounded-full text-center text-lg font-bold text-foreground focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none",
                     digit && "border-purple-500 bg-purple-500/10"
                   )}
                   disabled={setupPIN.isPending}
@@ -195,7 +189,7 @@ export default function SettingsPage() {
             <Button 
               type="button"
               onClick={step === 'new' ? () => newPIN.join('').length === 4 && setStep('confirm') : handleFinish}
-              className="mt-8 w-full max-w-[280px] h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl"
+              className="mt-8 w-full max-w-[280px] h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-full"
               disabled={setupPIN.isPending || (step === 'new' ? newPIN.join('').length < 4 : confirmPIN.join('').length < 4)}
             >
               {setupPIN.isPending ? <Loader2 className="size-5 animate-spin" /> : step === 'new' ? 'Continue' : 'Update PIN'}
@@ -211,490 +205,245 @@ export default function SettingsPage() {
       <h1 className="text-lg font-semibold">Settings</h1>
 
       <div className="space-y-6">
-        {/* Appearance Section */}
-        <section>
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 px-1">
-            Appearance
-          </h2>
-          <div className="p-4 bg-card border border-border rounded-xl space-y-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <Sun className="size-5 text-purple-500" />
-              </div>
-              <div className="text-left">
-                <p className="font-medium text-foreground">Theme Mode</p>
-                <p className="text-xs text-muted-foreground">Choose light, dark, or system preference</p>
-              </div>
-            </div>
+        <SettingsSection title="Appearance">
+          <SettingRow icon={Sun} tone="bg-purple-500/10 text-purple-500" title="Theme">
+            <Segmented
+              ariaLabel="Theme mode"
+              value={theme}
+              options={themeOptions.map((o) => ({ value: o.value, label: o.label, content: <o.icon className="size-4" /> }))}
+              onChange={(v) => {
+                setTheme(v);
+                toast.success(`Theme set to ${themeOptions.find((o) => o.value === v)?.label}`);
+              }}
+            />
+          </SettingRow>
+        </SettingsSection>
 
-            <div
-              className="grid grid-cols-1 sm:grid-cols-3 gap-3"
-              role="radiogroup"
-              aria-label="Theme mode selection"
-            >
-              {themeOptions.map((opt) => {
-                const Icon = opt.icon;
-                const isSelected = theme === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    onClick={() => {
-                      setTheme(opt.value);
-                      toast.success(`Theme set to ${opt.label}`);
-                    }}
-                    className={cn(
-                      'flex items-center sm:flex-col sm:items-start gap-3 p-3.5 rounded-xl border text-left',
-                      isSelected
-                        ? 'border-purple-500 bg-purple-500/10 text-purple-600 dark:text-purple-300 ring-1 ring-purple-500/40 shadow-sm'
-                        : 'border-border bg-background hover:bg-muted/70 text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        'p-2 rounded-lg shrink-0',
-                        isSelected
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-muted text-muted-foreground'
-                      )}
-                    >
-                      <Icon className="size-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className={cn('text-sm font-semibold', isSelected ? 'text-foreground' : 'text-foreground/90')}>
-                          {opt.label}
-                        </p>
-                        {isSelected && (
-                          <span className="size-2 rounded-full bg-purple-600 sm:hidden" />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
-                        {opt.description}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+        <SettingsSection title="Display">
+          <SettingRow icon={Type} tone="bg-blue-500/10 text-blue-500" title="Font size">
+            <Segmented
+              ariaLabel="Font size"
+              value={fontSize}
+              options={FONT_SIZES.map((f) => ({ value: f.value, label: f.label, content: <span className={cn('font-semibold leading-none', f.className)}>A</span> }))}
+              onChange={setFontSize}
+            />
+          </SettingRow>
+        </SettingsSection>
 
-        {/* Display Section */}
-        <section>
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 px-1">Display</h2>
-          <div className="space-y-4">
-            <div className="p-4 bg-card border border-border rounded-xl shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <Type className="size-5 text-blue-500" />
-                </div>
-                <div className="text-left">
-                  <p className="font-medium text-foreground">Font Size</p>
-                  <p className="text-xs text-muted-foreground">Adjust the app text size</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-2">
-                {(['compact', 'standard', 'large'] as const).map((size) => (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => setFontSize(size)}
-                    className={cn(
-                      "py-2 px-3 rounded-lg text-xs font-semibold capitalize border",
-                      fontSize === size 
-                        ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20" 
-                        : "bg-muted border-border text-muted-foreground hover:bg-accent hover:text-foreground"
-                    )}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-card border border-border rounded-xl shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-500/10 rounded-lg">
-                  <Eye className="size-5 text-amber-500" />
-                </div>
-                <div className="text-left">
-                  <p className="font-medium text-foreground">Content Watermark</p>
-                  <p className="text-xs text-muted-foreground">Traceable ID on top of media</p>
-                </div>
-              </div>
+        <SettingsSection title="Notifications">
+          <SettingRow
+            icon={Bell}
+            tone="bg-purple-500/10 text-purple-500"
+            title="Allow notifications"
+            badge={
+              <Badge
+                variant="outline"
+                className={cn(
+                  'px-1.5 py-0 text-[10px] font-semibold',
+                  isPushActive
+                    ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-500'
+                    : permission === 'denied'
+                    ? 'border-rose-500/40 bg-rose-500/10 text-rose-500'
+                    : 'border-border bg-muted text-muted-foreground'
+                )}
+              >
+                {isPushActive ? 'ON' : permission === 'denied' ? 'BLOCKED' : 'OFF'}
+              </Badge>
+            }
+          >
+            {isRegistering ? (
+              <Loader2 className="size-4 animate-spin text-purple-400" />
+            ) : (
               <Switch
-                checked={watermarkEnabled}
-                onCheckedChange={(checked: boolean) => {
-                  setWatermarkEnabled(checked);
-                  toast.success(`Watermark ${checked ? 'enabled' : 'disabled'}`);
-                }}
-                aria-label="Toggle content watermark"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Notifications Section */}
-        <section>
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 px-1">Notifications</h2>
-          <div className="space-y-4">
-            {/* Master Push Notification Toggle Card */}
-            <div className="p-4 bg-card border border-border rounded-xl space-y-4 shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-purple-500/10 rounded-lg mt-0.5">
-                    <Bell className="size-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-foreground">Allow Notifications</p>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'text-[10px] font-semibold',
-                          isPushActive
-                            ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
-                            : permission === 'denied'
-                            ? 'border-rose-500/40 bg-rose-500/10 text-rose-400'
-                            : 'border-border bg-muted text-muted-foreground'
-                        )}
-                      >
-                        {isPushActive ? (
-                          <span className="flex items-center gap-1">
-                            <CheckCircle2 className="size-3 text-emerald-400" />
-                            ON
-                          </span>
-                        ) : (
-                          'OFF'
-                        )}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                      {isPushActive
-                        ? 'Notifications are active on this browser'
-                        : 'Turn on to receive instant alerts for live events, drops, and messages'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Master On/Off Switch */}
-                <div className="flex items-center gap-2 shrink-0">
-                  {isRegistering ? (
-                    <Loader2 className="size-4 animate-spin text-purple-400" />
-                  ) : (
-                    <Switch
-                      checked={isPushActive}
-                      onCheckedChange={async (checked: boolean) => {
-                        if (checked) {
-                          if (permission === 'denied') {
-                            toast.error('Notifications are blocked by your browser settings. Please allow notifications in your site settings.');
-                            return;
-                          }
-                          await enablePushNotifications();
-                        } else {
-                          await disablePushNotifications();
-                        }
-                      }}
-                      aria-label="Toggle allow notifications"
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* iOS Safari Home Screen Setup Notice */}
-              {supportDetails.needsHomeScreenAdd && (
-                <div className="p-3 bg-sky-500/10 border border-sky-500/30 rounded-lg flex items-start gap-3">
-                  <Share2 className="size-4 text-sky-500 shrink-0 mt-0.5" />
-                  <div className="text-xs text-sky-800 dark:text-sky-200">
-                    <p className="font-semibold text-sky-700 dark:text-sky-300 mb-0.5">iOS Web Push Setup</p>
-                    <p className="leading-relaxed">
-                      To enable notifications on iOS: Tap the Safari <span className="font-semibold">Share</span> icon, select <span className="font-semibold">&ldquo;Add to Home Screen&rdquo;</span>, and open Zexy from your home screen.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Browser Permission Denied Notice */}
-              {permission === 'denied' && (
-                <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg flex items-start gap-3">
-                  <AlertCircle className="size-4 text-rose-500 shrink-0 mt-0.5" />
-                  <div className="text-xs text-rose-800 dark:text-rose-200">
-                    <p className="font-semibold text-rose-700 dark:text-rose-300 mb-0.5">Permission Denied in Browser</p>
-                    <p className="leading-relaxed">
-                      Notifications are currently blocked by your browser settings. Click the lock or site settings icon in your address bar and set Notifications to &ldquo;Allow&rdquo;.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Notification Category Preferences */}
-            <div className="p-4 bg-card border border-border rounded-xl space-y-3 shadow-sm">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                Category Preferences
-              </p>
-
-              {/* Live Alerts */}
-              <div className="flex items-center justify-between py-2 border-b border-border/60">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 bg-rose-500/10 rounded-lg">
-                    <Radio className="size-4 text-rose-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Creator Live Alerts</p>
-                    <p className="text-[11px] text-muted-foreground">When your subscribed creators go live</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences?.live_alerts_enabled ?? true}
-                  onCheckedChange={(val) => updatePreferences.mutate({ live_alerts_enabled: val })}
-                  aria-label="Toggle live alerts"
-                />
-              </div>
-
-              {/* Content Updates */}
-              <div className="flex items-center justify-between py-2 border-b border-border/60">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 bg-purple-500/10 rounded-lg">
-                    <Video className="size-4 text-purple-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-foreground">New Content Drops</p>
-                    <p className="text-[11px] text-muted-foreground">When creators publish exclusive posts & media</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences?.content_updates_enabled ?? true}
-                  onCheckedChange={(val) => updatePreferences.mutate({ content_updates_enabled: val })}
-                  aria-label="Toggle content updates"
-                />
-              </div>
-
-              {/* Chat Messages */}
-              <div className="flex items-center justify-between py-2 border-b border-border/60">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 bg-blue-500/10 rounded-lg">
-                    <MessageSquare className="size-4 text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Chat Messages</p>
-                    <p className="text-[11px] text-muted-foreground">Direct replies and creator message alerts</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences?.chat_notifications_enabled ?? true}
-                  onCheckedChange={(val) => updatePreferences.mutate({ chat_notifications_enabled: val })}
-                  aria-label="Toggle chat messages"
-                />
-              </div>
-
-              {/* Subscription Reminders */}
-              <div className="flex items-center justify-between py-2 border-b border-border/60">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 bg-emerald-500/10 rounded-lg">
-                    <CreditCard className="size-4 text-emerald-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Subscriptions & Renewals</p>
-                    <p className="text-[11px] text-muted-foreground">Billing confirmations and renewal reminders</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences?.subscription_reminders_enabled ?? true}
-                  onCheckedChange={(val) => updatePreferences.mutate({ subscription_reminders_enabled: val })}
-                  aria-label="Toggle subscription reminders"
-                />
-              </div>
-
-              {/* Announcements */}
-              <div className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 bg-amber-500/10 rounded-lg">
-                    <Sparkles className="size-4 text-amber-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Platform Announcements</p>
-                    <p className="text-[11px] text-muted-foreground">Important updates, feature drops, and news</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={preferences?.announcements_enabled ?? true}
-                  onCheckedChange={(val) => updatePreferences.mutate({ announcements_enabled: val })}
-                  aria-label="Toggle announcements"
-                />
-              </div>
-            </div>
-
-            {/* Registered Devices List */}
-            <div className="p-4 bg-card border border-border rounded-xl space-y-3 shadow-sm">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Registered Devices ({devices.length})
-                </p>
-              </div>
-
-              {devices.length === 0 ? (
-                <p className="text-xs text-muted-foreground italic py-2">
-                  No active devices registered yet. Enable push notifications above to register this device.
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {devices.map((device) => {
-                    const isMobile =
-                      device.platform === 'android' ||
-                      device.platform === 'ios' ||
-                      device.browser?.includes('mobile');
-
-                    return (
-                      <div
-                        key={device.id}
-                        className="flex items-center justify-between p-3 bg-muted/40 border border-border/80 rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-muted rounded-lg text-muted-foreground">
-                            {isMobile ? (
-                              <Smartphone className="size-4" />
-                            ) : (
-                              <Laptop className="size-4" />
-                            )}
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-foreground">
-                              {device.device_label || `${device.browser} on ${device.platform}`}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground">
-                              Registered: {new Date(device.created_at).toLocaleDateString()}
-                              {device.last_used_at &&
-                                ` · Active: ${new Date(device.last_used_at).toLocaleDateString()}`}
-                            </p>
-                          </div>
-                        </div>
-
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => deactivateDevice.mutate(device.id)}
-                          disabled={deactivateDevice.isPending}
-                          className="size-8 text-muted-foreground hover:text-rose-500 hover:bg-muted"
-                          title="Unregister device"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 px-1">Security</h2>
-          <div className="space-y-2">
-            <button 
-              type="button"
-              onClick={() => setIsChangingPIN(true)}
-              className="w-full flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/50 shadow-sm"
-              aria-label="Change login PIN"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-500/10 rounded-lg">
-                  <KeyRound className="size-5 text-purple-500" />
-                </div>
-                <div className="text-left">
-                  <p className="font-medium text-foreground">Change login PIN</p>
-                  <p className="text-xs text-muted-foreground">Update your 4-digit security PIN</p>
-                </div>
-              </div>
-              <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
-            </button>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 px-1">Support</h2>
-          <div className="space-y-2">
-            <button 
-              type="button"
-              onClick={async () => {
-                toast.info('Simulating API error…');
-                try {
-                  const res = await fetch(`${ENV.API_BASE_URL}/api/v1/debug/force-crash-test-500`);
-                  const data = await res.json();
-                  if (!res.ok) {
-                    toast.error(data.message || 'API Error');
-                    Sentry.captureException(new Error(data.message || 'API Error'), {
-                      tags: { context: 'fan_settings_debug' },
-                      extra: { data }
-                    });
+                checked={isPushActive}
+                onCheckedChange={async (checked: boolean) => {
+                  if (checked) {
+                    if (permission === 'denied') {
+                      toast.error('Notifications are blocked by your browser settings. Please allow notifications in your site settings.');
+                      return;
+                    }
+                    await enablePushNotifications();
+                  } else {
+                    await disablePushNotifications();
                   }
-                } catch (err) {
-                  Sentry.captureException(err, {
-                    tags: { context: 'fan_settings_debug' },
-                  });
-                  toast.error('Network Error: Make sure API server is reachable');
-                }
-              }}
-              className="w-full flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/50 shadow-sm"
-              aria-label="Simulate API Error"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-500/10 rounded-lg">
-                  <Loader2 className="size-5 text-orange-500" />
-                </div>
-                <div className="text-left">
-                  <p className="font-medium text-foreground">Simulate API Error</p>
-                </div>
-              </div>
-              <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
-            </button>
+                }}
+                aria-label="Toggle allow notifications"
+              />
+            )}
+          </SettingRow>
+          {supportDetails.needsHomeScreenAdd && (
+            <SettingNote icon={Share2} tone="text-sky-500">
+              On iOS: tap Safari&apos;s <b>Share</b> icon, choose <b>Add to Home Screen</b>, then open Zexy from your home screen.
+            </SettingNote>
+          )}
+          {permission === 'denied' && (
+            <SettingNote icon={AlertCircle} tone="text-rose-500">
+              Blocked by your browser. Open site settings (lock icon in the address bar) and set Notifications to <b>Allow</b>.
+            </SettingNote>
+          )}
+        </SettingsSection>
 
-            <button 
-              type="button"
-              onClick={() => {
-                toast.info('Forcing app crash…');
-                setTimeout(() => {
-                  throw new Error('FAN WEB HARD CRASH: Testing Sentry Session Replay');
-                }, 500);
-              }}
-              className="w-full flex items-center justify-between p-4 bg-red-500/05 border border-red-500/20 rounded-xl hover:bg-red-500/10"
-              aria-label="Force App Crash"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-500/10 rounded-lg">
-                  <ShieldCheck className="size-5 text-red-500" />
-                </div>
-                <div className="text-left">
-                  <p className="font-medium text-red-500">Force App Crash</p>
-                </div>
-              </div>
-              <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
-            </button>
+        <SettingsSection title="Notify me about">
+          {NOTIFICATION_CATEGORIES.map((c) => (
+            <SettingRow key={c.key} icon={c.icon} tone={c.tone} title={c.title}>
+              <Switch
+                checked={preferences?.[c.key] ?? true}
+                onCheckedChange={(val) => updatePreferences.mutate({ [c.key]: val })}
+                aria-label={`Toggle ${c.title.toLowerCase()}`}
+              />
+            </SettingRow>
+          ))}
+        </SettingsSection>
 
-            <button 
-              type="button"
-              className="w-full flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/50 shadow-sm"
-              aria-label="Privacy Policy"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <ShieldCheck className="size-5 text-blue-500" />
-                </div>
-                <div className="text-left">
-                  <p className="font-medium text-foreground">Privacy Policy</p>
-                </div>
-              </div>
-              <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
-            </button>
-          </div>
-        </section>
+        <SettingsSection title={`Registered devices (${devices.length})`}>
+          {devices.length === 0 ? (
+            <SettingNote icon={Smartphone} tone="text-muted-foreground">
+              No devices yet. Turn on notifications to register this one.
+            </SettingNote>
+          ) : (
+            devices.map((device) => {
+              const isMobile =
+                device.platform === 'android' || device.platform === 'ios' || device.browser?.includes('mobile');
+              return (
+                <SettingRow
+                  key={device.id}
+                  icon={isMobile ? Smartphone : Laptop}
+                  tone="bg-muted text-muted-foreground"
+                  title={device.device_label || `${device.browser} on ${device.platform}`}
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => deactivateDevice.mutate(device.id)}
+                    disabled={deactivateDevice.isPending}
+                    className="size-8 text-muted-foreground hover:bg-muted hover:text-rose-500"
+                    aria-label="Unregister device"
+                    title="Unregister device"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </SettingRow>
+              );
+            })
+          )}
+        </SettingsSection>
+
+        <SettingsSection title="Security">
+          <SettingRow icon={KeyRound} tone="bg-purple-500/10 text-purple-500" title="Change login PIN" onClick={() => setIsChangingPIN(true)} />
+        </SettingsSection>
+
       </div>
     </div>
   );
 }
 
+const FONT_SIZES = [
+  { value: 'compact' as const, label: 'Compact', className: 'text-[11px]' },
+  { value: 'standard' as const, label: 'Standard', className: 'text-[13px]' },
+  { value: 'large' as const, label: 'Large', className: 'text-[16px]' },
+];
+
+const NOTIFICATION_CATEGORIES = [
+  { key: 'live_alerts_enabled', title: 'Creator live alerts', icon: Radio, tone: 'bg-rose-500/10 text-rose-500' },
+  { key: 'content_updates_enabled', title: 'New content drops', icon: Video, tone: 'bg-purple-500/10 text-purple-500' },
+  { key: 'chat_notifications_enabled', title: 'Chat messages', icon: MessageSquare, tone: 'bg-blue-500/10 text-blue-500' },
+  { key: 'subscription_reminders_enabled', title: 'Subscriptions & renewals', icon: CreditCard, tone: 'bg-emerald-500/10 text-emerald-500' },
+  { key: 'announcements_enabled', title: 'Platform announcements', icon: Sparkles, tone: 'bg-amber-500/10 text-amber-500' },
+] as const;
+
+/** A titled card whose rows are separated by a single divider line. */
+function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{title}</h2>
+      <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card shadow-sm">{children}</div>
+    </section>
+  );
+}
+
+/** One single-line setting: tinted icon + title (+ badge) on the left, its control on the right.
+ *  With `onClick` the whole row is a button with a chevron. */
+function SettingRow({
+  icon: Icon,
+  tone,
+  title,
+  badge,
+  children,
+  onClick,
+}: {
+  icon: IconComponent;
+  tone: string;
+  title: string;
+  badge?: React.ReactNode;
+  children?: React.ReactNode;
+  onClick?: () => void;
+}) {
+  const body = (
+    <>
+      <span className={cn('grid size-8 shrink-0 place-items-center rounded-lg', tone)}>
+        <Icon className="size-4" />
+      </span>
+      <span className="flex min-w-0 flex-1 items-center gap-2">
+        <span className="truncate text-sm font-medium text-foreground">{title}</span>
+        {badge}
+      </span>
+      {onClick ? <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden /> : children}
+    </>
+  );
+  const cls = 'flex min-h-[52px] w-full items-center gap-3 px-4 py-2 text-left';
+  return onClick ? (
+    <button type="button" onClick={onClick} className={cn(cls, 'hover:bg-muted/50')} aria-label={title}>
+      {body}
+    </button>
+  ) : (
+    <div className={cls}>{body}</div>
+  );
+}
+
+/** Short contextual note shown under a row (same card, same divider). */
+function SettingNote({ icon: Icon, tone, children }: { icon: IconComponent; tone: string; children: React.ReactNode }) {
+  return (
+    <p className="flex items-start gap-2 px-4 py-2.5 text-xs leading-relaxed text-muted-foreground">
+      <Icon className={cn('mt-0.5 size-3.5 shrink-0', tone)} />
+      <span>{children}</span>
+    </p>
+  );
+}
+
+/** Compact icon segmented control (radio group) that fits on a settings row. */
+function Segmented<T extends string>({
+  ariaLabel,
+  value,
+  options,
+  onChange,
+}: {
+  ariaLabel: string;
+  value: T;
+  options: { value: T; label: string; content: React.ReactNode }[];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div role="radiogroup" aria-label={ariaLabel} className="flex shrink-0 items-center gap-0.5 rounded-full bg-muted p-0.5">
+      {options.map((o) => {
+        const selected = o.value === value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            aria-label={o.label}
+            title={o.label}
+            onClick={() => onChange(o.value)}
+            className={cn(
+              'grid size-8 place-items-center rounded-full transition-colors',
+              selected ? 'bg-purple-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {o.content}
+          </button>
+        );
+      })}
+    </div>
+  );
+}

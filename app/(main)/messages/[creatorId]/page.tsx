@@ -1,9 +1,10 @@
 'use client';
 
+import { LIMITS, clean, url } from '@/lib/validation/fields';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Loader2, Send } from 'lucide-react';
+import { ArrowLeft, Loader2, Send } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuthContext } from '@/hooks/useAuth';
@@ -12,14 +13,14 @@ import { useMessageThread, useSendMessage } from '@/hooks/useMessages';
 import { TipDemandMessage } from '@/components/messages/tip-demand-message';
 import { MediaMessage } from '@/components/messages/media-message';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { ENV } from '@/constants/env';
-import { toUserCode, fromUserCode } from '@/lib/userCode';
+import { fromUserCode } from '@/lib/userCode';
 
 export default function MessageThreadPage() {
   const params = useParams();
-  const rawCreatorId = typeof params.creatorId === 'string' ? params.creatorId : String(params.creatorId ?? '');
-  const creatorId = fromUserCode(rawCreatorId) ?? Number(rawCreatorId);
+  const rawCreatorId = url.userRef(params.creatorId) ?? '';
+  const creatorId = rawCreatorId ? (fromUserCode(rawCreatorId) ?? Number(rawCreatorId)) : NaN;
   const { user } = useAuthContext();
   const bottomRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState('');
@@ -48,8 +49,7 @@ export default function MessageThreadPage() {
     }
   };
 
-  const userCode = creator?.user_code || (Number.isFinite(creatorId) ? toUserCode(creatorId, 'creator') : '');
-  const displayName = creator?.name || creator?.username || userCode || 'Creator';
+  const displayName = creator?.name || creator?.username || 'Creator';
 
   if (!Number.isFinite(creatorId)) {
     return (
@@ -147,7 +147,8 @@ export default function MessageThreadPage() {
         >
           <Input
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => setText(clean.text(e.target.value))}
+            maxLength={LIMITS.message.max}
             placeholder="Message…"
             className="flex-1 bg-muted/50"
             disabled={sendMessage.isPending}

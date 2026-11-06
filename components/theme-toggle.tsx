@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Moon, Sun, Laptop } from 'lucide-react';
+import { Moon, Sun, Laptop } from '@/components/ui/icons';
 import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -80,7 +80,7 @@ export function ThemeSelectorGroup({ className }: { className?: string }) {
     <div
       role="radiogroup"
       aria-label="Theme mode"
-      className={cn('grid grid-cols-3 gap-1 bg-muted p-1 rounded-lg border border-border/50', className)}
+      className={cn('grid grid-cols-3 gap-1 bg-muted p-1 rounded-full border border-border/50', className)}
     >
       {options.map((opt) => {
         const Icon = opt.icon;
@@ -93,7 +93,7 @@ export function ThemeSelectorGroup({ className }: { className?: string }) {
             aria-checked={isSelected}
             onClick={() => setTheme(opt.value)}
             className={cn(
-              'flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium',
+              'flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-full text-xs font-medium',
               isSelected
                 ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'

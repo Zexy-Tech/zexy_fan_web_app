@@ -13,7 +13,8 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
-} from 'lucide-react';
+  Lock,
+} from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuthContext } from '@/hooks/useAuth';
@@ -21,6 +22,26 @@ import { usePushNotificationSetup } from '@/hooks/useNotifications';
 import { notificationService } from '@/services/notifications';
 
 const SESSION_DISMISSED_KEY = 'zexy_notif_modal_dismissed';
+// "Not Now" is remembered for a week so the prompt doesn't greet the user on every visit.
+const SNOOZE_KEY = 'zexy_notif_modal_snoozed_until';
+const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
+
+function isSnoozed(): boolean {
+  try {
+    return Number(localStorage.getItem(SNOOZE_KEY) || 0) > Date.now();
+  } catch {
+    return false;
+  }
+}
+
+function snooze(): void {
+  try {
+    sessionStorage.setItem(SESSION_DISMISSED_KEY, 'true');
+    localStorage.setItem(SNOOZE_KEY, String(Date.now() + SNOOZE_MS));
+  } catch {
+    /* storage unavailable (private mode): the prompt may show again next visit */
+  }
+}
 
 export function NotificationPermissionModal() {
   const { isAuthenticated } = useAuthContext();
@@ -34,10 +55,12 @@ export function NotificationPermissionModal() {
   // Initialize and check permission on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    // Push needs a logged-in user to register the device, so don't ask guests.
+    if (!isAuthenticated) return;
 
     // Session guard: if user already interacted during this session, do not reopen on route changes
     const isSessionDismissed = sessionStorage.getItem(SESSION_DISMISSED_KEY);
-    if (isSessionDismissed === 'true') {
+    if (isSessionDismissed === 'true' || isSnoozed()) {
       return;
     }
 
@@ -65,10 +88,10 @@ export function NotificationPermissionModal() {
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isAuthenticated]);
 
   const handleDismiss = useCallback(() => {
-    sessionStorage.setItem(SESSION_DISMISSED_KEY, 'true');
+    snooze();
     setIsOpen(false);
 
     // Record dismissal in database if authenticated
@@ -201,7 +224,7 @@ export function NotificationPermissionModal() {
                 type="button"
                 onClick={handleAllow}
                 disabled={isRegistering}
-                className="w-full h-11 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-purple-600/25"
+                className="w-full h-11 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-full shadow-lg shadow-purple-600/25"
               >
                 {isRegistering ? (
                   <>
@@ -217,7 +240,7 @@ export function NotificationPermissionModal() {
                 type="button"
                 variant="ghost"
                 onClick={handleDismiss}
-                className="w-full h-9 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl"
+                className="w-full h-9 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-full"
               >
                 Not Now
               </Button>
@@ -258,7 +281,7 @@ export function NotificationPermissionModal() {
               {showHowTo && (
                 <ol className="list-decimal list-inside space-y-1.5 text-muted-foreground text-[11px] pt-1 leading-relaxed">
                   <li>
-                    Click the <span className="font-semibold text-foreground">lock/tune icon (🔒)</span> next to the URL in your address bar.
+                    Click the <span className="font-semibold text-foreground">lock/tune icon (<Lock className="inline size-3 align-baseline" aria-hidden />)</span> next to the URL in your address bar.
                   </li>
                   <li>
                     Look for <span className="font-semibold text-foreground">Notifications</span> and toggle it to <span className="font-semibold text-emerald-500">&ldquo;Allow&rdquo;</span>.
@@ -277,7 +300,7 @@ export function NotificationPermissionModal() {
                 type="button"
                 onClick={handleRecheckPermission}
                 disabled={isChecking}
-                className="w-full h-11 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs rounded-xl shadow-lg shadow-purple-600/20"
+                className="w-full h-11 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs rounded-full shadow-lg shadow-purple-600/20"
               >
                 {isChecking ? (
                   <>
@@ -296,7 +319,7 @@ export function NotificationPermissionModal() {
                 type="button"
                 variant="ghost"
                 onClick={handleDismiss}
-                className="w-full h-9 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl"
+                className="w-full h-9 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-full"
               >
                 Not Now
               </Button>

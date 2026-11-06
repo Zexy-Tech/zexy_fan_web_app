@@ -9,8 +9,8 @@ import Image from 'next/image';
 import { Creator } from '@/services/feed';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, CheckCircle2, Radio } from 'lucide-react';
-import { cn, getMediaUrl } from '@/lib/utils';
+import { Users, CheckCircle2, Radio } from '@/components/ui/icons';
+import { cn, getMediaUrl, isPublicMedia } from '@/lib/utils';
 
 interface CreatorCardProps {
   creator: Creator;
@@ -65,7 +65,7 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
               fill
               className="object-cover"
               sizes="(max-width: 768px) 50vw, 300px"
-              unoptimized
+              unoptimized={!isPublicMedia(getMediaUrl(creator.avatar))}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, Loader2 } from 'lucide-react';
+import { MessageCircle, Loader2 } from '@/components/ui/icons';
 import { formatDate, getMediaUrl } from '@/lib/utils';
 import { useConversations } from '@/hooks/useMessages';
 import { toUserCode } from '@/lib/userCode';
@@ -66,6 +66,8 @@ export default function ChatsPage() {
                   src={getMediaUrl(chat.other_user_avatar) || ''} 
                   alt={chat.other_user_username || ''} 
                   className="h-full w-full object-cover" 
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 chat.other_user_name?.[0] || chat.other_user_username?.[0] || 'U'
@@ -74,7 +76,7 @@ export default function ChatsPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-0.5">
                 <p className="font-semibold truncate">
-                  {chat.other_user_name || (chat.other_user_username ? `@${chat.other_user_username}` : (chat.other_user_code || toUserCode(chat.other_user_id, 'creator')))}
+                  {chat.other_user_name || (chat.other_user_username ? `@${chat.other_user_username}` : 'Creator')}
                 </p>
                 <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
                   {formatChatTimestamp(chat.last_message_at)}

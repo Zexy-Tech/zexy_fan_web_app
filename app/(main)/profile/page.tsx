@@ -5,9 +5,8 @@ import Link from 'next/link';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useFanCommonProfile } from '@/hooks/useFanCommonProfile';
 import { Button } from '@/components/ui/button';
-import { Bookmark, Crown, Loader2, PenLine, Settings, Sparkles, Trash2, User } from 'lucide-react';
+import { Bookmark, Crown, Loader2, PenLine, Settings, Sparkles, Trash2, User } from '@/components/ui/icons';
 import { getMediaUrl } from '@/lib/utils';
-import { toUserCode } from '@/lib/userCode';
 
 function formatRole(role: string | null | undefined) {
   if (!role) return '—';
@@ -77,9 +76,6 @@ export default function ProfilePage() {
                 {profile.username ? (
                   <span className="truncate text-sm text-muted-foreground">@{profile.username}</span>
                 ) : null}
-                <span className="rounded bg-muted/80 px-2 py-0.5 font-mono text-[11px] font-medium text-foreground">
-                  {profile.user_code || toUserCode(profile.id, profile.role)}
-                </span>
               </div>
             </div>
           </div>

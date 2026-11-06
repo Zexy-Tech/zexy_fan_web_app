@@ -17,9 +17,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Check, CheckCircle2, Crown, Loader2, X, XCircle } from 'lucide-react';
+import { Check, CheckCircle2, Crown, Loader2, X, XCircle } from '@/components/ui/icons';
 import { cn, formatCurrency, getMediaUrl } from '@/lib/utils';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import type { SubscriptionPlan } from '@/services/subscriptions';
 import type { CreateIntentResponse } from '@/services/payment';
 import { DirectUpiCheckoutModal } from '@/components/payments/DirectUpiCheckoutModal';

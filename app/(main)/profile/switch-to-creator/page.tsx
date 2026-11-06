@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { commonProfileService } from '@/services/commonProfile';
 import { RoleSwitchConfirmationModal } from '@/components/profile/role-switch-confirmation-modal';
 import { useAuthContext } from '@/hooks/useAuth';

@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { isAxiosError } from 'axios';
-import { CheckCircle2, Loader2, Pencil, ShieldCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, Pencil, ShieldCheck, XCircle } from '@/components/ui/icons';
+import { commonProfileService } from '@/services/commonProfile';
+import { useUsernameAvailability, type UsernameStatus } from '@/hooks/useUsernameAvailability';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -18,13 +20,21 @@ import {
 import { normalizeToIndianMobileTen } from '@/lib/indianMobile';
 import { OtpVerificationModal } from '@/components/profile/otp-verification-modal';
 import { cn, getMediaUrl } from '@/lib/utils';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
+import { FieldError } from '@/components/ui/field-error';
+import { check, clean, dobBounds } from '@/lib/validation/fields';
 
 const MAX_AVATAR_BYTES = 3 * 1024 * 1024;
-const MOBILE_REGEX = /^[6-9]\d{9}$/;
+const COUNTRIES = [
+  { value: 'india', label: 'India' },
+  { value: 'nepal', label: 'Nepal' },
+  { value: 'bangladesh', label: 'Bangladesh' },
+  { value: 'srilanka', label: 'Sri Lanka' },
+  { value: 'bhutan', label: 'Bhutan' },
+] as const;
 
 const nativeControlClass = cn(
-  'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background',
+  'flex h-10 w-full rounded-full border border-input bg-background px-3 py-2 text-sm ring-offset-background',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
   'disabled:cursor-not-allowed disabled:opacity-50'
 );
@@ -68,6 +78,7 @@ export default function EditProfilePage() {
 
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
+  const usernameCheck = useUsernameAvailability(username, (profile?.username ?? '').replace(/^@+/, ''));
   const [verifiedMobile, setVerifiedMobile] = useState<string | null>(null);
 
   // 2-step mobile change states
@@ -84,8 +95,12 @@ export default function EditProfilePage() {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [country, setCountry] = useState('');
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
+  const dobLimits = dobBounds();
   /** Value sent on save: server path, `https://…`, or `data:image/…` after gallery pick. */
   const [avatarValue, setAvatarValue] = useState<string | null>(null);
+  // New photo picked but not uploaded yet; avatarValue then holds only its data: URL for the preview.
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const avatarMenuRef = useRef<HTMLDivElement>(null);
@@ -106,8 +121,8 @@ export default function EditProfilePage() {
   const initialMobileClean =
     normalizeToIndianMobileTen(profile?.mobile) ?? (profile?.mobile ?? '').replace(/\D/g, '').slice(-10);
   const currentActiveMobile = verifiedMobile || initialMobileClean;
-  const cleanNewMobile = newMobile.replace(/\D/g, '').slice(0, 10);
-  const isNewMobileValid = MOBILE_REGEX.test(cleanNewMobile);
+  const cleanNewMobile = clean.mobile(newMobile);
+  const isNewMobileValid = check.mobile(cleanNewMobile) === null;
 
   useEffect(() => {
     if (!avatarMenuOpen) return;
@@ -145,6 +160,7 @@ export default function EditProfilePage() {
     try {
       const dataUrl = await readFileAsDataUrl(file);
       setAvatarValue(dataUrl);
+      setAvatarFile(file);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not use that image.');
     }
@@ -267,11 +283,20 @@ export default function EditProfilePage() {
     const trimmedName = name.trim();
     const trimmedUser = username.trim().replace(/^@/, '');
     try {
+      // Upload a newly picked photo first; the profile only ever stores its server path, never a data: URL.
+      let avatar = avatarValue?.trim() || null;
+      if (avatarFile) {
+        avatar = await commonProfileService.uploadAvatar(avatarFile);
+        setAvatarFile(null);
+        setAvatarValue(avatar);
+      } else if (avatar?.startsWith('data:')) {
+        avatar = profile?.avatar ?? null;
+      }
       await updateProfile.mutateAsync({
         name: trimmedName,
         username: trimmedUser,
         mobile: targetMobile,
-        avatar: avatarValue?.trim() || null,
+        avatar,
         date_of_birth: dateOfBirth.trim() || null,
         gender: gender.trim() || null,
         country: country.trim() || null,
@@ -292,18 +317,31 @@ export default function EditProfilePage() {
     const trimmedUser = username.trim().replace(/^@/, '');
     const activeMobile = verifiedMobile || initialMobileClean;
 
-    if (!trimmedName || !trimmedUser || !activeMobile) {
-      toast.error('Name, username, and mobile are required.');
+    const found = {
+      name: check.name(trimmedName),
+      username: check.username(trimmedUser),
+      dob: dateOfBirth ? check.dob(dateOfBirth) : null,
+      state: check.place(state, 'State', false),
+      city: check.place(city, 'City', false),
+    };
+    setErrors(found);
+    if (Object.values(found).some(Boolean)) {
+      toast.error('Please fix the highlighted fields.');
+      return;
+    }
+    if (!usernameCheck.canSave) {
+      toast.error(usernameCheck.message || 'Please choose an available username.');
+      return;
+    }
+    if (!activeMobile) {
+      toast.error('Mobile number is required.');
       return;
     }
 
     if (isChangingMobile) {
-      if (!cleanNewMobile) {
-        toast.error('Please enter a valid 10-digit new mobile number.');
-        return;
-      }
-      if (!isNewMobileValid) {
-        toast.error('Please enter a valid 10-digit Indian mobile number starting with 6-9');
+      const mobileError = check.mobile(cleanNewMobile);
+      if (mobileError) {
+        toast.error(mobileError);
         return;
       }
       if (cleanNewMobile === initialMobileClean) {
@@ -376,7 +414,7 @@ export default function EditProfilePage() {
                     <button
                       type="button"
                       role="menuitem"
-                      className="flex w-full rounded-sm px-3 py-2 text-left text-sm hover:bg-accent"
+                      className="flex w-full rounded-full px-3 py-2 text-left text-sm hover:bg-accent"
                       onClick={handlePickGallery}
                     >
                       Choose from gallery
@@ -402,10 +440,15 @@ export default function EditProfilePage() {
               <Input
                 id="edit-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setName(clean.name(e.target.value))}
+                onBlur={() => setErrors((x) => ({ ...x, name: check.name(name) }))}
                 autoComplete="name"
+                maxLength={50}
+                aria-invalid={!!errors.name}
+                aria-describedby="edit-name-error"
                 required
               />
+              <FieldError id="edit-name-error" message={errors.name} />
             </div>
 
             <div className="space-y-2">
@@ -423,12 +466,19 @@ export default function EditProfilePage() {
                   id="edit-username"
                   className="pl-8"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value.replace(/^@+/, ''))}
+                  onChange={(e) => setUsername(clean.username(e.target.value))}
                   autoComplete="username"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  maxLength={30}
                   placeholder="username"
+                  aria-invalid={usernameCheck.status === 'taken' || usernameCheck.status === 'invalid'}
+                  aria-describedby="edit-username-status"
                   required
                 />
               </div>
+              <UsernameStatusLine id="edit-username-status" status={usernameCheck.status} message={usernameCheck.message} />
+              <p className="text-xs text-muted-foreground">3–30 characters: lowercase letters, numbers, dot, underscore and dash.</p>
             </div>
 
             {/* MOBILE NUMBER SECTION - 2-STEP VERIFICATION */}
@@ -511,7 +561,7 @@ export default function EditProfilePage() {
                         inputMode="numeric"
                         className="pl-12"
                         value={newMobile}
-                        onChange={(e) => setNewMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        onChange={(e) => setNewMobile(clean.mobile(e.target.value))}
                         autoComplete="tel"
                         placeholder="10-digit new mobile"
                         maxLength={10}
@@ -566,10 +616,17 @@ export default function EditProfilePage() {
                 id="edit-dob"
                 type="date"
                 value={dateOfBirth}
-                onChange={(e) => setDateOfBirth(e.target.value)}
-                max={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => {
+                  setDateOfBirth(e.target.value);
+                  setErrors((x) => ({ ...x, dob: e.target.value ? check.dob(e.target.value) : null }));
+                }}
+                min={dobLimits.min}
+                max={dobLimits.max}
                 autoComplete="bday"
+                aria-invalid={!!errors.dob}
+                aria-describedby="edit-dob-error"
               />
+              <FieldError id="edit-dob-error" message={errors.dob} />
             </div>
 
             <div className="space-y-2">
@@ -586,7 +643,6 @@ export default function EditProfilePage() {
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="other">Other</option>
-                <option value="prefer_not_to_say">Prefer not to say</option>
               </select>
             </div>
 
@@ -594,13 +650,20 @@ export default function EditProfilePage() {
               <label htmlFor="edit-country" className="text-sm font-medium">
                 Country
               </label>
-              <Input
+              <select
                 id="edit-country"
-                value={country}
+                className={nativeControlClass}
+                value={country.toLowerCase().replace(/\s+/g, '')}
                 onChange={(e) => setCountry(e.target.value)}
                 autoComplete="country-name"
-                placeholder="Select Country"
-              />
+              >
+                <option value="">Select country</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">
@@ -610,10 +673,15 @@ export default function EditProfilePage() {
               <Input
                 id="edit-state"
                 value={state}
-                onChange={(e) => setState(e.target.value)}
+                onChange={(e) => setState(clean.place(e.target.value))}
+                onBlur={() => setErrors((x) => ({ ...x, state: check.place(state, 'State', false) }))}
                 autoComplete="address-level1"
-                placeholder="Select State"
+                maxLength={50}
+                placeholder="e.g. Maharashtra"
+                aria-invalid={!!errors.state}
+                aria-describedby="edit-state-error"
               />
+              <FieldError id="edit-state-error" message={errors.state} />
             </div>
 
             <div className="space-y-2">
@@ -623,16 +691,21 @@ export default function EditProfilePage() {
               <Input
                 id="edit-city"
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
+                onChange={(e) => setCity(clean.place(e.target.value))}
+                onBlur={() => setErrors((x) => ({ ...x, city: check.place(city, 'City', false) }))}
                 autoComplete="address-level2"
-                placeholder="Select City"
+                maxLength={50}
+                placeholder="e.g. Pune"
+                aria-invalid={!!errors.city}
+                aria-describedby="edit-city-error"
               />
+              <FieldError id="edit-city-error" message={errors.city} />
             </div>
 
             <div className="pt-2">
               <Button
                 type="submit"
-                disabled={updateProfile.isPending}
+                disabled={updateProfile.isPending || !usernameCheck.canSave}
                 className="inline-flex w-full items-center justify-center gap-2"
               >
                 {updateProfile.isPending ? (
@@ -679,5 +752,23 @@ export default function EditProfilePage() {
         />
       ) : null}
     </div>
+  );
+}
+
+/** Live availability line under the username field (announced to screen readers as it changes). */
+function UsernameStatusLine({ id, status, message }: { id: string; status: UsernameStatus; message: string }) {
+  if (status === 'unchanged') return <p id={id} className="sr-only" aria-live="polite" />;
+  const look = {
+    checking: { Icon: Loader2, cls: 'text-muted-foreground', spin: true },
+    available: { Icon: CheckCircle2, cls: 'text-emerald-600 dark:text-emerald-400', spin: false },
+    taken: { Icon: XCircle, cls: 'text-destructive', spin: false },
+    invalid: { Icon: XCircle, cls: 'text-destructive', spin: false },
+    error: { Icon: AlertCircle, cls: 'text-amber-600 dark:text-amber-400', spin: false },
+  }[status];
+  return (
+    <p id={id} aria-live="polite" className={cn('flex items-center gap-1.5 text-xs font-medium', look.cls)}>
+      <look.Icon className={cn('size-3.5 shrink-0', look.spin && 'animate-spin')} aria-hidden />
+      {message}
+    </p>
   );
 }

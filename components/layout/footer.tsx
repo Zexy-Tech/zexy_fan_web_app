@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { UserRound } from 'lucide-react';
+import { UserRound } from '@/components/ui/icons';
 import { SignupModal } from '@/components/auth/signup-modal';
 
 export function Footer() {

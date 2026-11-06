@@ -1,10 +1,11 @@
 'use client';
 
+import { clean, url } from '@/lib/validation/fields';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import {
   Send,
   Sparkles,
@@ -15,7 +16,7 @@ import {
   Eye,
   Loader2,
   ShieldAlert,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { useAuthContext } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -85,15 +86,56 @@ export default function AdminNotificationsPage() {
     );
   }
 
+  /** Parse the custom audience list; every entry must be a user id or code (ZX-FN-0001). */
+  const parseTargetIds = (raw: string): { ids: number[]; bad: string[] } => {
+    const parts = raw.split(/[\s,]+/).map((x) => x.trim()).filter(Boolean);
+    const ids: number[] = [];
+    const bad: string[] = [];
+    for (const part of parts) {
+      const ref = url.userRef(part);
+      const id = ref ? (fromUserCode(ref) ?? Number(ref)) : NaN;
+      if (Number.isInteger(id) && id > 0) ids.push(id);
+      else bad.push(part);
+    }
+    return { ids: Array.from(new Set(ids)), bad };
+  };
+
+  /** In-app path (/creators) or an https:// link; anything else (javascript:, http:, typos) is rejected. */
+  const isValidActionUrl = (raw: string) => {
+    if (url.internalPath(raw)) return true;
+    try {
+      return new URL(raw).protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
   const handleOpenConfirm = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) {
-      toast.error('Notification title is required');
+    const t = title.trim();
+    if (t.length < 3) {
+      toast.error('Notification title must be at least 3 characters');
       return;
     }
     if (!body.trim()) {
       toast.error('Notification body is required');
       return;
+    }
+    if (actionUrl.trim() && !isValidActionUrl(actionUrl.trim())) {
+      toast.error('Action URL must be an app path like /creators or an https:// link');
+      return;
+    }
+    if (audience === 'custom') {
+      const { ids, bad } = parseTargetIds(targetedIdsInput);
+      if (bad.length) {
+        toast.error(`Not valid user IDs/codes: ${bad.slice(0, 5).join(', ')}`);
+        return;
+      }
+      if (!ids.length) {
+        // Without ids the API would broadcast to everyone — never fall through to "all".
+        toast.error('Enter at least one user ID or code for a custom audience');
+        return;
+      }
     }
     setIsConfirmOpen(true);
   };
@@ -105,14 +147,10 @@ export default function AdminNotificationsPage() {
       action_url: actionUrl.trim() || undefined,
     };
 
-    if (audience === 'custom' && targetedIdsInput.trim()) {
-      const ids = targetedIdsInput
-        .split(',')
-        .map((s) => fromUserCode(s.trim()) ?? parseInt(s.trim(), 10))
-        .filter((n) => typeof n === 'number' && !isNaN(n) && n > 0) as number[];
-      if (ids.length > 0) {
-        payload.targeted_ids = ids;
-      }
+    if (audience === 'custom') {
+      const { ids } = parseTargetIds(targetedIdsInput);
+      if (!ids.length) return; // validated in handleOpenConfirm; never send a custom notice to everyone
+      payload.targeted_ids = ids;
     }
 
     sendMutation.mutate(payload);
@@ -156,7 +194,7 @@ export default function AdminNotificationsPage() {
                   </label>
                   <Input
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => setTitle(clean.text(e.target.value, 255))}
                     placeholder="e.g. New Creator Announcement"
                     maxLength={255}
                     required
@@ -171,12 +209,12 @@ export default function AdminNotificationsPage() {
                   </label>
                   <textarea
                     value={body}
-                    onChange={(e) => setBody(e.target.value)}
+                    onChange={(e) => setBody(clean.text(e.target.value, 1000))}
                     placeholder="e.g. Your favourite creator has published new exclusive content."
                     maxLength={1000}
                     rows={4}
                     required
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-3xl p-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
                   />
                   <p className="text-[10px] text-zinc-500 mt-1">{body.length} / 1000 characters</p>
                 </div>
@@ -187,7 +225,9 @@ export default function AdminNotificationsPage() {
                   </label>
                   <Input
                     value={actionUrl}
-                    onChange={(e) => setActionUrl(e.target.value)}
+                    onChange={(e) => setActionUrl(e.target.value.replace(/\s/g, '').slice(0, 500))}
+                    maxLength={500}
+                    inputMode="url"
                     placeholder="e.g. /creators or /content/123"
                     className="bg-zinc-950 border-zinc-800 text-sm text-white focus:border-purple-500"
                   />
@@ -243,7 +283,7 @@ export default function AdminNotificationsPage() {
                     <div className="mt-3">
                       <Input
                         value={targetedIdsInput}
-                        onChange={(e) => setTargetedIdsInput(e.target.value)}
+                        onChange={(e) => setTargetedIdsInput(e.target.value.replace(/[^A-Za-z0-9,\s-]/g, '').slice(0, 2000))}
                         placeholder="Comma-separated user codes or IDs (e.g. ZX-FN-0001, ZX-CR-0042, 1, 2)"
                         className="bg-zinc-950 border-zinc-800 text-xs text-white"
                       />
@@ -254,7 +294,7 @@ export default function AdminNotificationsPage() {
                 <div className="pt-2 flex items-center gap-3">
                   <Button
                     type="submit"
-                    className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs h-10 px-5 rounded-xl shadow-lg shadow-purple-600/20"
+                    className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs h-10 px-5 rounded-full shadow-lg shadow-purple-600/20"
                   >
                     <Send className="size-3.5 mr-2" />
                     Preview & Send
@@ -264,7 +304,7 @@ export default function AdminNotificationsPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setIsPreviewOpen(!isPreviewOpen)}
-                    className="border-zinc-800 bg-zinc-950 text-zinc-300 text-xs h-10 px-4 rounded-xl hover:bg-zinc-900"
+                    className="border-zinc-800 bg-zinc-950 text-zinc-300 text-xs h-10 px-4 rounded-full hover:bg-zinc-900"
                   >
                     <Eye className="size-3.5 mr-2" />
                     {isPreviewOpen ? 'Hide Mobile Preview' : 'Preview Push Card'}

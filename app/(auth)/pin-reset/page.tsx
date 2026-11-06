@@ -1,12 +1,13 @@
 'use client';
 
+import { check, clean, url } from '@/lib/validation/fields';
 import { useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useInitiatePINReset, useConfirmPINReset } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { Loader2, ArrowLeft, Instagram, Twitter, Facebook } from 'lucide-react';
+import { toast } from '@/lib/toast';
+import { Loader2, ArrowLeft, Instagram, Twitter, Facebook } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 import { AxiosError } from 'axios';
 import Image from 'next/image';
@@ -14,7 +15,8 @@ import Image from 'next/image';
 function PinResetPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialMobile = searchParams.get('mobile') || '';
+  // ?mobile= is untrusted: keep it only if it's a valid Indian mobile, else start at the phone step.
+  const initialMobile = url.mobile(searchParams.get('mobile'));
 
   const [step, setStep] = useState<'phone' | 'otp' | 'new_pin' | 'confirm'>(initialMobile ? 'otp' : 'phone');
   const [mobile, setMobile] = useState(initialMobile);
@@ -31,8 +33,9 @@ function PinResetPageContent() {
 
   const handleSendOTP = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!/^[6-9]\d{9}$/.test(mobile)) {
-      toast.error('Please enter a valid 10-digit mobile number');
+    const mobileError = check.mobile(mobile);
+    if (mobileError) {
+      toast.error(mobileError);
       return;
     }
 
@@ -106,7 +109,7 @@ function PinResetPageContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4 font-inter">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] text-white p-4">
       <div className="w-full max-w-[400px] space-y-10">
         <div className="flex flex-col items-center text-center gap-4">
           <div className="size-24 flex items-center justify-center mb-2 relative overflow-hidden group">
@@ -146,8 +149,11 @@ function PinResetPageContent() {
                         type="tel"
                         placeholder="9876543210"
                         value={mobile}
-                        onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                        className="w-full h-14 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl px-4 text-lg font-medium text-white focus:outline-none focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 placeholder:text-zinc-700"
+                        onChange={(e) => setMobile(clean.mobile(e.target.value))}
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        maxLength={10}
+                        className="w-full h-14 bg-[#1c1c1f] border-2 border-zinc-800 rounded-full px-4 text-lg font-medium text-white focus:outline-none focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 placeholder:text-zinc-700"
                       />
                     </div>
                   </div>
@@ -155,7 +161,7 @@ function PinResetPageContent() {
                 <div className="flex flex-col gap-4 pt-2">
                   <Button 
                     type="submit" 
-                    className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl text-base" 
+                    className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-full text-base" 
                     disabled={initiateReset.isPending || mobile.length < 10}
                   >
                     {initiateReset.isPending ? <Loader2 className="size-5 animate-spin" /> : 'Send Reset Code'}
@@ -183,7 +189,7 @@ function PinResetPageContent() {
                       onChange={(e) => handleDigitChange(e.target.value, index, otp, setOtp, otpInputRefs, () => setStep('new_pin'))}
                       onKeyDown={(e) => handleKeyDown(e, index, otp, otpInputRefs)}
                       className={cn(
-                        "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none",
+                        "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-full text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none",
                         digit && "border-[#8c3df1] bg-[#1c1c1f]"
                       )}
                       maxLength={1}
@@ -199,7 +205,7 @@ function PinResetPageContent() {
                       onChange={(e) => handleDigitChange(e.target.value, index, newPin, setNewPin, pinInputRefs, () => setStep('confirm'))}
                       onKeyDown={(e) => handleKeyDown(e, index, newPin, pinInputRefs)}
                       className={cn(
-                        "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none",
+                        "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-full text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none",
                         digit && "border-[#8c3df1] bg-[#1c1c1f]"
                       )}
                       maxLength={1}
@@ -215,7 +221,7 @@ function PinResetPageContent() {
                       onChange={(e) => handleDigitChange(e.target.value, index, confirmPin, setConfirmPin, confirmInputRefs, (code) => handleFinish(code))}
                       onKeyDown={(e) => handleKeyDown(e, index, confirmPin, confirmInputRefs)}
                       className={cn(
-                        "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-xl text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none",
+                        "w-full h-16 bg-[#1c1c1f] border-2 border-zinc-800 rounded-full text-center text-2xl font-bold focus:border-[#8c3df1] focus:ring-2 focus:ring-[#8c3df1]/30 outline-none",
                         digit && "border-[#8c3df1] bg-[#1c1c1f]"
                       )}
                       maxLength={1}
@@ -230,7 +236,7 @@ function PinResetPageContent() {
                       step === 'new_pin' ? () => newPin.join('').length === 4 && setStep('confirm') :
                       () => handleFinish()
                     }
-                    className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-xl text-base" 
+                    className="w-full h-14 bg-[#521c98] hover:bg-[#5f259f] text-white font-bold rounded-full text-base" 
                     disabled={
                       confirmReset.isPending || 
                       (step === 'otp' && otp.join('').length < 4) ||

@@ -168,7 +168,40 @@ const MOCK_USER: User = {
 // API FUNCTIONS
 // ============================================================================
 
+export interface IdentifyResponse {
+  exists: boolean;
+  message: string;
+}
+
 export const authService = {
+  // ── Unified auth (same API as creator + admin apps). Only username + 4-digit PIN and Google. ──
+
+  /** Single form step 1: does this username exist? true -> login, false -> sign up */
+  identify: async (username: string): Promise<IdentifyResponse> => {
+    const response = await apiClient.post('/api/v1/auth/identify', { username, app: 'fan' });
+    return response.data?.data ?? response.data;
+  },
+
+  login: async (username: string, pin: string): Promise<VerifyOTPResponse> => {
+    const response = await apiClient.post('/api/v1/auth/login', {
+      username, pin, app: 'fan', device_name: 'web',
+    });
+    return response.data?.data ?? response.data;
+  },
+
+  signup: async (data: { username: string; pin: string; name: string }): Promise<VerifyOTPResponse> => {
+    const response = await apiClient.post('/api/v1/auth/signup', { ...data, app: 'fan', device_name: 'web' });
+    return response.data?.data ?? response.data;
+  },
+
+  /** Logs in a known Google account, otherwise signs it up. No PIN. */
+  google: async (idToken: string): Promise<VerifyOTPResponse> => {
+    const response = await apiClient.post('/api/v1/auth/google', {
+      id_token: idToken, app: 'fan', device_name: 'web',
+    });
+    return response.data?.data ?? response.data;
+  },
+
   /**
    * Send OTP to mobile number
    */

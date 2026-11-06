@@ -35,7 +35,8 @@ export interface CreatorsPageResponse {
 }
 
 export interface ContentMedia {
-  url: string;
+  /** null while the item is locked for this viewer (protected media is only served via signed URLs) */
+  url: string | null;
   media_type: 'image' | 'video' | 'audio';
 }
 

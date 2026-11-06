@@ -8,7 +8,7 @@
 
 import { Content } from '@/services/feed';
 import { ExclusiveContentCard } from '@/components/exclusive-content-card';
-import { Lock, ImageOff } from 'lucide-react';
+import { Lock, ImageOff } from '@/components/ui/icons';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 

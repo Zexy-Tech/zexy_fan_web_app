@@ -1,8 +1,9 @@
 'use client';
 
+import { clean, url } from '@/lib/validation/fields';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Radio, Users, X, MessageSquare, Send, Heart, Loader2 } from 'lucide-react';
+import { Radio, Users, X, MessageSquare, Send, Heart, Loader2 } from '@/components/ui/icons';
 import { useState, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { getSignalingSocket } from '@/services/signaling';
@@ -14,7 +15,7 @@ export default function MockLiveRoomPage() {
   const params = useParams();
   const { back } = useRouter();
   const { user } = useAuthContext();
-  const roomId = params.roomId as string;
+  const roomId = url.roomId(params.roomId) ?? ''; // malformed ids never reach the socket
   
   const [viewers, setViewers] = useState(0);
   const [connected, setConnected] = useState(false);
@@ -265,9 +266,10 @@ export default function MockLiveRoomPage() {
           <input 
             type="text" 
             placeholder="Say something..."
-            className="flex-1 bg-zinc-900 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
+            className="flex-1 bg-zinc-900 border-none rounded-full px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={(e) => setNewMessage(clean.text(e.target.value, 300))}
+            maxLength={300}
           />
           <Button type="submit" size="icon" className="shrink-0 rounded-full">
             <Send className="size-4" />
