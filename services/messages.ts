@@ -1,6 +1,4 @@
 import { apiClient } from '@/lib/axios';
-import { ENV } from '@/constants/env';
-import { sleep } from '@/lib/utils';
 import type { CreateIntentResponse } from '@/services/payment';
 
 // ============================================================================
@@ -42,59 +40,6 @@ export interface Conversation {
   last_message_at: string;
   unread_count: number;
 }
-
-// ============================================================================
-// MOCK DATA
-// ============================================================================
-
-/** Latest-message rows as returned by the API (same shape as thread messages). */
-const MOCK_CONVERSATION_MESSAGES: Message[] = [
-  {
-    id: 100,
-    sender_uid: 2,
-    receiver_uid: 1,
-    sender_name: 'Mike Chen',
-    sender_username: 'creator_two',
-    sender_avatar: null,
-    receiver_name: 'John Doe',
-    receiver_username: 'fan_user',
-    receiver_avatar: null,
-    body: 'Thanks for subscribing!',
-    message_type: 'text',
-    media_url: null,
-    is_paid: false,
-    price: 0,
-    is_unlocked: true,
-    tip_amount: null,
-    tip_paid: false,
-    created_at: new Date(Date.now() - 3600000).toISOString(),
-    read_at: null,
-  },
-];
-
-const MOCK_MESSAGES: Message[] = [
-  {
-    id: 1,
-    sender_uid: 2,
-    receiver_uid: 1,
-    sender_name: 'Mike Chen',
-    sender_username: 'creator_two',
-    sender_avatar: null,
-    receiver_name: 'John Doe',
-    receiver_username: 'fan_user',
-    receiver_avatar: null,
-    body: 'Thanks for subscribing!',
-    message_type: 'text',
-    media_url: null,
-    is_paid: false,
-    price: 0,
-    is_unlocked: true,
-    tip_amount: null,
-    tip_paid: false,
-    created_at: new Date(Date.now() - 3600000).toISOString(),
-    read_at: null,
-  },
-];
 
 // ============================================================================
 // API FUNCTIONS

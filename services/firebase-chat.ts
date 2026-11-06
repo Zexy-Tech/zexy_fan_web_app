@@ -27,7 +27,7 @@ function lazySubscribe(
   };
 }
 
-export function getThreadId(uid1: number, uid2: number): string {
+function getThreadId(uid1: number, uid2: number): string {
   const smaller = Math.min(uid1, uid2);
   const larger = Math.max(uid1, uid2);
   return `${smaller}_${larger}`;

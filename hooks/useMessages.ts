@@ -96,17 +96,6 @@ export function useSendMessage() {
   });
 }
 
-export function useSendMediaMessage() {
-  return useMutation({
-    mutationFn: ({ creatorId, ...params }: { creatorId: number; message_type: string; media_url: string; media_mime_type: string; media_size_bytes: number; body?: string }) =>
-      messageService.sendMediaMessage(creatorId, params),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['messages', 'thread', variables.creatorId] });
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-    },
-  });
-}
-
 export function useMarkAsRead() {
   return useMutation({
     mutationFn: (messageId: number) => messageService.markAsRead(messageId),

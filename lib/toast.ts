@@ -18,7 +18,7 @@ function text(v: unknown): string {
   return typeof v === 'string' || typeof v === 'number' ? String(v) : '';
 }
 
-export function toastDuration(message: Message, data?: ExternalToast): number {
+function toastDuration(message: Message, data?: ExternalToast): number {
   if (data?.duration !== undefined) return data.duration;
   return text(message).length + text(data?.description).length > LONG_TEXT ? LONG_MS : SHORT_MS;
 }

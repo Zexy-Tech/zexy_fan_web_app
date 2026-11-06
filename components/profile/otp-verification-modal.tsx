@@ -283,4 +283,3 @@ export function OtpVerificationModal({
   );
 }
 
-export default OtpVerificationModal;

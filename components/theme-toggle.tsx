@@ -3,60 +3,7 @@
 import * as React from 'react';
 import { Moon, Sun, Laptop } from '@/components/ui/icons';
 import { useTheme } from '@/hooks/useTheme';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-export function ThemeToggle({ className }: { className?: string }) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const cycleTheme = () => {
-    if (theme === 'system') {
-      setTheme('light');
-    } else if (theme === 'light') {
-      setTheme('dark');
-    } else {
-      setTheme('system');
-    }
-  };
-
-  if (!mounted) {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        className={cn('shrink-0 text-muted-foreground', className)}
-        aria-label="Toggle theme"
-        disabled
-      >
-        <Sun className="size-5" />
-      </Button>
-    );
-  }
-
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={cycleTheme}
-      className={cn('shrink-0 text-muted-foreground hover:text-foreground', className)}
-      aria-label={`Current theme: ${theme}. Click to switch theme`}
-      title={`Theme: ${theme} (click to toggle)`}
-    >
-      {theme === 'system' ? (
-        <Laptop className="size-5" />
-      ) : resolvedTheme === 'dark' ? (
-        <Moon className="size-5" />
-      ) : (
-        <Sun className="size-5" />
-      )}
-    </Button>
-  );
-}
 
 export function ThemeSelectorGroup({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();

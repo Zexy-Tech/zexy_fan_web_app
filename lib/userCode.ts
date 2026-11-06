@@ -61,33 +61,6 @@ export function fromUserCode(code: string | number | null | undefined): number |
 }
 
 /**
- * Formats user identification for UI display, preferring username, then user code, never raw ID.
- */
-export function formatUserDisplay(user: {
-  username?: string | null;
-  user_code?: string | null;
-  id?: number | string | null;
-  user_id?: number | string | null;
-  role?: string | null;
-  name?: string | null;
-}): string {
-  if (user.username && user.username.trim() !== '') {
-    return user.username.startsWith('@') ? user.username : `@${user.username}`;
-  }
-  if (user.name && user.name.trim() !== '') {
-    return user.name;
-  }
-  if (user.user_code && user.user_code.trim() !== '') {
-    return user.user_code;
-  }
-  const id = user.id ?? user.user_id;
-  if (id) {
-    return toUserCode(id, user.role);
-  }
-  return 'User';
-}
-
-/**
  * Persists user code in local storage (localStorage) mapping userId -> userCode.
  */
 export function saveUserCodeToStorage(userId: number, code: string): void {
@@ -99,20 +72,5 @@ export function saveUserCodeToStorage(userId: number, code: string): void {
     localStorage.setItem(USER_CODE_STORAGE_KEY, JSON.stringify(map));
   } catch (err) {
     console.warn('[userCode] Failed to cache user code locally:', err);
-  }
-}
-
-/**
- * Retrieves cached user code from local storage.
- */
-export function getUserCodeFromStorage(userId: number): string | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const existingRaw = localStorage.getItem(USER_CODE_STORAGE_KEY);
-    if (!existingRaw) return null;
-    const map: Record<string, string> = JSON.parse(existingRaw);
-    return map[String(userId)] || null;
-  } catch {
-    return null;
   }
 }

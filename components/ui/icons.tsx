@@ -6,113 +6,8 @@ import type { ComponentProps, ComponentType, MouseEventHandler } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 // Named imports only: next.config modularizeImports maps each to its own file (no 1MB pack index).
-import {
-  faArrowLeft,
-  faArrowRight,
-  faArrowUpRightFromSquare,
-  faArrowsRotate,
-  faAt,
-  faBars,
-  faBell,
-  faBookOpen,
-  faBookmark,
-  faBox,
-  faCalendar,
-  faCheck,
-  faCheckDouble,
-  faChevronDown,
-  faChevronRight,
-  faChevronUp,
-  faCircleCheck,
-  faCircleExclamation,
-  faCircleNotch,
-  faCirclePlay,
-  faCircleQuestion,
-  faCircleUser,
-  faCircleXmark,
-  faClock,
-  faClockRotateLeft,
-  faCoins,
-  faComment,
-  faCopy,
-  faCreditCard,
-  faCrown,
-  faDownload,
-  faDumbbell,
-  faEllipsisVertical,
-  faEnvelope,
-  faExpand,
-  faEye,
-  faFaceSmile,
-  faFileCircleQuestion,
-  faFileLines,
-  faFire,
-  faFlag,
-  faFont,
-  faGamepad,
-  faGear,
-  faGenderless,
-  faGhost,
-  faGlobe,
-  faHeart,
-  faHouse,
-  faImage,
-  faIndianRupeeSign,
-  faKey,
-  faLaptop,
-  faLocationDot,
-  faLock,
-  faMagnifyingGlass,
-  faMagnifyingGlassMinus,
-  faMagnifyingGlassPlus,
-  faMars,
-  faMessage,
-  faMobileScreen,
-  faMoon,
-  faMugHot,
-  faMusic,
-  faPalette,
-  faPaperPlane,
-  faPause,
-  faPen,
-  faPencil,
-  faPhone,
-  faPhoneVolume,
-  faPlane,
-  faPlay,
-  faQrcode,
-  faReceipt,
-  faRightFromBracket,
-  faRightToBracket,
-  faRocket,
-  faRotateLeft,
-  faRotateRight,
-  faShareNodes,
-  faShield,
-  faShieldHalved,
-  faShirt,
-  faStar,
-  faSun,
-  faTableCellsLarge,
-  faTowerBroadcast,
-  faTrashCan,
-  faTriangleExclamation,
-  faTrophy,
-  faUser,
-  faUsers,
-  faUtensils,
-  faVenus,
-  faVideo,
-  faVolumeHigh,
-  faVolumeXmark,
-  faWandMagicSparkles,
-  faXmark,
-} from '@fortawesome/free-solid-svg-icons';
-import {
-  faBookmark as faBookmarkRegular,
-  faHeart as faHeartRegular,
-  faStar as faStarRegular,
-} from '@fortawesome/free-regular-svg-icons';
+import { faArrowLeft, faArrowRight, faArrowUpRightFromSquare, faArrowsRotate, faAt, faBars, faBell, faBookOpen, faBookmark, faBox, faCalendar, faCheck, faCheckDouble, faChevronDown, faChevronRight, faChevronUp, faCircleCheck, faCircleExclamation, faCircleNotch, faCirclePlay, faCircleUser, faCircleXmark, faClock, faClockRotateLeft, faCoins, faComment, faCopy, faCreditCard, faCrown, faDownload, faDumbbell, faEllipsisVertical, faEnvelope, faExpand, faEye, faFaceSmile, faFileCircleQuestion, faFileLines, faFire, faFlag, faFont, faGamepad, faGear, faGenderless, faGlobe, faHeart, faImage, faIndianRupeeSign, faKey, faLaptop, faLocationDot, faLock, faMagnifyingGlass, faMagnifyingGlassMinus, faMagnifyingGlassPlus, faMars, faMessage, faMobileScreen, faMoon, faMugHot, faMusic, faPalette, faPaperPlane, faPause, faPen, faPencil, faPhone, faPlane, faPlay, faQrcode, faReceipt, faRightFromBracket, faRightToBracket, faRocket, faRotateLeft, faRotateRight, faShareNodes, faShield, faShieldHalved, faShirt, faSun, faTableCellsLarge, faTowerBroadcast, faTrashCan, faTriangleExclamation, faTrophy, faUser, faUsers, faUtensils, faVenus, faVideo, faVolumeHigh, faVolumeXmark, faWandMagicSparkles, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faBookmark as faBookmarkRegular, faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import {
   faApple as faAppleBrand,
   faDiscord as faDiscordBrand,
@@ -196,15 +91,11 @@ export const FileText = fa(faFileLines);
 export const Flag = fa(faFlag);
 export const Flame = fa(faFire);
 export const Gamepad2 = fa(faGamepad);
-export const Ghost = fa(faGhost);
 export const Globe = fa(faGlobe);
 export const Heart = fa(faHeart, faHeartRegular);
-export const HelpCircle = fa(faCircleQuestion);
 export const History = fa(faClockRotateLeft);
-export const Home = fa(faHouse);
 export const Image = fa(faImage);
-export const IndianRupee = fa(faIndianRupeeSign);
-export const ImageOff = Image; // image-slash is Pro-only
+export const IndianRupee = fa(faIndianRupeeSign); // image-slash is Pro-only
 export const Key = fa(faKey);
 export const KeyRound = Key;
 export const Laptop = fa(faLaptop);
@@ -228,7 +119,6 @@ export const Pause = fa(faPause);
 export const Pencil = fa(faPencil);
 export const PenLine = fa(faPen);
 export const Phone = fa(faPhone);
-export const PhoneCall = fa(faPhoneVolume);
 export const Plane = fa(faPlane);
 export const Play = fa(faPlay);
 export const PlayCircle = fa(faCirclePlay);
@@ -250,7 +140,6 @@ export const Shirt = fa(faShirt);
 export const Smartphone = fa(faMobileScreen);
 export const Smile = fa(faFaceSmile);
 export const Sparkles = fa(faWandMagicSparkles);
-export const Star = fa(faStar, faStarRegular);
 export const Sun = fa(faSun);
 export const Trash2 = fa(faTrashCan);
 export const Trophy = fa(faTrophy);

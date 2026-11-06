@@ -4,13 +4,7 @@
  */
 
 import assert from 'node:assert';
-import {
-  buildAndroidUpiIntentUrl,
-  buildUpiPayQueryString,
-  buildUpiUrl,
-  inspectUpiUrl,
-  UPI_CONFIG,
-} from '../constants/payment';
+import { buildAndroidUpiIntentUrl, buildUpiPayQueryString, buildUpiUrl, inspectUpiUrl } from '../constants/payment';
 
 console.log('--- Testing UPI Deep-Link Generation for Zexy ---');
 

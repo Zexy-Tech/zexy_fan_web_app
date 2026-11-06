@@ -24,20 +24,6 @@ export function useSavedProducts() {
   });
 }
 
-export function useUnlockContent() {
-  return useMutation({
-    mutationFn: (contentId: number) => contentService.unlockContent(contentId),
-    onSuccess: (data) => {
-      // Update content detail cache
-      queryClient.setQueryData(['content', data.id], data);
-      
-      // Invalidate feed to show unlocked content
-      queryClient.invalidateQueries({ queryKey: ['feed'] });
-      queryClient.invalidateQueries({ queryKey: ['creator', data.creator_uid, 'content'] });
-    },
-  });
-}
-
 export function useLikeContent() {
   return useMutation({
     mutationFn: ({ contentId, liked }: { contentId: number; liked: boolean }) =>

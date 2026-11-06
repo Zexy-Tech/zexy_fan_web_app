@@ -43,7 +43,7 @@ export interface UpiAppOption {
  * Using intent://pay?...#Intent;scheme=upi;package=... avoids GPay/PhonePe treating
  * the flow like a QR image opened from gallery (₹2,000 gallery-scan limits).
  */
-export const UPI_ANDROID_PACKAGES: Partial<Record<string, string>> = {
+const UPI_ANDROID_PACKAGES: Partial<Record<string, string>> = {
   phonepe: 'com.phonepe.app',
   tez: 'com.google.android.apps.nbu.paisa.user',
   paytmmp: 'net.one97.paytm',
@@ -188,7 +188,7 @@ export function buildUpiUrl(params: BuildUpiUrlParams): string {
 }
 
 /** True when running in Android mobile browser (Chrome, in-app WebView, etc.). */
-export function isAndroidMobile(): boolean {
+function isAndroidMobile(): boolean {
   if (typeof navigator === 'undefined') return false;
   return /Android/i.test(navigator.userAgent);
 }

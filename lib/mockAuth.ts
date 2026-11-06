@@ -53,7 +53,7 @@ const DEFAULT_MOCK_USERS: MockRegisteredUser[] = [
 
 const STORAGE_KEY = 'zexy_mock_registered_users';
 
-export function getMockRegisteredUsers(): MockRegisteredUser[] {
+function getMockRegisteredUsers(): MockRegisteredUser[] {
   if (typeof window === 'undefined') return DEFAULT_MOCK_USERS;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -84,42 +84,6 @@ export function saveMockUser(user: MockRegisteredUser): void {
     users.push(user);
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-}
-
-export function findMockUserByMobile(mobile: string): MockRegisteredUser | undefined {
-  const cleanMobile = mobile.replace(/\D/g, '').slice(-10);
-  const users = getMockRegisteredUsers();
-  return users.find((u) => (u.mobile ? u.mobile.replace(/\D/g, '').slice(-10) === cleanMobile : false));
-}
-
-export function findMockUserByEmail(email: string): MockRegisteredUser | undefined {
-  const cleanEmail = email.trim().toLowerCase();
-  const users = getMockRegisteredUsers();
-  return users.find((u) => u.email?.trim().toLowerCase() === cleanEmail);
-}
-
-/**
- * Checks if a mobile number is already registered (Step 1 -> Step 2 check).
- * Returns true if registered, false otherwise.
- */
-export async function checkMobileRegistered(mobile: string): Promise<boolean> {
-  // Simulate network delay for realistic UI
-  await new Promise((resolve) => setTimeout(resolve, 350));
-  const user = findMockUserByMobile(mobile);
-  return Boolean(user);
-}
-
-/**
- * Validates PIN for a mobile number.
- * Accepts the user's stored PIN or '1234' as universal demo PIN.
- */
-export function validateMockPin(mobile: string, enteredPin: string): boolean {
-  if (enteredPin === '1234') return true;
-  const user = findMockUserByMobile(mobile);
-  if (user && user.pin) {
-    return user.pin === enteredPin;
-  }
-  return enteredPin.length === 4;
 }
 
 /**
@@ -154,24 +118,4 @@ export function hasAllMandatoryDetails(
     cleanDob &&
     cleanGender
   );
-}
-
-export function getMissingMandatoryDetails(
-  user: {
-    name?: string | null;
-    mobile?: string | null;
-    city?: string | null;
-    date_of_birth?: string | null;
-    gender?: string | null;
-  } | null | undefined
-): string[] {
-  if (!user) return ['name', 'mobile', 'city', 'date_of_birth', 'gender'];
-  const missing: string[] = [];
-  if (!user.name?.trim()) missing.push('name');
-  const cleanMobile = user.mobile?.replace(/\D/g, '').slice(-10);
-  if (!cleanMobile || cleanMobile.length !== 10) missing.push('mobile');
-  if (!user.city?.trim()) missing.push('city');
-  if (!user.date_of_birth?.trim()) missing.push('date_of_birth');
-  if (!user.gender?.trim()) missing.push('gender');
-  return missing;
 }

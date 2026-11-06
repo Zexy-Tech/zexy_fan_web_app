@@ -1,16 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@/hooks/useAuth';
 import { commonProfileService } from '@/services/commonProfile';
-import type {
-  FanCommonProfile,
-  UpdateCommonProfilePayload,
-  MobileChangeRequest,
-  MobileVerifyRequest,
-  MobileVerifyResponse,
-  VerifyCurrentMobileSendRequest,
-  VerifyCurrentMobileVerifyRequest,
-  VerifyCurrentMobileResponse,
-} from '@/services/commonProfile';
+import type { FanCommonProfile, UpdateCommonProfilePayload, MobileChangeRequest, MobileVerifyRequest, MobileVerifyResponse, VerifyCurrentMobileSendRequest, VerifyCurrentMobileVerifyRequest } from '@/services/commonProfile';
 
 export function useFanCommonProfile() {
   const { isAuthenticated } = useAuthContext();
@@ -80,12 +71,6 @@ export function useVerifyMobileChange() {
         );
       }
     },
-  });
-}
-
-export function useDeleteFanCommonProfile() {
-  return useMutation({
-    mutationFn: () => commonProfileService.deleteProfile(),
   });
 }
 

@@ -48,7 +48,7 @@ export async function getFirestoreDb(): Promise<Firestore | null> {
   }
 }
 
-export async function getFirebaseAuth(): Promise<Auth | null> {
+async function getFirebaseAuth(): Promise<Auth | null> {
   if (typeof window === 'undefined') return null;
   if (auth) return auth;
   const firebaseApp = await getFirebaseApp();

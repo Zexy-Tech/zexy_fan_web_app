@@ -22,7 +22,7 @@ export const LIMITS = {
   codeDigits: 4, // OTP / PIN
 } as const;
 
-export const PATTERNS = {
+const PATTERNS = {
   /** Letters, single spaces between words. */
   name: /^[A-Za-z]+(?: [A-Za-z]+)*$/,
   /** lowercase letters, digits, ".", "_", "-"; starts/ends with a letter or digit; no doubled separators.
@@ -143,7 +143,7 @@ export const check = {
 };
 
 /** Whole years between `iso` (YYYY-MM-DD) and `today`. */
-export function ageOn(iso: string, today: Date = new Date()): number {
+function ageOn(iso: string, today: Date = new Date()): number {
   const [y, m, d] = iso.split('-').map(Number);
   let age = today.getFullYear() - y;
   if (today.getMonth() + 1 < m || (today.getMonth() + 1 === m && today.getDate() < d)) age -= 1;

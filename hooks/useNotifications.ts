@@ -5,12 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/lib/toast';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/hooks/useAuth';
-import {
-  notificationService,
-  type FanNotificationItem,
-  type NotificationPreferences,
-  type RegisterDevicePayload,
-} from '@/services/notifications';
+import { notificationService, type NotificationPreferences, type RegisterDevicePayload } from '@/services/notifications';
 import {
   isFirebaseMessagingSupported,
   getPushSupportDetails,
@@ -20,7 +15,7 @@ import {
   onForegroundMessageListener,
 } from '@/lib/firebase-messaging';
 
-export const NOTIFICATION_KEYS = {
+const NOTIFICATION_KEYS = {
   all: ['notifications'] as const,
   unreadCount: ['notifications', 'unread-count'] as const,
   list: (page: number, limit: number, unreadOnly: boolean, category?: string) =>

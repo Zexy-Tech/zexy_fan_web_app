@@ -92,7 +92,7 @@ export function detectClientDeviceMetadata(): {
 /**
  * Safely registers the Firebase Messaging Service Worker at `/firebase-messaging-sw.js`.
  */
-export async function registerMessagingServiceWorker(): Promise<ServiceWorkerRegistration | null> {
+async function registerMessagingServiceWorker(): Promise<ServiceWorkerRegistration | null> {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
     return null;
   }
@@ -113,7 +113,7 @@ export async function registerMessagingServiceWorker(): Promise<ServiceWorkerReg
 /**
  * Gets or initializes the Firebase Messaging instance safely.
  */
-export async function getFirebaseMessaging(): Promise<Messaging | null> {
+async function getFirebaseMessaging(): Promise<Messaging | null> {
   if (typeof window === 'undefined') return null;
 
   const supported = await isFirebaseMessagingSupported();

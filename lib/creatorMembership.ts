@@ -1,7 +1,7 @@
 import type { Creator } from '@/services/feed';
 import type { ActiveSubscription } from '@/services/subscriptions';
 
-export function fanHasActiveSubscriptionToCreator(
+function fanHasActiveSubscriptionToCreator(
   creator: Pick<Creator, 'id' | 'username'>,
   subscriptions: ActiveSubscription[] | undefined
 ): boolean {

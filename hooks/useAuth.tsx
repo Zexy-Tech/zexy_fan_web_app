@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { authService, type User, type SendOTPRequest, type VerifyOTPRequest, SetupPINRequest, LoginPINRequest, PINResetInitiateRequest, PINResetConfirmRequest } from '@/services/auth';
 import { apiClient } from '@/lib/axios';
 import { queryClient } from '@/lib/queryClient';
@@ -152,55 +152,6 @@ export function useSendOTP() {
   });
 }
 
-export function useVerifyOTP() {
-  const { login } = useAuthContext();
-
-  return useMutation({
-    mutationFn: async (data: VerifyOTPRequest) => {
-      const response = await authService.verifyOTP(data);
-      // We must set the token in localStorage immediately so getMe() can use it via interceptor
-      localStorage.setItem('auth_token', response.access_token);
-      
-      try {
-        const user = await authService.getMe();
-        login({
-          access_token: response.access_token,
-          refresh_token: response.refresh_token,
-          session_token: response.session_token
-        }, user);
-        return { ...response, user };
-      } catch (error) {
-        localStorage.removeItem('auth_token');
-        throw error;
-      }
-    },
-  });
-}
-
-export function useLoginWithPIN() {
-  const { login } = useAuthContext();
-
-  return useMutation({
-    mutationFn: async (data: LoginPINRequest) => {
-      const response = await authService.loginWithPIN(data);
-      localStorage.setItem('auth_token', response.access_token);
-      
-      try {
-        const user = await authService.getMe();
-        login({
-          access_token: response.access_token,
-          refresh_token: response.refresh_token,
-          session_token: response.session_token
-        }, user);
-        return { ...response, user };
-      } catch (error) {
-        localStorage.removeItem('auth_token');
-        throw error;
-      }
-    },
-  });
-}
-
 export function useSetupPIN() {
   return useMutation({
     mutationFn: (data: SetupPINRequest) => authService.setupPIN(data),
@@ -265,16 +216,5 @@ export function useLogout() {
     onSettled: () => {
       logout();
     },
-  });
-}
-
-export function useCurrentUser() {
-  const { isAuthenticated } = useAuthContext();
-
-  return useQuery({
-    queryKey: ['user', 'me'],
-    queryFn: () => authService.getMe(),
-    enabled: isAuthenticated,
-    staleTime: Infinity,
   });
 }
