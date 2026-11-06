@@ -146,7 +146,7 @@ export function buildUpiUrl(params: BuildUpiUrlParams): string {
     // so it appears on bank statements and UPI receipts without triggering merchant enforcement.
     if (safeTr && !rawNote.includes(safeTr.slice(0, 8))) {
       const compactRef = safeTr.slice(-10);
-      queryParams.tn = `${truncatedNote.slice(0, 36)} ref:${compactRef}`;
+      queryParams.tn = `${truncatedNote.slice(0, 35)} ref:${compactRef}`; // 35 + 5 + 10 = NPCI 50-char limit
     }
     if (params.mode && params.mode !== '02') {
       queryParams.mode = params.mode;
