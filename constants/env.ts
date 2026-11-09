@@ -16,7 +16,4 @@ export const ENV = {
   SOCKET_URL: getSocketUrl(),
   RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_xxxxx',
   IS_MOCK: process.env.NEXT_PUBLIC_USE_MOCK === 'true' || false,
-  TRUECALLER_PARTNER_KEY:
-    process.env.NEXT_PUBLIC_TRUECALLER_PARTNER_KEY || '',
-  TRUECALLER_APP_NAME: process.env.NEXT_PUBLIC_TRUECALLER_APP_NAME || 'Zexy',
 } as const;

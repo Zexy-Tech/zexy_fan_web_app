@@ -5,52 +5,49 @@ import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import {
   X,
-  ArrowLeft,
   Loader2,
   Calendar,
   MapPin,
-  AtSign,
-  Lock,
   User as UserIcon,
-  Google,
+  Lock,
+  Video,
+  Heart,
+  ShieldCheck,
   Mars,
   Venus,
   Genderless,
 } from '@/components/ui/icons';
 import Image from 'next/image';
 import { toast } from '@/lib/toast';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { GoogleLogo } from '@/components/ui/google-logo';
 import { cn } from '@/lib/utils';
 import { useAuthContext } from '@/hooks/useAuth';
-import { authService, User, VerifyOTPResponse } from '@/services/auth';
+import { authService, User, AuthTokens } from '@/services/auth';
 import { hasAllMandatoryDetails } from '@/lib/mockAuth';
 import { signInWithGoogle, preloadGoogleSignIn } from '@/lib/firebase';
 import { check, clean, dobBounds } from '@/lib/validation/fields';
 
-export interface SignupModalProps {
-  open: boolean;
-  onClose: () => void;
-  initialView?: 'start' | 'complete_profile';
-  redirectOnSuccess?: string;
-}
-
-// One form for login AND sign up (same flow as the creator app):
-//   start (username | Google) -> login_pin  (username exists)
-//                             -> signup          (new username: name + 4-digit PIN)
-//   then complete_profile if mandatory fan details are missing.
-type ModalView = 'start' | 'login_pin' | 'signup' | 'complete_profile';
+// Google is the only login and sign up (same as the creator + admin apps):
+//   start (Google) -> complete_profile if mandatory fan details are missing.
+// SignupPanel is the card itself: the /login page shows it inline, SignupModal shows it as a popup.
+type ModalView = 'start' | 'complete_profile';
 type GenderOption = 'male' | 'female' | 'other';
 type Tokens = { access_token: string; refresh_token?: string; session_token?: string };
 
-const PIN_LEN = 4;
+const PERKS = [
+  { Icon: Lock, label: 'Exclusive drops' },
+  { Icon: Video, label: 'Live & 1:1' },
+  { Icon: Heart, label: 'Support creators' },
+] as const;
 
-const inputCls =
-  'h-12 pl-10 border-zinc-700 bg-zinc-800/60 text-sm focus:border-purple-500 focus:bg-zinc-800 text-white';
-const primaryBtn = 'h-12 w-full rounded-full bg-purple-600 font-bold text-white hover:bg-purple-500 mt-2';
+const labelCls = 'text-xs font-semibold uppercase tracking-wider text-muted-foreground';
+const inputCls = 'h-12 pl-10 bg-muted/40 text-sm focus-visible:ring-purple-500';
+const iconCls = 'absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none';
+const primaryBtn =
+  'mt-2 flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-500 text-sm font-bold text-white shadow-lg shadow-purple-500/25 transition hover:opacity-95 active:scale-[0.99] disabled:opacity-50 disabled:shadow-none';
 
-/** API errors arrive flat as "AUTH_029 - 401 - Incorrect username or PIN": show only the text. */
+/** API errors arrive flat as "AUTH_003 - 401 - Invalid Google token": show only the text. */
 function errMsg(err: unknown, fallback: string): string {
   const e = err as { message?: string; response?: { data?: { message?: string; error?: { message?: string } } } };
   const flat = e?.response?.data?.message;
@@ -58,21 +55,20 @@ function errMsg(err: unknown, fallback: string): string {
   return e?.response?.data?.error?.message || (e?.response ? fallback : e?.message || fallback);
 }
 
-export function SignupModal({
-  open,
-  onClose,
-  initialView = 'start',
-  redirectOnSuccess = '/creators',
-}: SignupModalProps) {
+export interface SignupPanelProps {
+  initialView?: ModalView;
+  redirectOnSuccess?: string;
+  /** Shows a close button; also called after a successful login. */
+  onClose?: () => void;
+}
+
+export function SignupPanel({ initialView = 'start', redirectOnSuccess = '/creators', onClose }: SignupPanelProps) {
   const router = useRouter();
   const { login } = useAuthContext();
 
   const [view, setView] = useState<ModalView>(initialView);
   const [busy, setBusy] = useState(false);
 
-  const [username, setUsername] = useState('');
-  const [pin, setPin] = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [city, setCity] = useState('');
@@ -80,39 +76,20 @@ export function SignupModal({
   const [gender, setGender] = useState<GenderOption | ''>('');
   const [pendingTokens, setPendingTokens] = useState<Tokens | null>(null);
 
-  // Warm the Google sign-in SDK while the modal is open (see preloadGoogleSignIn).
-  useEffect(() => {
-    if (open) preloadGoogleSignIn();
-  }, [open]);
-
-  useEffect(() => {
-    if (open) return;
-    setView(initialView);
-    setBusy(false);
-    setUsername('');
-    setPin('');
-    setConfirmPin('');
-    setName('');
-    setMobile('');
-    setCity('');
-    setDob('');
-    setGender('');
-    setPendingTokens(null);
-  }, [open, initialView]);
-
-  if (!open || typeof document === 'undefined') return null;
+  // Warm the Google sign-in SDK so the popup opens right on tap (see preloadGoogleSignIn).
+  useEffect(preloadGoogleSignIn, []);
 
   const dobLimits = dobBounds();
 
   const finishLogin = (userData: User, tokens: Tokens, msg: string) => {
     login(tokens, userData);
     toast.success(msg);
-    onClose();
+    onClose?.();
     if (redirectOnSuccess) router.push(redirectOnSuccess);
   };
 
-  /** Shared by PIN login, sign up and Google: store tokens, then finish or ask for missing details. */
-  const afterAuth = async (tokenData: VerifyOTPResponse) => {
+  /** After Google: store tokens, then finish or ask for missing details. */
+  const afterAuth = async (tokenData: AuthTokens) => {
     const tokens: Tokens = {
       access_token: tokenData.access_token,
       refresh_token: tokenData.refresh_token,
@@ -128,73 +105,12 @@ export function SignupModal({
       return;
     }
     setPendingTokens(tokens);
-    setName(me.name || name);
+    setName(me.name || '');
     setMobile(me.mobile ? me.mobile.replace(/\D/g, '').slice(-10) : '');
     setCity(me.city || '');
     setDob(me.date_of_birth || '');
     setGender((me.gender as GenderOption) || '');
     setView('complete_profile');
-  };
-
-  // ── Step 1: username decides login vs sign up ──────────────────────────────
-  const handleUsernameNext = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const u = username.trim();
-    if (!u) {
-      toast.error('Username is required');
-      return;
-    }
-    setBusy(true);
-    try {
-      const res = await authService.identify(u);
-      if (res.exists) {
-        setView('login_pin');
-      } else {
-        const formatError = check.username(u);
-        if (formatError) {
-          toast.error(formatError);
-          return;
-        }
-        setView('signup');
-      }
-    } catch (err) {
-      toast.error(errMsg(err, 'Unable to check username. Please try again.'));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleLogin = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setBusy(true);
-    try {
-      await afterAuth(await authService.login(username.trim(), pin));
-    } catch (err) {
-      setPin('');
-      toast.error(errMsg(err, 'Incorrect username or PIN'));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleSignup = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const formError =
-      check.name(name, 'Full name') ||
-      (pin.length !== PIN_LEN ? `PIN must be exactly ${PIN_LEN} digits` : null) ||
-      (pin !== confirmPin ? 'PINs do not match' : null);
-    if (formError) {
-      toast.error(formError);
-      return;
-    }
-    setBusy(true);
-    try {
-      await afterAuth(await authService.signup({ username: username.trim(), pin, name: name.trim() }));
-    } catch (err) {
-      toast.error(errMsg(err, 'Sign up failed. Please try again.'));
-    } finally {
-      setBusy(false);
-    }
   };
 
   const handleGoogle = async () => {
@@ -249,359 +165,233 @@ export function SignupModal({
     }
   };
 
-  const headers: Record<ModalView, { title: string; subtitle: string }> = {
-    start: { title: 'Welcome to Zexy', subtitle: 'Log in or create an account' },
-    login_pin: { title: 'Welcome back', subtitle: `Enter your 4-digit PIN for @${username.trim()}` },
-    signup: { title: 'Create your account', subtitle: `@${username.trim()} is available` },
-    complete_profile: { title: 'Complete Your Profile', subtitle: 'Please provide the mandatory details to access Zexy' },
-  };
-  const { title, subtitle } = headers[view];
-  const showBack = view === 'login_pin' || view === 'signup';
+  return (
+    <div className="relative w-full overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-2xl shadow-purple-500/10 dark:shadow-black/50">
+      {/* Brand glow + hairline */}
+      <div aria-hidden className="pointer-events-none absolute -top-24 left-1/2 h-48 w-80 -translate-x-1/2 rounded-full bg-purple-500/20 blur-3xl dark:bg-purple-600/30" />
+      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
 
-  const spinner = (label: string) => (
-    <>
-      <Loader2 className="mr-2 size-4 animate-spin" /> {label}
-    </>
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-3 top-3 z-10 grid size-9 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+        >
+          <X className="size-4" />
+        </button>
+      )}
+
+      <div className="relative p-6 sm:p-8">
+        {view === 'start' ? (
+          <>
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-5 grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-purple-500/15 to-pink-500/15 ring-1 ring-purple-500/20">
+                <Image src="/zexy_z_letter_logo_nobg.png" alt="Zexy" width={40} height={40} className="size-10 object-contain" priority />
+              </div>
+              <h2 className="text-2xl font-black tracking-tight">
+                Get closer to the{' '}
+                <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">creators you love</span>
+              </h2>
+              <p className="mt-2 max-w-[300px] text-sm text-muted-foreground">
+                Exclusive posts, live sessions and 1:1 chats, all in one place.
+              </p>
+            </div>
+
+            <ul className="mt-6 grid grid-cols-3 gap-2">
+              {PERKS.map(({ Icon, label }) => (
+                <li
+                  key={label}
+                  className="flex flex-col items-center gap-1.5 rounded-2xl bg-muted/60 px-2 py-3 text-center text-[11px] font-semibold leading-tight"
+                >
+                  <Icon className="size-4 text-purple-500" aria-hidden />
+                  {label}
+                </li>
+              ))}
+            </ul>
+
+            <button
+              type="button"
+              onClick={handleGoogle}
+              disabled={busy}
+              className="mt-6 flex h-12 w-full items-center justify-center gap-3 rounded-full border border-zinc-200 bg-white text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-card active:scale-[0.99] disabled:opacity-60 dark:border-transparent"
+            >
+              {busy ? <Loader2 className="size-5 animate-spin" /> : <GoogleLogo className="size-5" />}
+              {busy ? 'Signing you in…' : 'Continue with Google'}
+            </button>
+
+            <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <ShieldCheck className="size-3.5 text-emerald-500" aria-hidden />
+              No passwords. New here? We&apos;ll create your account.
+            </p>
+
+            <p className="mt-6 text-center text-[11px] text-muted-foreground">
+              By continuing, you agree to Zexy&apos;s{' '}
+              <a href="https://zexy.live/terms-of-service" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-foreground">
+                Terms
+              </a>{' '}
+              and{' '}
+              <a href="https://zexy.live/privacy-policy" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-foreground">
+                Privacy Policy
+              </a>
+              .
+            </p>
+          </>
+        ) : (
+          <form onSubmit={handleCompleteProfile} className="space-y-4">
+            <div className="mb-2 text-center">
+              <span className="inline-block rounded-full bg-purple-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-300">
+                Almost there
+              </span>
+              <h2 className="mt-3 text-xl font-black tracking-tight">Complete your profile</h2>
+              <p className="mt-1 text-sm text-muted-foreground">So creators know who they&apos;re talking to.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="cp-name" className={labelCls}>
+                Full Name <span className="text-purple-500">*</span>
+              </label>
+              <div className="relative">
+                <UserIcon className={iconCls} />
+                <Input
+                  id="cp-name"
+                  placeholder="e.g. Rahul Sharma"
+                  value={name}
+                  onChange={(e) => setName(clean.name(e.target.value))}
+                  autoComplete="name"
+                  maxLength={50}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="cp-mobile" className={labelCls}>
+                Mobile Number <span className="text-purple-500">*</span>
+              </label>
+              <div className="flex gap-2">
+                <div className="flex items-center justify-center rounded-full border border-input bg-muted px-4 text-sm font-semibold text-muted-foreground">
+                  +91
+                </div>
+                <Input
+                  id="cp-mobile"
+                  type="tel"
+                  placeholder="9876543210"
+                  value={mobile}
+                  onChange={(e) => setMobile(clean.mobile(e.target.value))}
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  maxLength={10}
+                  className="h-12 flex-1 bg-muted/40 text-base tracking-wider focus-visible:ring-purple-500"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="cp-city" className={labelCls}>
+                City <span className="text-purple-500">*</span>
+              </label>
+              <div className="relative">
+                <MapPin className={iconCls} />
+                <Input
+                  id="cp-city"
+                  placeholder="e.g. Mumbai, Delhi, Bengaluru"
+                  value={city}
+                  onChange={(e) => setCity(clean.place(e.target.value))}
+                  autoComplete="address-level2"
+                  maxLength={50}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="cp-dob" className={labelCls}>
+                Date of Birth <span className="text-purple-500">*</span>
+              </label>
+              <div className="relative">
+                <Calendar className={iconCls} />
+                <Input
+                  id="cp-dob"
+                  type="date"
+                  value={dob}
+                  min={dobLimits.min}
+                  max={dobLimits.max}
+                  onChange={(e) => setDob(e.target.value)}
+                  className={cn(inputCls, 'block w-full')}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <span className={labelCls}>
+                Gender <span className="text-purple-500">*</span>
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    { id: 'male', label: 'Male', Icon: Mars },
+                    { id: 'female', label: 'Female', Icon: Venus },
+                    { id: 'other', label: 'Other', Icon: Genderless },
+                  ] as const
+                ).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setGender(item.id)}
+                    aria-pressed={gender === item.id}
+                    className={cn(
+                      'flex h-11 items-center justify-center gap-1.5 rounded-full border text-xs font-semibold transition',
+                      gender === item.id
+                        ? 'border-purple-500 bg-purple-500/10 text-purple-600 ring-1 ring-purple-500 dark:text-purple-300'
+                        : 'border-input bg-muted/40 text-foreground/80 hover:bg-muted'
+                    )}
+                  >
+                    <item.Icon className="size-4" aria-hidden />
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className={primaryBtn}
+              disabled={busy || !name.trim() || mobile.length < 10 || !city.trim() || !dob.trim() || !gender}
+            >
+              {busy ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" /> Saving…
+                </>
+              ) : (
+                'Start exploring'
+              )}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
   );
+}
 
+export interface SignupModalProps {
+  open: boolean;
+  onClose: () => void;
+  initialView?: ModalView;
+  redirectOnSuccess?: string;
+}
+
+export function SignupModal({ open, onClose, initialView, redirectOnSuccess }: SignupModalProps) {
+  if (!open || typeof document === 'undefined') return null;
   // Portal to <body>: a parent with backdrop-filter/transform (e.g. the sticky header)
   // would otherwise trap this fixed backdrop inside itself and outside clicks would miss it.
   return createPortal(
     <div
-      className="fixed inset-0 z-[95] flex items-center justify-center bg-black/70 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-[95] flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-md"
       onClick={onClose}
     >
       <div className="w-full max-w-[420px]" onClick={(e) => e.stopPropagation()}>
-        <Card className="border-zinc-800 bg-zinc-900/95 text-white backdrop-blur-xl shadow-2xl overflow-hidden rounded-2xl relative">
-          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#8c3df1] to-transparent" />
-
-          <CardContent className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {showBack && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setPin('');
-                      setConfirmPin('');
-                      setView('start');
-                    }}
-                    className="h-8 w-8 text-zinc-400 hover:text-white -ml-2"
-                    aria-label="Go back"
-                  >
-                    <ArrowLeft className="size-4" />
-                  </Button>
-                )}
-                <Image
-                  src="/zexy_z_letter_logo_nobg.png"
-                  alt="Zexy logo"
-                  width={24}
-                  height={24}
-                  className="size-6 object-contain"
-                />
-                <h3 className="text-lg font-bold tracking-tight text-white">{title}</h3>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={onClose}
-                className="h-8 w-8 text-zinc-400 hover:text-white"
-                aria-label="Close login popup"
-              >
-                <X className="size-4" />
-              </Button>
-            </div>
-
-            {subtitle && <p className="mb-6 text-xs text-zinc-400">{subtitle}</p>}
-
-            {/* ── START: username + Google ─────────────────────────────────── */}
-            {view === 'start' && (
-              <div className="space-y-4">
-                <form onSubmit={handleUsernameNext} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label htmlFor="auth-username" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                      Username
-                    </label>
-                    <div className="relative">
-                      <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
-                      <Input
-                        id="auth-username"
-                        placeholder="your_username"
-                        value={username}
-                        onChange={(e) => setUsername(clean.username(e.target.value))}
-                        autoComplete="username"
-                        autoCapitalize="none"
-                        maxLength={30}
-                        disabled={busy}
-                        className={inputCls}
-                        autoFocus
-                      />
-                    </div>
-                  </div>
-                  <Button type="submit" className={primaryBtn} disabled={busy || !username.trim()}>
-                    {busy ? spinner('Checking…') : 'Continue'}
-                  </Button>
-                </form>
-
-                <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-zinc-800" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">or</span>
-                  <div className="h-px flex-1 bg-zinc-800" />
-                </div>
-
-                <Button
-                  type="button"
-                  onClick={handleGoogle}
-                  disabled={busy}
-                  className="h-12 w-full rounded-full bg-white text-zinc-900 hover:bg-zinc-100 font-bold flex items-center justify-center gap-2"
-                >
-                  <Google className="size-4 shrink-0 text-[#4285F4]" />
-                  <span>Continue with Google</span>
-                </Button>
-
-                <div className="pt-1 text-center text-[11px] text-zinc-500">
-                  By continuing, you agree to Zexy&apos;s{' '}
-                  <a href="https://zexy.live/terms-of-service" target="_blank" rel="noreferrer" className="text-zinc-400 underline hover:text-white">
-                    Terms
-                  </a>{' '}
-                  and{' '}
-                  <a href="https://zexy.live/privacy-policy" target="_blank" rel="noreferrer" className="text-zinc-400 underline hover:text-white">
-                    Privacy Policy
-                  </a>
-                  .
-                </div>
-              </div>
-            )}
-
-            {/* ── LOGIN: 4-digit PIN ──────────────────────────────────────────── */}
-            {view === 'login_pin' && (
-              <form onSubmit={handleLogin} className="space-y-4">
-                <input type="hidden" name="username" autoComplete="username" value={username} readOnly />
-                <div className="space-y-1.5">
-                  <label htmlFor="auth-pin" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                    4-Digit PIN
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
-                    <Input
-                      id="auth-pin"
-                      type="password"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                      inputMode="numeric"
-                      maxLength={4}
-                      autoComplete="current-password"
-                      disabled={busy}
-                      className={inputCls}
-                      autoFocus
-                    />
-                  </div>
-                </div>
-                <Button type="submit" className={primaryBtn} disabled={busy || pin.length !== PIN_LEN}>
-                  {busy ? spinner('Logging in…') : 'Log In'}
-                </Button>
-              </form>
-            )}
-
-            {/* ── SIGN UP: name + 4-digit PIN ─────────────────────────────────── */}
-            {view === 'signup' && (
-              <form onSubmit={handleSignup} className="space-y-4">
-                <input type="hidden" name="username" autoComplete="username" value={username} readOnly />
-                <div className="space-y-1.5">
-                  <label htmlFor="auth-name" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                    Full Name <span className="text-purple-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
-                    <Input
-                      id="auth-name"
-                      placeholder="e.g. Rahul Sharma"
-                      value={name}
-                      onChange={(e) => setName(clean.name(e.target.value))}
-                      autoComplete="name"
-                      maxLength={50}
-                      disabled={busy}
-                      className={inputCls}
-                      autoFocus
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="auth-new-pin" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                    Create 4-Digit PIN <span className="text-purple-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
-                    <Input
-                      id="auth-new-pin"
-                      type="password"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                      inputMode="numeric"
-                      maxLength={4}
-                      autoComplete="new-password"
-                      disabled={busy}
-                      className={inputCls}
-                    />
-                  </div>
-                  <p className="text-[11px] text-zinc-500">Exactly {PIN_LEN} digits. You&apos;ll use it to log in.</p>
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="auth-confirm-pin" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                    Confirm PIN <span className="text-purple-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
-                    <Input
-                      id="auth-confirm-pin"
-                      type="password"
-                      value={confirmPin}
-                      onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                      inputMode="numeric"
-                      maxLength={4}
-                      autoComplete="new-password"
-                      disabled={busy}
-                      className={inputCls}
-                    />
-                  </div>
-                  {confirmPin && pin !== confirmPin && (
-                    <p className="text-[11px] text-red-400">PINs do not match</p>
-                  )}
-                </div>
-                <Button
-                  type="submit"
-                  className={primaryBtn}
-                  disabled={busy || !name.trim() || pin.length !== PIN_LEN || pin !== confirmPin}
-                >
-                  {busy ? spinner('Creating account…') : 'Create Account'}
-                </Button>
-              </form>
-            )}
-
-            {/* ── COMPLETE PROFILE ─────────────────────────────────────────── */}
-            {view === 'complete_profile' && (
-              <form onSubmit={handleCompleteProfile} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="cp-name" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                    Full Name <span className="text-purple-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
-                    <Input
-                      id="cp-name"
-                      value={name}
-                      onChange={(e) => setName(clean.name(e.target.value))}
-                      autoComplete="name"
-                      maxLength={50}
-                      className={inputCls}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="cp-mobile" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                    Mobile Number <span className="text-purple-400">*</span>
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="flex items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/80 px-3.5 text-sm font-semibold text-zinc-300">
-                      +91
-                    </div>
-                    <Input
-                      id="cp-mobile"
-                      type="tel"
-                      placeholder="9876543210"
-                      value={mobile}
-                      onChange={(e) => setMobile(clean.mobile(e.target.value))}
-                      inputMode="numeric"
-                      autoComplete="tel-national"
-                      maxLength={10}
-                      className="h-12 flex-1 border-zinc-700 bg-zinc-800/60 text-base tracking-wider focus:border-purple-500 focus:bg-zinc-800 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="cp-city" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                    City <span className="text-purple-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
-                    <Input
-                      id="cp-city"
-                      placeholder="e.g. Mumbai, Delhi, Bengaluru"
-                      value={city}
-                      onChange={(e) => setCity(clean.place(e.target.value))}
-                      autoComplete="address-level2"
-                      maxLength={50}
-                      className={inputCls}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="cp-dob" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                    Date of Birth (DOB) <span className="text-purple-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
-                    <Input
-                      id="cp-dob"
-                      type="date"
-                      value={dob}
-                      min={dobLimits.min}
-                      max={dobLimits.max}
-                      onChange={(e) => setDob(e.target.value)}
-                      className={cn(inputCls, 'block w-full')}
-                      style={{ colorScheme: 'dark' }}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                    Gender <span className="text-purple-400">*</span>
-                  </span>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(
-                      [
-                        { id: 'male', label: 'Male', Icon: Mars },
-                        { id: 'female', label: 'Female', Icon: Venus },
-                        { id: 'other', label: 'Other', Icon: Genderless },
-                      ] as const
-                    ).map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setGender(item.id)}
-                        aria-pressed={gender === item.id}
-                        className={cn(
-                          'h-11 rounded-full border border-zinc-700 bg-zinc-800/50 flex items-center justify-center gap-1.5 text-xs font-semibold',
-                          gender === item.id
-                            ? 'border-purple-500 bg-purple-600/20 text-purple-300 ring-1 ring-purple-500'
-                            : 'text-zinc-300 hover:bg-zinc-800'
-                        )}
-                      >
-                        <item.Icon className="size-4" aria-hidden />
-                        <span>{item.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  className={primaryBtn}
-                  disabled={busy || !name.trim() || mobile.length < 10 || !city.trim() || !dob.trim() || !gender}
-                >
-                  {busy ? spinner('Saving…') : 'Complete Registration & Log In'}
-                </Button>
-              </form>
-            )}
-          </CardContent>
-        </Card>
+        <SignupPanel initialView={initialView} redirectOnSuccess={redirectOnSuccess} onClose={onClose} />
       </div>
     </div>,
     document.body

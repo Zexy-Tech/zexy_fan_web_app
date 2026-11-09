@@ -3,7 +3,7 @@
 import React from 'react';
 import { useActivity } from '@/hooks/useActivity';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, CreditCard, Lock, Package, MessageSquare, Heart, Shield, LogIn, Key, Mail, LogOut } from '@/components/ui/icons';
+import { Loader2, CreditCard, Lock, Package, MessageSquare, Heart, Shield, LogIn, Mail, LogOut } from '@/components/ui/icons';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -14,8 +14,6 @@ const EVENT_CONFIG: Record<string, { icon: React.ElementType, label: string, col
   message_paid: { icon: MessageSquare, label: 'Paid DM', color: 'text-blue-400' },
   tip_received: { icon: Heart, label: 'Tip Sent', color: 'text-red-400' },
   login_success: { icon: LogIn, label: 'Login', color: 'text-green-400' },
-  pin_setup: { icon: Shield, label: 'Security', color: 'text-green-400' },
-  pin_changed: { icon: Key, label: 'Security', color: 'text-purple-400' },
   otp_sent: { icon: Mail, label: 'OTP Sent', color: 'text-blue-400' },
   session_revoked: { icon: LogOut, label: 'Logout', color: 'text-zinc-400' },
 };

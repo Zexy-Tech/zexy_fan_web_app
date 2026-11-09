@@ -7,9 +7,7 @@ import { AlertTriangle, ArrowLeft, Loader2, Trash2 } from '@/components/ui/icons
 import { toast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { LoginVerificationPopup } from '@/components/auth/login-verification-popup';
 import { useAuthContext, useDeleteAccount } from '@/hooks/useAuth';
-import { useFanCommonProfile } from '@/hooks/useFanCommonProfile';
 
 function getAxiosErrorMessage(error: unknown, fallback: string): string {
   if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -27,7 +25,6 @@ function getAxiosErrorMessage(error: unknown, fallback: string): string {
 
 export default function DeleteAccountPage() {
   const router = useRouter();
-  const [verificationOpen, setVerificationOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deletionSuccess, setDeletionSuccess] = useState<{
     open: boolean;
@@ -35,23 +32,15 @@ export default function DeleteAccountPage() {
     scheduled_deletion_date?: string;
   } | null>(null);
 
-  const { user, logout } = useAuthContext();
-  const { data: profile } = useFanCommonProfile();
+  const { logout } = useAuthContext();
   const deleteAccount = useDeleteAccount();
 
-  const prefilledMobile = profile?.mobile ?? user?.mobile ?? null;
-
-  const handleVerified = async ({
-    otp,
-    token,
-  }: {
-    mobile: string;
-    otp: string;
-    token?: string;
-  }) => {
+  // Signed in with Google, so no PIN/OTP re-check: a clear confirmation is enough.
+  const handleDelete = async () => {
+    if (!window.confirm('Permanently delete your account? This cannot be undone.')) return;
     setIsDeleting(true);
     try {
-      const response = await deleteAccount.mutateAsync({ otp, token });
+      const response = await deleteAccount.mutateAsync(undefined);
 
       const dateStr = response?.scheduled_deletion_date
         ? new Date(response.scheduled_deletion_date).toLocaleDateString(undefined, {
@@ -74,7 +63,6 @@ export default function DeleteAccountPage() {
     } catch (err: unknown) {
       const msg = getAxiosErrorMessage(err, 'Failed to process account deletion.');
       toast.error(msg);
-      throw err;
     } finally {
       setIsDeleting(false);
     }
@@ -134,7 +122,7 @@ export default function DeleteAccountPage() {
           type="button"
           variant="destructive"
           className="w-full h-12 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/20"
-          onClick={() => setVerificationOpen(true)}
+          onClick={handleDelete}
           disabled={isDeleting || deleteAccount.isPending}
         >
           {isDeleting || deleteAccount.isPending ? (
@@ -150,17 +138,6 @@ export default function DeleteAccountPage() {
           )}
         </Button>
       </div>
-
-      {/* Verification Popup */}
-      <LoginVerificationPopup
-        open={verificationOpen}
-        onClose={() => setVerificationOpen(false)}
-        onVerified={handleVerified}
-        title="Verify Mobile"
-        description="Enter your mobile number to receive a verification code."
-        prefilledMobile={prefilledMobile}
-        allowEditMobile={true}
-      />
 
       {/* Post-Deletion Confirmation Popup with OK Button */}
       {deletionSuccess?.open && (

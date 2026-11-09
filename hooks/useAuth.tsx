@@ -3,8 +3,7 @@
 import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
-import { authService, type User, type SendOTPRequest, type VerifyOTPRequest, SetupPINRequest, LoginPINRequest, PINResetInitiateRequest, PINResetConfirmRequest } from '@/services/auth';
-import { apiClient } from '@/lib/axios';
+import { authService, type User } from '@/services/auth';
 import { queryClient } from '@/lib/queryClient';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setAuth, clearAuth, setLoading } from '@/store/slices/authSlice';
@@ -145,62 +144,6 @@ export function useAuthContext() {
 // ============================================================================
 // HOOKS
 // ============================================================================
-
-export function useSendOTP() {
-  return useMutation({
-    mutationFn: (data: SendOTPRequest) => authService.sendOTP(data),
-  });
-}
-
-export function useSetupPIN() {
-  return useMutation({
-    mutationFn: (data: SetupPINRequest) => authService.setupPIN(data),
-  });
-}
-
-export function useInitiatePINReset() {
-  return useMutation({
-    mutationFn: (data: PINResetInitiateRequest) => authService.initiatePINReset(data),
-  });
-}
-
-export function useConfirmPINReset() {
-  return useMutation({
-    mutationFn: (data: PINResetConfirmRequest) => authService.confirmPINReset(data),
-  });
-}
-
-/** Verify OTP only — saves new tokens to localStorage and axios defaults so following requests stay authenticated. */
-export function useVerifyOTPOnly() {
-  return useMutation({
-    mutationFn: async (data: VerifyOTPRequest) => {
-      const response = await authService.verifyOTP(data);
-      if (response?.access_token) {
-        localStorage.setItem('auth_token', response.access_token);
-        if (response.refresh_token) localStorage.setItem('refresh_token', response.refresh_token);
-        if (response.session_token) localStorage.setItem('session_token', response.session_token);
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.access_token}`;
-      }
-      return response;
-    },
-  });
-}
-
-/** Verify PIN only — saves new tokens to localStorage and axios defaults so following requests stay authenticated. */
-export function useVerifyPINOnly() {
-  return useMutation({
-    mutationFn: async (data: LoginPINRequest) => {
-      const response = await authService.loginWithPIN(data);
-      if (response?.access_token) {
-        localStorage.setItem('auth_token', response.access_token);
-        if (response.refresh_token) localStorage.setItem('refresh_token', response.refresh_token);
-        if (response.session_token) localStorage.setItem('session_token', response.session_token);
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.access_token}`;
-      }
-      return response;
-    },
-  });
-}
 
 export function useDeleteAccount() {
   return useMutation({

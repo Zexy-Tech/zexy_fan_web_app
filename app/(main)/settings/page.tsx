@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useSetupPIN } from '@/hooks/useAuth';
 import { useTypography } from '@/hooks/useTypography';
 import { useTheme } from '@/hooks/useTheme';
 import {
@@ -10,14 +8,11 @@ import {
   usePushNotificationSetup,
 } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/lib/toast';
 import {
   Loader2,
   ChevronRight,
-  KeyRound,
-  ArrowLeft,
   Type,
   Bell,
   Smartphone,
@@ -40,13 +35,6 @@ import type { IconComponent } from '@/components/ui/icons';
 export default function SettingsPage() {
   const { fontSize, setFontSize } = useTypography();
   const { theme, setTheme } = useTheme();
-  const [isChangingPIN, setIsChangingPIN] = useState(false);
-  const [step, setStep] = useState<'new' | 'confirm'>('new');
-  const [newPIN, setNewPIN] = useState(['', '', '', '']);
-  const [confirmPIN, setConfirmPIN] = useState(['', '', '', '']);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  const setupPIN = useSetupPIN();
 
   const themeOptions = [
     {
@@ -83,122 +71,6 @@ export default function SettingsPage() {
 
   const hasActiveDevices = devices.length > 0;
   const isPushActive = permission === 'granted' && (preferences?.push_enabled ?? true) && hasActiveDevices;
-
-  const handleDigitChange = (value: string, index: number) => {
-    const digit = value.replace(/\D/g, '').slice(-1);
-    if (!digit && value !== '') return;
-
-    const target = step === 'new' ? newPIN : confirmPIN;
-    const setter = step === 'new' ? setNewPIN : setConfirmPIN;
-    
-    const newDigits = [...target];
-    newDigits[index] = digit;
-    setter(newDigits);
-
-    if (digit && index < 3) {
-      inputRefs.current[index + 1]?.focus();
-    }
-
-    if (newDigits.every(d => d !== '') && digit) {
-      if (step === 'new') {
-        setTimeout(() => {
-          setStep('confirm');
-          inputRefs.current[0]?.focus();
-        }, 300);
-      } else {
-        void handleFinish();
-      }
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    const target = step === 'new' ? newPIN : confirmPIN;
-    if (e.key === 'Backspace' && !target[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleFinish = async () => {
-    const pinCode = newPIN.join('');
-    const confirmCode = confirmPIN.join('');
-
-    if (pinCode !== confirmCode) {
-      toast.error('PINs do not match');
-      setConfirmPIN(['', '', '', '']);
-      inputRefs.current[0]?.focus();
-      return;
-    }
-
-    try {
-      await setupPIN.mutateAsync({ pin: pinCode });
-      toast.success('PIN updated successfully!');
-      setIsChangingPIN(false);
-      setNewPIN(['', '', '', '']);
-      setConfirmPIN(['', '', '', '']);
-      setStep('new');
-    } catch (error: unknown) {
-      const errorMessage = (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to update PIN';
-      toast.error(errorMessage);
-    }
-  };
-
-  if (isChangingPIN) {
-    return (
-      <div className="space-y-6 px-4 py-6 bg-background min-h-screen text-foreground">
-        <div className="flex items-center gap-3">
-          <button 
-            type="button"
-            onClick={() => { setIsChangingPIN(false); setStep('new'); }}
-            className="p-2 -ml-2 text-muted-foreground hover:text-foreground"
-            aria-label="Back to settings"
-          >
-            <ArrowLeft className="size-5" />
-          </button>
-          <h1 className="text-lg font-semibold">{step === 'new' ? 'Set New PIN' : 'Confirm New PIN'}</h1>
-        </div>
-
-        <Card className="border-border bg-card shadow-sm">
-          <CardContent className="pt-8 pb-10 flex flex-col items-center">
-            <div className="flex justify-between gap-3 w-full max-w-[280px]">
-              {(step === 'new' ? newPIN : confirmPIN).map((digit, index) => (
-                <input
-                  key={`pin-input-${index}`}
-                  ref={(el) => { inputRefs.current[index] = el; }}
-                  type="password"
-                  inputMode="numeric"
-                  value={digit}
-                  onChange={(e) => handleDigitChange(e.target.value, index)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  aria-label={`Digit ${index + 1}`}
-                  className={cn(
-                    "w-full h-14 bg-muted border border-input rounded-full text-center text-lg font-bold text-foreground focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none",
-                    digit && "border-purple-500 bg-purple-500/10"
-                  )}
-                  disabled={setupPIN.isPending}
-                  maxLength={1}
-                />
-              ))}
-            </div>
-
-            <p className="mt-8 text-sm text-muted-foreground text-center max-w-[240px]">
-              {step === 'new' 
-                ? 'Enter a 4-digit PIN for your account.' 
-                : 'Re-enter your new PIN to confirm.'}
-            </p>
-
-            <Button 
-              type="button"
-              onClick={step === 'new' ? () => newPIN.join('').length === 4 && setStep('confirm') : handleFinish}
-              className="mt-8 w-full max-w-[280px] h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-full"
-              disabled={setupPIN.isPending || (step === 'new' ? newPIN.join('').length < 4 : confirmPIN.join('').length < 4)}
-            >
-              {setupPIN.isPending ? <Loader2 className="size-5 animate-spin" /> : step === 'new' ? 'Continue' : 'Update PIN'}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 px-4 py-6 bg-background min-h-screen text-foreground">
@@ -326,10 +198,6 @@ export default function SettingsPage() {
               );
             })
           )}
-        </SettingsSection>
-
-        <SettingsSection title="Security">
-          <SettingRow icon={KeyRound} tone="bg-purple-500/10 text-purple-500" title="Change login PIN" onClick={() => setIsChangingPIN(true)} />
         </SettingsSection>
 
       </div>
